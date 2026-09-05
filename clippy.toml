@@ -1,0 +1,4 @@
+disallowed-types = []
+disallowed-macros = [
+    { path = "core::ptr::addr_of_mut", reason = "use `&raw mut` instead" },
+]

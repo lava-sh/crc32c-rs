@@ -1,0 +1,13 @@
+[environment]
+root = [".", "py-src"]
+python-version = "3.11"
+
+[src]
+include = [
+    "py-src/**/*.py",
+    "py-src/**/*.pyi",
+    "tests/*.py",
+]
+exclude = [
+    "tests/test_wasm.py",
+]
