@@ -44,7 +44,7 @@ Issues = "https://github.com/lava-sh/crc32c-rs/issues"
 [dependency-groups]
 typos = ["typos == 1.50.1"]
 zizmor = ["zizmor == 1.30.0"]
-rumdl = ["rumdl == 0.2.65"]
+rumdl = ["rumdl == 0.2.66"]
 maturin = [
     "maturin == 1.15.0 ; sys_platform != 'linux'",
     "maturin[patchelf] == 1.15.0 ; sys_platform == 'linux'",
