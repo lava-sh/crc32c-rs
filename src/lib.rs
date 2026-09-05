@@ -20,7 +20,7 @@ mod crc32c_rs {
     const GIL_MINSIZE: usize = 32 * 1024; // 32 KB
 
     #[pymodule_export]
-    #[allow(non_upper_case_globals, clippy::allow_attributes)]
+    #[allow(non_upper_case_globals)]
     const __version__: &str = env!("CARGO_PKG_VERSION");
 
     #[pymodule_export]

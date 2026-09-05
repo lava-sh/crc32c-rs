@@ -1,3 +1,5 @@
+#![allow(clippy::wildcard_imports)]
+
 #[cfg(target_arch = "x86")]
 use std::arch::x86::*;
 #[cfg(target_arch = "x86_64")]
@@ -133,8 +135,6 @@ pub unsafe fn crc32c(mut crc0: u32, mut buf: *const u8, mut len: usize) -> u32 {
         let mut y4;
         let mut y5;
         let mut y6;
-        let vc0;
-        let vc1;
         let mut vc;
 
         // First vector chunk.
@@ -255,8 +255,8 @@ pub unsafe fn crc32c(mut crc0: u32, mut buf: *const u8, mut len: usize) -> u32 {
             buf.add(klen * 2 + 16).cast::<u64>().read_unaligned()
         });
         buf = unsafe { buf.add(24) };
-        vc0 = crc_shift(crc0, klen * 2 + 8);
-        vc1 = crc_shift(crc1, klen + 8);
+        let vc0 = crc_shift(crc0, klen * 2 + 8);
+        let vc1 = crc_shift(crc1, klen + 8);
         vc = extract_u64(_mm_xor_si128(vc0, vc1), 0);
         // Reduce 128 bits to 32 bits, and multiply by x^32.
         vc ^= extract_u64(

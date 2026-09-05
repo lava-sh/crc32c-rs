@@ -1,3 +1,5 @@
+#![allow(clippy::wildcard_imports)]
+
 #[cfg(target_arch = "x86")]
 use std::arch::x86::*;
 #[cfg(target_arch = "x86_64")]
@@ -215,9 +217,6 @@ pub unsafe fn crc32c(mut crc0: u32, mut buf: *const u8, mut len: usize) -> u32 {
         let klen = ((len - 8) / 24) * 8;
         let mut crc1 = 0u32;
         let mut crc2 = 0u32;
-        let vc0;
-        let vc1;
-        let vc;
         loop {
             crc0 = crc32_u64(crc0, unsafe { buf.cast::<u64>().read_unaligned() });
             crc1 = crc32_u64(crc1, unsafe {
@@ -232,9 +231,9 @@ pub unsafe fn crc32c(mut crc0: u32, mut buf: *const u8, mut len: usize) -> u32 {
                 break;
             }
         }
-        vc0 = crc_shift(crc0, klen * 2 + 8);
-        vc1 = crc_shift(crc1, klen + 8);
-        vc = extract_u64(_mm_xor_si128(vc0, vc1), 0);
+        let vc0 = crc_shift(crc0, klen * 2 + 8);
+        let vc1 = crc_shift(crc1, klen + 8);
+        let vc = extract_u64(_mm_xor_si128(vc0, vc1), 0);
         buf = unsafe { buf.add(klen * 2) };
         crc0 = crc2;
         crc0 = crc32_u64(crc0, unsafe { buf.cast::<u64>().read_unaligned() } ^ vc);
