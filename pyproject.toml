@@ -10,7 +10,7 @@ module-name = "crc32c_rs._crc32c_rs"
 name = "crc32c-rs"
 dynamic = ["version"]
 requires-python = ">= 3.11"
-description = "Description"
+description = "High-performance CRC32C implementation compliant with RFC 3720 (iSCSI)"
 readme = { file = "README.md", content-type = "text/markdown" }
 license = "Unlicense"
 license-files = ["UNLICENSE"]
