@@ -1,15 +1,15 @@
-<!-- rumdl-disable MD036 MD041-->
+<!-- rumdl-disable MD036-->
 <div align="center">
 
 # crc32c-rs
 
 _High-performance CRC32C implementation compliant with RFC 3720 (iSCSI)_
-<!-- rumdl-enable MD036 MD041-->
+<!-- rumdl-enable MD036-->
 
 [![PyPI version](https://shieldcn.dev/badge/dynamic/json.svg?url=https%3A%2F%2Fpypi.org%2Fpypi%2Fcrc32c-rs%2Fjson&query=%24.info.version&variant=branded&size=xs&mode=light&logo=python&label=pypi+version)](https://pypi.org/project/crc32c-rs)
 [![PyPI downloads](https://shieldcn.dev/pypi/dm/crc32c-rs.svg?variant=branded&size=xs&logo=python&logoColor=ffffff)](https://pypistats.org/packages/crc32c-rs)
-[![PyPI requires python](https://shieldcn.dev/pypi/python/crc32c-rs.svg?variant=branded&size=xs&logo=python&logoColor=ffffff&label=requires+python)](https://pypi.org/project/crc32c-rs)
-[![PyPI licence](https://shieldcn.dev/badge/dynamic/json.svg?url=https%3A%2F%2Fpypi.org%2Fpypi%2Fcrc32c-rs%2Fjson&query=%24.info.license_expression&variant=branded&size=xs&mode=light&logo=python&logoColor=ffffff&label=license)](https://pypi.org/project/crc32c-rs)
+[![PyPI requires Python](https://shieldcn.dev/pypi/python/crc32c-rs.svg?variant=branded&size=xs&logo=python&logoColor=ffffff&label=requires+python)](https://pypi.org/project/crc32c-rs)
+[![PyPI license](https://shieldcn.dev/badge/dynamic/json.svg?url=https%3A%2F%2Fpypi.org%2Fpypi%2Fcrc32c-rs%2Fjson&query=%24.info.license_expression&variant=branded&size=xs&mode=light&logo=python&logoColor=ffffff&label=license)](https://pypi.org/project/crc32c-rs)
 
 <a href="https://github.com/lava-sh/crc32c-rs/actions?query=branch%3Amain"><picture><source media="(prefers-color-scheme: dark)" srcset="https://shieldcn.dev/github/ci/lava-sh/crc32c-rs.svg?workflow=ci.yaml&branch=main&variant=outline&size=xs&animate=pulse&logo=github&label=CI&mode=dark"><img alt="CI" src="https://shieldcn.dev/github/ci/lava-sh/crc32c-rs.svg?workflow=ci.yaml&branch=main&variant=outline&size=xs&animate=pulse&mode=light&theme=zinc&logo=github&label=CI"></picture></a>
 <a href="https://github.com/lava-sh/crc32c-rs/commits/main"><picture><source media="(prefers-color-scheme: dark)" srcset="https://shieldcn.dev/github/last-commit/lava-sh/crc32c-rs.svg?variant=outline&font=geist&size=xs&logo=github&mode=dark"><img alt="Last Commit" src="https://shieldcn.dev/github/last-commit/lava-sh/crc32c-rs.svg?variant=outline&font=geist&size=xs&mode=light&theme=zinc&logo=github"></picture></a>
@@ -21,7 +21,16 @@ _High-performance CRC32C implementation compliant with RFC 3720 (iSCSI)_
 
 ## Features
 
-* Something
+- High-performance CRC32C implementation written in Rust
+
+- Runtime dispatch to the fastest available implementation:
+  - x86/x86_64: `SSE4.2 + PCLMULQDQ`, `AVX-512VL + PCLMULQDQ`, or
+    `AVX-512F + AVX-512VL + VPCLMULQDQ`
+
+  - AArch64/ARM64EC: `CRC + AES`, with an optimized `SHA3` variant when
+    available
+
+  - Other platforms: a portable fallback implementation
 
 ## Installation
 
