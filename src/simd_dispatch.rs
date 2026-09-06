@@ -1,7 +1,11 @@
-#![allow(dead_code)]
-
 use core::sync::atomic::{AtomicUsize, Ordering};
 
+#[cfg(any(
+    target_arch = "x86",
+    target_arch = "x86_64",
+    target_arch = "aarch64",
+    target_arch = "arm64ec",
+))]
 macro_rules! detect_features {
     (x86, [$($feat:tt),+ $(,)?]) => {{
         #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
