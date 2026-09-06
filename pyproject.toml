@@ -61,6 +61,8 @@ tests = [
     { include-group = "pytest" },
     # `collections.abc.Buffer` added in version 3.12.
     "typing-extensions == 4.16.0 ; python_version < '3.12'",
+    "archspec == 0.2.6",
+    "pytest-check == 2.9.1",
 ]
 wasm-tests = [
     "pytest-pyodide == 0.59.2",

@@ -1,9 +1,10 @@
 import array
 
 import pytest
-from crc32c_rs import crc32c
+import pytest_check
+from crc32c_rs import crc32c_fallback
 
-from .helpers import ReadableBuffer
+from .types import CrcImpl, ReadableBuffer
 
 GIL_MINSIZE = 32 * 1024
 
@@ -17,47 +18,47 @@ GIL_MINSIZE = 32 * 1024
         (memoryview(b"123456789"), 0xE3069283),
         (array.array("B", b"123456789"), 0xE3069283),
     ],
+    ids=["empty", "bytes", "bytearray", "memoryview", "array"],
 )
-def test_crc32c_buffer(data: ReadableBuffer, expected: int) -> None:
-    assert crc32c(data) == expected
+def test_crc32c_buffer(crc_impl: CrcImpl, data: ReadableBuffer, expected: int) -> None:
+    for _, crc in crc_impl:
+        with pytest_check.check:
+            assert crc(data) == expected
 
 
-def test_crc32c_memoryview_slice() -> None:
+def test_crc32c_memoryview_slice(crc_impl: CrcImpl) -> None:
     data = b"a" * 32
-    expected = crc32c(data[10:26])
+    for _, crc in crc_impl:
+        with pytest_check.check:
+            expected = crc(data[10:26])
+            mv = memoryview(data)[10:26]
+            assert crc(mv) == expected
+            assert len(mv) == 16
 
-    mv = memoryview(data)[10:26]
-    assert crc32c(mv) == expected
-    assert len(mv) == 16  # 26 - 10 = 16
 
-
-def test_crc32c_not_a_buffer() -> None:
-    with pytest.raises(TypeError):
-        crc32c(12345)  # ty: ignore[invalid-argument-type]
-
-    with pytest.raises(TypeError):
-        crc32c(None)  # ty: ignore[invalid-argument-type]
-
-    with pytest.raises(TypeError):
-        crc32c({"key": "value"})  # ty: ignore[invalid-argument-type]
+def test_crc32c_not_a_buffer(crc_impl: CrcImpl) -> None:
+    for _, crc in crc_impl:
+        with pytest_check.check, pytest.raises(TypeError):
+            crc(12345)  # type: ignore[arg-type]
+        with pytest_check.check, pytest.raises(TypeError):
+            crc(None)  # type: ignore[arg-type]
+        with pytest_check.check, pytest.raises(TypeError):
+            crc({"key": "value"})  # type: ignore[arg-type]
 
 
 @pytest.mark.parametrize(
     "size",
     [
-        GIL_MINSIZE - 1,   # Just below threshold (no GIL release)
-        GIL_MINSIZE,       # At threshold
-        GIL_MINSIZE + 1,   # Just above threshold (with GIL release)
-        GIL_MINSIZE * 2,   # Well above threshold
+        GIL_MINSIZE - 1,
+        GIL_MINSIZE,
+        GIL_MINSIZE + 1,
+        GIL_MINSIZE * 2,
     ],
-    ids=[
-        "below_gil_minsize",
-        "at_gil_minsize",
-        "above_gil_minsize",
-        "double_gil_minsize",
-    ],
+    ids=["below_gil", "at_gil", "above_gil", "double_gil"],
 )
-def test_crc32c_gil_threshold(size: int) -> None:
+def test_crc32c_gil_threshold(crc_impl: CrcImpl, size: int) -> None:
     data = b"a" * size
-    expected = crc32c(data)
-    assert crc32c(data) == expected
+    expected = crc32c_fallback(data)
+    for _, crc in crc_impl:
+        with pytest_check.check:
+            assert crc(data) == expected

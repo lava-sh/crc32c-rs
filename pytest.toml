@@ -1,0 +1,7 @@
+[pytest]
+# config in toml only since v9.0.0
+minversion = "9.0"
+addopts = []
+log_cli = true
+log_cli_level = "INFO"
+log_cli_format = "%(message)s"
