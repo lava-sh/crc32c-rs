@@ -89,4 +89,4 @@ bench = [
 ]
 
 [tool.uv.dependency-groups]
-wasm-test = { requires-python = ">= 3.13" }
+wasm-tests = { requires-python = ">= 3.13" }
