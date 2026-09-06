@@ -6,9 +6,12 @@ exclude = [
 ]
 include = [
     "README.md",
-    "benchmark/README.md"
+    "benchmark/README.md",
+    "licenses/README.md",
 ]
-disable = []
+disable = [
+    "MD041",
+]
 
 [MD033]
 allowed-elements = [

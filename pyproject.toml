@@ -13,7 +13,14 @@ requires-python = ">= 3.11"
 description = "High-performance CRC32C implementation compliant with RFC 3720 (iSCSI)"
 readme = { file = "README.md", content-type = "text/markdown" }
 license = "Unlicense"
-license-files = ["UNLICENSE"]
+license-files = [
+    "UNLICENSE",
+    "licenses/fast-crc32-LICENSE.MIT.md",
+    "licenses/fast-crc32-LICENSE.zlib.md",
+    "licenses/crc-fast-rust-LICENSE-MIT",
+    "licenses/crc-fast-rust-LICENSE-Zlib",
+    "licenses/crc-fast-rust-LICENSE-Apache",
+]
 authors = [
     { name = "chirizxc", email = "chirizxc@proton.me" }
 ]
