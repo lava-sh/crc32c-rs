@@ -3,7 +3,7 @@
 
 # crc32c-rs
 
-_Description_
+_High-performance CRC32C implementation compliant with RFC 3720 (iSCSI)_
 <!-- rumdl-enable MD036 MD041-->
 
 [![PyPI version](https://shieldcn.dev/badge/dynamic/json.svg?url=https%3A%2F%2Fpypi.org%2Fpypi%2Fcrc32c-rs%2Fjson&query=%24.info.version&variant=branded&size=xs&mode=light&logo=python&label=pypi+version)](https://pypi.org/project/crc32c-rs)
