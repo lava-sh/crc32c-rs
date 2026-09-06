@@ -9,7 +9,8 @@ include = [
     "tests/*.py",
     "pyproject.toml",
     "README.md",
-    "scripts/table.py"
+    "scripts/table.py",
+    ".godbolt/godbolt_links.py",
 ]
 
 [lint.isort]
@@ -41,7 +42,7 @@ ignore = [
 ]
 
 [lint.per-file-ignores]
-"scripts/table.py" = [
+"{scripts/*.py,.godbolt/*.py}" = [
     "INP001", # Check for packages that are missing an `__init__.py` file
     "T201",   # Check for `print` statements
 ]
