@@ -29,7 +29,7 @@ impl PyBuffer {
     }
 
     #[inline]
-    pub fn ptr_len(&self) -> (*const u8, usize) {
+    pub const fn ptr_len(&self) -> (*const u8, usize) {
         (self.0.buf.cast::<u8>(), self.0.len.cast_unsigned())
     }
 }
