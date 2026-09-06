@@ -9,6 +9,7 @@ include = [
     "tests/*.py",
     "pyproject.toml",
     "README.md",
+    "scripts/table.py"
 ]
 
 [lint.isort]
@@ -40,6 +41,10 @@ ignore = [
 ]
 
 [lint.per-file-ignores]
+"scripts/table.py" = [
+    "INP001", # Check for packages that are missing an `__init__.py` file
+    "T201",   # Check for `print` statements
+]
 "py-src/**/*.pyi" = [
     "PYI021", # Check for the presence of docstrings in stub files
 ]
