@@ -31,7 +31,10 @@ fn clmul_hi(a: __m128i, b: __m128i) -> __m128i {
 #[inline]
 #[target_feature(enable = "sse4.2,pclmulqdq")]
 fn clmul_scalar(a: u32, b: u32) -> __m128i {
-    _mm_clmulepi64_si128::<0>(_mm_cvtsi32_si128(a as i32), _mm_cvtsi32_si128(b as i32))
+    _mm_clmulepi64_si128::<0>(
+        _mm_cvtsi32_si128(a.cast_signed()),
+        _mm_cvtsi32_si128(b.cast_signed()),
+    )
 }
 
 #[inline]
@@ -45,7 +48,7 @@ fn crc32_u64(crc: u32, value: u64) -> u32 {
 
     #[cfg(target_arch = "x86_64")]
     {
-        _mm_crc32_u64(crc as u64, value) as u32
+        _mm_crc32_u64(u64::from(crc), value) as u32
     }
 }
 
@@ -66,8 +69,8 @@ fn extract_u64(value: __m128i, index: i32) -> u64 {
     #[cfg(target_arch = "x86_64")]
     {
         match index {
-            0 => _mm_extract_epi64::<0>(value) as u64,
-            1 => _mm_extract_epi64::<1>(value) as u64,
+            0 => _mm_extract_epi64::<0>(value).cast_unsigned(),
+            1 => _mm_extract_epi64::<1>(value).cast_unsigned(),
             _ => unreachable!(),
         }
     }
@@ -86,7 +89,7 @@ fn xnmodp(mut n: u64) -> u32 {
         n = (n >> 1) - 16;
     }
     stack = !stack;
-    let mut acc = 0x80000000u32 >> (n & 31);
+    let mut acc = 0x8000_0000_u32 >> (n & 31);
     n >>= 5;
     while n != 0 {
         acc = _mm_crc32_u32(acc, 0);
@@ -98,7 +101,7 @@ fn xnmodp(mut n: u64) -> u32 {
         if stack == 0 {
             break;
         }
-        let x = _mm_cvtsi32_si128(acc as i32);
+        let x = _mm_cvtsi32_si128(acc.cast_signed());
         let y = extract_u64(_mm_clmulepi64_si128::<0>(x, x), 0);
         acc = crc32_u64(0, y << low);
     }
@@ -146,13 +149,16 @@ pub unsafe fn crc32c(mut crc0: u32, mut buf: *const u8, mut len: usize) -> u32 {
         let mut y4;
         let mut y5;
         let mut y6;
-        let vc0;
-        let vc1;
         let mut vc;
 
         // First vector chunk.
-        k = _mm_setr_epi32(0x2ad91c30u32 as i32, 0, 0x47db8317u32 as i32, 0);
-        x0 = _mm_xor_si128(_mm_cvtsi32_si128(crc0 as i32), x0);
+        k = _mm_setr_epi32(
+            0x2ad9_1c30_u32.cast_signed(),
+            0,
+            0x47db_8317_u32.cast_signed(),
+            0,
+        );
+        x0 = _mm_xor_si128(_mm_cvtsi32_si128(crc0.cast_signed()), x0);
         crc0 = 0;
         buf2 = unsafe { buf2.add(112) };
         len -= 184;
@@ -201,7 +207,12 @@ pub unsafe fn crc32c(mut crc0: u32, mut buf: *const u8, mut len: usize) -> u32 {
             len -= 184;
         }
         // Reduce x0 ... x6 to just x0.
-        k = _mm_setr_epi32(0xf20c0dfeu32 as i32, 0, 0x493c7d27u32 as i32, 0);
+        k = _mm_setr_epi32(
+            0xf20c_0dfe_u32.cast_signed(),
+            0,
+            0x493c_7d27_u32.cast_signed(),
+            0,
+        );
         y0 = clmul_lo(x0, k);
         x0 = clmul_hi(x0, k);
         y0 = _mm_xor_si128(y0, x1);
@@ -223,7 +234,12 @@ pub unsafe fn crc32c(mut crc0: u32, mut buf: *const u8, mut len: usize) -> u32 {
         x2 = _mm_xor_si128(x2, y2);
         y4 = _mm_xor_si128(y4, x5);
         x4 = _mm_xor_si128(x4, y4);
-        k = _mm_setr_epi32(0x3da6d0cbu32 as i32, 0, 0xba4fc28eu32 as i32, 0);
+        k = _mm_setr_epi32(
+            0x3da6_d0cb_u32.cast_signed(),
+            0,
+            0xba4f_c28e_u32.cast_signed(),
+            0,
+        );
         y0 = clmul_lo(x0, k);
         x0 = clmul_hi(x0, k);
         y0 = _mm_xor_si128(y0, x2);
@@ -244,8 +260,8 @@ pub unsafe fn crc32c(mut crc0: u32, mut buf: *const u8, mut len: usize) -> u32 {
         crc1 = crc32_u64(crc1, unsafe { buf.add(klen + 16).cast::<u64>().read_unaligned() });
         crc2 = crc32_u64(crc2, unsafe { buf.add(klen * 2 + 16).cast::<u64>().read_unaligned() });
         buf = unsafe { buf.add(24) };
-        vc0 = crc_shift(crc0, klen * 2 + 8);
-        vc1 = crc_shift(crc1, klen + 8);
+        let vc0 = crc_shift(crc0, klen * 2 + 8);
+        let vc1 = crc_shift(crc1, klen + 8);
         vc = extract_u64(_mm_xor_si128(vc0, vc1), 0);
         // Reduce 128 bits to 32 bits, and multiply by x^32.
         vc ^= extract_u64(
