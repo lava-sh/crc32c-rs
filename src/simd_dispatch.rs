@@ -29,9 +29,9 @@ pub enum SimdIsa {
     #[cfg(any(target_arch = "x86_64", target_arch = "x86"))]
     Avx512Pclmulqdq = 3,
     #[cfg(any(target_arch = "aarch64", target_arch = "arm64ec"))]
-    Neon64Sha3 = 4,
+    AesSha3 = 4,
     #[cfg(any(target_arch = "aarch64", target_arch = "arm64ec"))]
-    Neon64 = 5,
+    Aes = 5,
 }
 
 impl SimdIsa {
@@ -52,10 +52,10 @@ impl SimdIsa {
         #[cfg(any(target_arch = "aarch64", target_arch = "arm64ec"))]
         {
             if detect_features!(aarch64, ["crc", "aes", "sha3"]) {
-                return Self::Neon64Sha3;
+                return Self::AesSha3;
             }
             if detect_features!(aarch64, ["crc", "aes"]) {
-                return Self::Neon64;
+                return Self::Aes;
             }
         }
         Self::Fallback

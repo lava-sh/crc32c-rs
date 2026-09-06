@@ -14,7 +14,7 @@ mod crc32c_rs {
     #[cfg(any(target_arch = "x86_64", target_arch = "x86"))]
     use crate::arch::{avx512_pclmulqdq, avx512_vpclmulqdq, see42_pclmulqdq};
     #[cfg(any(target_arch = "aarch64", target_arch = "arm64ec"))]
-    use crate::arch::{neon64, neon64_sha3};
+    use crate::arch::{aes, aes_sha3};
     use crate::{arch::fallback, py_buffer::PyBuffer, simd_dispatch::SimdIsa};
 
     // releasing / reacquiring the GIL has  overhead that outweighs the benefit
@@ -68,9 +68,9 @@ mod crc32c_rs {
             #[cfg(any(target_arch = "x86_64", target_arch = "x86"))]
             SimdIsa::Sse42Pclmulqdq => see42_pclmulqdq::crc32c,
             #[cfg(any(target_arch = "aarch64", target_arch = "arm64ec"))]
-            SimdIsa::Neon64Sha3 => neon64_sha3::crc32c,
+            SimdIsa::AesSha3 => aes_sha3::crc32c,
             #[cfg(any(target_arch = "aarch64", target_arch = "arm64ec"))]
-            SimdIsa::Neon64 => neon64::crc32c,
+            SimdIsa::Aes => aes::crc32c,
             _ => fallback,
         };
 
@@ -142,27 +142,27 @@ mod crc32c_rs {
     }
 
     #[cfg(any(target_arch = "aarch64", target_arch = "arm64ec"))]
-    #[pyfunction(name = "_crc32c_neon64_sha3", signature = (data, value = 0, /))]
-    fn crc32c_neon64_sha3(py: Python<'_>, data: &Bound<'_, PyAny>, value: u32) -> PyResult<u32> {
-        if SimdIsa::detected() != SimdIsa::Neon64Sha3 {
+    #[pyfunction(name = "_crc32c_aes_sha3", signature = (data, value = 0, /))]
+    fn crc32c_aes_sha3(py: Python<'_>, data: &Bound<'_, PyAny>, value: u32) -> PyResult<u32> {
+        if SimdIsa::detected() != SimdIsa::AesSha3 {
             return Err(UnsupportedCPUFeatureError::new_err(
                 "CRC, AES, and SHA3 are not supported by this CPU",
             ));
         }
         let buffer = PyBuffer::get(py, data)?;
-        Ok(crc32c_dispatch(py, &buffer, value, neon64_sha3::crc32c))
+        Ok(crc32c_dispatch(py, &buffer, value, aes_sha3::crc32c))
     }
 
     #[cfg(any(target_arch = "aarch64", target_arch = "arm64ec"))]
-    #[pyfunction(name = "_crc32c_neon64", signature = (data, value = 0, /))]
-    fn crc32c_neon64(py: Python<'_>, data: &Bound<'_, PyAny>, value: u32) -> PyResult<u32> {
-        if !matches!(SimdIsa::detected(), SimdIsa::Neon64 | SimdIsa::Neon64Sha3) {
+    #[pyfunction(name = "_crc32c_aes", signature = (data, value = 0, /))]
+    fn crc32c_aes(py: Python<'_>, data: &Bound<'_, PyAny>, value: u32) -> PyResult<u32> {
+        if !matches!(SimdIsa::detected(), SimdIsa::Aes | SimdIsa::AesSha3) {
             return Err(UnsupportedCPUFeatureError::new_err(
                 "CRC and AES are not supported by this CPU",
             ));
         }
         let buffer = PyBuffer::get(py, data)?;
-        Ok(crc32c_dispatch(py, &buffer, value, neon64::crc32c))
+        Ok(crc32c_dispatch(py, &buffer, value, aes::crc32c))
     }
 
     #[pyfunction(name = "_crc32c_fallback", signature = (data, value = 0, /))]
