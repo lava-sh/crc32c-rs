@@ -24,10 +24,10 @@ _High-performance CRC32C implementation compliant with RFC 3720 (iSCSI)_
 - High-performance CRC32C implementation written in Rust
 
 - Runtime dispatch to the fastest available implementation:
-    - x86/x86_64: `SSE4.2 + PCLMULQDQ`, `AVX-512VL + PCLMULQDQ`, or
-      `AVX-512F + AVX-512VL + VPCLMULQDQ`
-    - AArch64/ARM64EC: `CRC + AES`, with an optimized `SHA3` variant when available
-    - Other platforms: a portable fallback implementation
+  - x86/x86_64: `SSE4.2 + PCLMULQDQ`, `AVX-512VL + PCLMULQDQ`, or
+    `AVX-512F + AVX-512VL + VPCLMULQDQ`
+  - AArch64/ARM64EC: `CRC + AES`, with an optimized `SHA3` variant when available
+  - Other platforms: a portable fallback implementation
 
 ## Installation
 
@@ -83,8 +83,9 @@ crc = crc32c(b"Hello")
 print(crc32c(b" world!", crc))  # 2073618257
 ```
 
-By default, `crc32c_rs.crc32c` detects the CPU's supported instruction sets at runtime and selects the fastest available
-implementation. It checks the implementations from the highest acceleration level to the lowest:
+By default, `crc32c_rs.crc32c` detects the CPU's supported instruction
+sets at runtime and selects the fastest available implementation. It
+checks the implementations from the highest acceleration level to the lowest:
 
 #### x86/x86_64
 
@@ -105,8 +106,8 @@ Portable fallback.
 
 ### Direct implementation selection
 
-The default `crc32c_rs.crc32c` function selects an implementation at runtime, but you can also call a specific
-implementation directly:
+The default `crc32c_rs.crc32c` function selects an implementation
+at runtime, but you can also call a specific implementation directly:
 
 | Function                   | Required CPU features               |
 |----------------------------|-------------------------------------|
@@ -117,8 +118,9 @@ implementation directly:
 | `crc32c_neon64`            | `CRC + AES`                         |
 | `crc32c_fallback`          | No special CPU features             |
 
-Architecture-specific implementations are available only on compatible builds. If the current processor does not support
-the required features, calling one of these functions raises `crc32c_rs.UnsupportedCPUFeatureError`.
+Architecture-specific implementations are available only on compatible builds.
+If the current processor does not support the required features, calling one of
+these functions raises `crc32c_rs.UnsupportedCPUFeatureError`.
 
 ```python
 from crc32c_rs import crc32c_avx512_vpclmulqdq
