@@ -5,6 +5,8 @@ from crc32c_rs import crc32c
 
 from .helpers import ReadableBuffer
 
+GIL_MINSIZE = 32 * 1024
+
 
 @pytest.mark.parametrize(
     ("data", "expected"),
@@ -38,3 +40,24 @@ def test_crc32c_not_a_buffer() -> None:
 
     with pytest.raises(TypeError):
         crc32c({"key": "value"})  # ty: ignore[invalid-argument-type]
+
+
+@pytest.mark.parametrize(
+    "size",
+    [
+        GIL_MINSIZE - 1,   # Just below threshold (no GIL release)
+        GIL_MINSIZE,       # At threshold
+        GIL_MINSIZE + 1,   # Just above threshold (with GIL release)
+        GIL_MINSIZE * 2,   # Well above threshold
+    ],
+    ids=[
+        "below_gil_minsize",
+        "at_gil_minsize",
+        "above_gil_minsize",
+        "double_gil_minsize",
+    ],
+)
+def test_crc32c_gil_threshold(size: int) -> None:
+    data = b"a" * size
+    expected = crc32c(data)
+    assert crc32c(data) == expected
