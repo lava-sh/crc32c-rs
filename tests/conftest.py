@@ -20,10 +20,13 @@ try:
     from crc32c_rs import (
         crc32c_avx512_pclmulqdq,
         crc32c_avx512_vpclmulqdq,
-        crc32c_neon64,
-        crc32c_neon64_sha3,
         crc32c_see42_pclmulqdq,
     )
+except ImportError:
+    pass
+
+try:
+    from crc32c_rs import crc32c_neon64, crc32c_neon64_sha3
 except ImportError:
     pass
 
@@ -38,6 +41,7 @@ def crc_impl() -> list[tuple[str, Callable[..., int]]]:
     logger.info("Family: %s", host.family)
     logger.info("Microarchitecture: %s", getattr(host, "microarchitecture", "unknown"))
     logger.info("Features: %s", " ".join(sorted(features)))
+    logger.info("")
 
     impls = []
 
@@ -64,17 +68,22 @@ def crc_impl() -> list[tuple[str, Callable[..., int]]]:
 
     if (
         crc32c_neon64 is not None and
-        {"neon"}.issubset(features)
+        {"aes", "crc32"}.issubset(features)
     ):  # fmt: skip
         impls.append(("neon64", crc32c_neon64))
         logger.info("✅ crc32c_rs.neon64 available")
 
     if (
         crc32c_neon64_sha3 is not None and
-        {"neon", "sha3"}.issubset(features)
+        {"aes", "crc32", "sha3"}.issubset(features)
     ):  # fmt: skip
         impls.append(("neon64_sha3", crc32c_neon64_sha3))
         logger.info("✅ crc32c_rs.neon64_sha3 available")
 
     impls.append(("fallback", crc32c_fallback))
+    logger.info("")
+    logger.info(
+        "Implementations: %s",
+        ", ".join(f"crc32c_rs.{name}" for name, _ in impls),
+    )
     return impls
