@@ -1,10 +1,10 @@
 from pathlib import Path
 
-FILE: Path = Path(__file__).resolve().parent
-ROOT: Path = FILE.parent
-TABLE_RS: Path = ROOT / "src" / "arch" / "table.rs"
+FILE = Path(__file__).resolve().parent
+ROOT = FILE.parent
+TABLE_RS = ROOT / "src" / "arch" / "table.rs"
 
-POLY: int = 0x82F63B78
+POLY = 0x82F63B78
 
 
 def generate_table(planes: int) -> list[list[int]]:
