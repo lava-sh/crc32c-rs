@@ -120,10 +120,6 @@ pub unsafe fn crc32c(mut crc0: u32, mut buf: *const u8, mut len: usize) -> u32 {
         let mut buf2 = unsafe { buf.add(klen * 3) };
         let mut crc1 = 0u32;
         let mut crc2 = 0u32;
-        let vc0;
-        let vc1;
-        let vc2;
-        let vc;
         let mut x0 = unsafe { _mm_loadu_si128(buf2.cast()) };
         let mut x1 = unsafe { _mm_loadu_si128(buf2.add(16).cast()) };
         let mut x2 = unsafe { _mm_loadu_si128(buf2.add(32).cast()) };
@@ -285,10 +281,10 @@ pub unsafe fn crc32c(mut crc0: u32, mut buf: *const u8, mut len: usize) -> u32 {
         crc2 = crc32_u64(crc2, unsafe {
             buf.add(klen * 2 + 24).cast::<u64>().read_unaligned()
         });
-        vc0 = crc_shift(crc0, klen * 2 + blk * 144);
-        vc1 = crc_shift(crc1, klen + blk * 144);
-        vc2 = crc_shift(crc2, blk * 144);
-        vc = extract_u64(_mm_ternarylogic_epi64::<0x96>(vc0, vc1, vc2), 0);
+        let vc0 = crc_shift(crc0, klen * 2 + blk * 144);
+        let vc1 = crc_shift(crc1, klen + blk * 144);
+        let vc2 = crc_shift(crc2, blk * 144);
+        let vc = extract_u64(_mm_ternarylogic_epi64::<0x96>(vc0, vc1, vc2), 0);
         crc0 = crc32_u64(0, extract_u64(x0, 0));
         crc0 = crc32_u64(crc0, vc ^ extract_u64(x0, 1));
         buf = buf2;
