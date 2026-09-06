@@ -111,7 +111,7 @@ pub unsafe fn crc32c(mut crc0: u32, mut buf: *const u8, mut len: usize) -> u32 {
         buf = unsafe { buf.add(1) };
         len -= 1;
     }
-    while (buf as usize & 56) != 0 && len >= 8 {
+    while (buf as usize & 0x38) != 0 && len >= 8 {
         crc0 = crc32_u64(crc0, unsafe { buf.cast::<u64>().read_unaligned() });
         buf = unsafe { buf.add(8) };
         len -= 8;
