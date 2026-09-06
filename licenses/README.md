@@ -6,7 +6,7 @@ All original licenses are included in the `licenses/` directory.
 
 ### Ported libraries
 
-#### [fast-crc32][gh-fast-crc32] - original C implementation by [gh-corsix]
+#### [fast-crc32][gh-fast-crc32] - original C implementation by [@corsix][gh-corsix]
 
 - License: MIT / zlib
 - Source: [https://github.com/corsix/fast-crc32][gh-fast-crc32]
@@ -27,6 +27,8 @@ make generate
 ./generate -i sse -p crc32c -a v7s3x3
 ./generate -i avx512_pclmulqdq -p crc32c -a v7s3x3
 ./generate -i avx512_vpclmulqdq -p crc32c -a v3s1_s3
+./generate -i neon -p crc32c -a v3s4x2e_v2
+./generate -i neon_eor3 -p crc32c -a v9s3x2e_s3 
 ```
 
 Port to Rust line by line
