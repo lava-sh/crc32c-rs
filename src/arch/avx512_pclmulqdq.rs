@@ -37,7 +37,7 @@ fn crc32_u64(crc: u32, value: u64) -> u32 {
 
     #[cfg(target_arch = "x86_64")]
     {
-        _mm_crc32_u64(crc as u64, value) as u32
+        _mm_crc32_u64(u64::from(crc), value) as u32
     }
 }
 
