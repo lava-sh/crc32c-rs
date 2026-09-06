@@ -11,10 +11,10 @@ static GLOBAL_ALLOCATOR: mimalloc::MiMalloc = mimalloc::MiMalloc;
 mod crc32c_rs {
     use pyo3::prelude::*;
 
-    #[cfg(any(target_arch = "x86_64", target_arch = "x86"))]
-    use crate::arch::{avx512_pclmulqdq, avx512_vpclmulqdq, see42_pclmulqdq};
     #[cfg(any(target_arch = "aarch64", target_arch = "arm64ec"))]
     use crate::arch::{aes, aes_sha3};
+    #[cfg(any(target_arch = "x86_64", target_arch = "x86"))]
+    use crate::arch::{avx512_pclmulqdq, avx512_vpclmulqdq, see42_pclmulqdq};
     use crate::{arch::fallback, py_buffer::PyBuffer, simd_dispatch::SimdIsa};
 
     // releasing / reacquiring the GIL has  overhead that outweighs the benefit
