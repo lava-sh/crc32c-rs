@@ -57,7 +57,12 @@ maturin = [
     "maturin[patchelf] == 1.15.0 ; sys_platform == 'linux'",
 ]
 pytest = ["pytest == 9.1.1"]
-wasm-test = [
+tests = [
+    { include-group = "pytest" },
+    # `collections.abc.Buffer` added in version 3.12.
+    "typing-extensions == 4.16.0 ; python_version < '3.12'",
+]
+wasm-tests = [
     "pytest-pyodide == 0.59.2",
     "pytest-httpserver == 1.1.5",
     { include-group = "pytest" },
@@ -65,6 +70,7 @@ wasm-test = [
 ci = [
     "ty == 0.0.78",
     "ruff == 0.16.6",
+    { include-group = "tests" },
     { include-group = "pytest" },
     { include-group = "maturin" },
 ]
