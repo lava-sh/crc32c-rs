@@ -6,7 +6,6 @@ exclude = [
 ]
 include = [
     "README.md",
-    "benchmark/README.md",
     "licenses/README.md",
 ]
 disable = [
