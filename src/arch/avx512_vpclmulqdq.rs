@@ -74,7 +74,7 @@ fn xnmodp(mut n: u64) -> u32 {
         n = (n >> 1) - 16;
     }
     stack = !stack;
-    let mut acc = 0x80000000u32 >> (n & 31);
+    let mut acc = 0x8000_0000_u32 >> (n & 31);
     n >>= 5;
     while n != 0 {
         acc = _mm_crc32_u32(acc, 0);
@@ -128,9 +128,9 @@ pub unsafe fn crc32c(mut crc0: u32, mut buf: *const u8, mut len: usize) -> u32 {
         let mut k;
 
         k = _mm512_broadcast_i32x4(_mm_setr_epi32(
-            0xa87ab8a8u32 as i32,
+            0xa87a_b8a8_u32 as i32,
             0,
-            0xab7aff2au32 as i32,
+            0xab7a_ff2a_u32 as i32,
             0,
         ));
         x0 = _mm512_xor_si512(_mm512_zextsi128_si512(_mm_cvtsi32_si128(crc0 as i32)), x0);
@@ -160,9 +160,9 @@ pub unsafe fn crc32c(mut crc0: u32, mut buf: *const u8, mut len: usize) -> u32 {
             len -= 200;
         }
         k = _mm512_broadcast_i32x4(_mm_setr_epi32(
-            0x740eef02u32 as i32,
+            0x740e_ef02_u32 as i32,
             0,
-            0x9e4addf8u32 as i32,
+            0x9e4a_ddf8_u32 as i32,
             0,
         ));
         y0 = clmul_lo(x0, k);
@@ -176,17 +176,17 @@ pub unsafe fn crc32c(mut crc0: u32, mut buf: *const u8, mut len: usize) -> u32 {
         buf = unsafe { buf.add(8) };
         vc = 0;
         k = _mm512_setr_epi32(
-            0x1c291d04u32 as i32,
+            0x1c29_1d04_u32 as i32,
             0,
-            0xddc0152bu32 as i32,
+            0xddc0_152b_u32 as i32,
             0,
-            0x3da6d0cbu32 as i32,
+            0x3da6_d0cb_u32 as i32,
             0,
-            0xba4fc28eu32 as i32,
+            0xba4f_c28e_u32 as i32,
             0,
-            0xf20c0dfeu32 as i32,
+            0xf20c_0dfe_u32 as i32,
             0,
-            0x493c7d27u32 as i32,
+            0x493c_7d27_u32 as i32,
             0,
             0,
             0,

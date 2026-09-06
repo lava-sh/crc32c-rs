@@ -75,7 +75,7 @@ fn xnmodp(mut n: u64) -> u32 {
         n = (n >> 1) - 16;
     }
     stack = !stack;
-    let mut acc = 0x80000000u32 >> (n & 31);
+    let mut acc = 0x8000_0000_u32 >> (n & 31);
     n >>= 5;
     while n != 0 {
         acc = _mm_crc32_u32(acc, 0);
@@ -138,7 +138,7 @@ pub unsafe fn crc32c(mut crc0: u32, mut buf: *const u8, mut len: usize) -> u32 {
         let mut vc;
 
         // First vector chunk.
-        k = _mm_setr_epi32(0x2ad91c30u32 as i32, 0, 0x47db8317u32 as i32, 0);
+        k = _mm_setr_epi32(0x2ad9_1c30_u32 as i32, 0, 0x47db_8317_u32 as i32, 0);
         x0 = _mm_xor_si128(_mm_cvtsi32_si128(crc0 as i32), x0);
         crc0 = 0;
         buf2 = unsafe { buf2.add(112) };
@@ -200,7 +200,7 @@ pub unsafe fn crc32c(mut crc0: u32, mut buf: *const u8, mut len: usize) -> u32 {
             len -= 184;
         }
         // Reduce x0 ... x6 to just x0.
-        k = _mm_setr_epi32(0xf20c0dfeu32 as i32, 0, 0x493c7d27u32 as i32, 0);
+        k = _mm_setr_epi32(0xf20c_0dfe_u32 as i32, 0, 0x493c_7d27_u32 as i32, 0);
         y0 = clmul_lo(x0, k);
         x0 = clmul_hi(x0, k);
         y0 = _mm_xor_si128(y0, x1);
@@ -222,7 +222,7 @@ pub unsafe fn crc32c(mut crc0: u32, mut buf: *const u8, mut len: usize) -> u32 {
         x2 = _mm_xor_si128(x2, y2);
         y4 = _mm_xor_si128(y4, x5);
         x4 = _mm_xor_si128(x4, y4);
-        k = _mm_setr_epi32(0x3da6d0cbu32 as i32, 0, 0xba4fc28eu32 as i32, 0);
+        k = _mm_setr_epi32(0x3da6_d0cb_u32 as i32, 0, 0xba4f_c28e_u32 as i32, 0);
         y0 = clmul_lo(x0, k);
         x0 = clmul_hi(x0, k);
         y0 = _mm_xor_si128(y0, x2);

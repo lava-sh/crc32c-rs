@@ -74,7 +74,7 @@ fn xnmodp(mut n: u64) -> u32 {
         n = (n >> 1) - 16;
     }
     stack = !stack;
-    let mut acc = 0x80000000u32 >> (n & 31);
+    let mut acc = 0x8000_0000_u32 >> (n & 31);
     n >>= 5;
     while n != 0 {
         acc = _mm_crc32_u32(acc, 0);
@@ -144,7 +144,7 @@ pub unsafe fn crc32c(mut crc0: u32, mut buf: *const u8, mut len: usize) -> u32 {
         let mut y8;
         let mut k;
 
-        k = _mm_setr_epi32(0x7e908048u32 as i32, 0, 0xc96cfdc0u32 as i32, 0);
+        k = _mm_setr_epi32(0x7e90_8048_u32 as i32, 0, 0xc96c_fdc0_u32 as i32, 0);
         buf2 = unsafe { buf2.add(144) };
         let mut blocks = blk - 1;
         while blocks != 0 {
@@ -223,7 +223,7 @@ pub unsafe fn crc32c(mut crc0: u32, mut buf: *const u8, mut len: usize) -> u32 {
             buf2 = unsafe { buf2.add(144) };
             blocks -= 1;
         }
-        k = _mm_setr_epi32(0xf20c0dfeu32 as i32, 0, 0x493c7d27u32 as i32, 0);
+        k = _mm_setr_epi32(0xf20c_0dfe_u32 as i32, 0, 0x493c_7d27_u32 as i32, 0);
         y0 = clmul_lo(x0, k);
         x0 = clmul_hi(x0, k);
         x0 = _mm_ternarylogic_epi64::<0x96>(x0, y0, x1);
@@ -246,14 +246,14 @@ pub unsafe fn crc32c(mut crc0: u32, mut buf: *const u8, mut len: usize) -> u32 {
         x2 = _mm_ternarylogic_epi64::<0x96>(x2, y2, x3);
         x4 = _mm_ternarylogic_epi64::<0x96>(x4, y4, x5);
         x6 = _mm_ternarylogic_epi64::<0x96>(x6, y6, x7);
-        k = _mm_setr_epi32(0x3da6d0cbu32 as i32, 0, 0xba4fc28eu32 as i32, 0);
+        k = _mm_setr_epi32(0x3da6_d0cb_u32 as i32, 0, 0xba4f_c28e_u32 as i32, 0);
         y0 = clmul_lo(x0, k);
         x0 = clmul_hi(x0, k);
         y4 = clmul_lo(x4, k);
         x4 = clmul_hi(x4, k);
         x0 = _mm_ternarylogic_epi64::<0x96>(x0, y0, x2);
         x4 = _mm_ternarylogic_epi64::<0x96>(x4, y4, x6);
-        k = _mm_setr_epi32(0x740eef02u32 as i32, 0, 0x9e4addf8u32 as i32, 0);
+        k = _mm_setr_epi32(0x740e_ef02_u32 as i32, 0, 0x9e4a_ddf8_u32 as i32, 0);
         y0 = clmul_lo(x0, k);
         x0 = clmul_hi(x0, k);
         x0 = _mm_ternarylogic_epi64::<0x96>(x0, y0, x4);
