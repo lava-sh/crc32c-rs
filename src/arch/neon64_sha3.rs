@@ -65,7 +65,7 @@ fn xnmodp(mut n: u64) -> u32 {
     let mut acc = 0x8000_0000_u32 >> (n & 31);
     n >>= 5;
     while n != 0 {
-        acc = __crc32w(acc, 0);
+        acc = __crc32cw(acc, 0);
         n -= 1;
     }
 
@@ -78,7 +78,7 @@ fn xnmodp(mut n: u64) -> u32 {
 
         let x = vreinterpret_p8_u64(vmov_n_u64(u64::from(acc)));
         let y = vgetq_lane_u64(vreinterpretq_u64_p16(vmull_p8(x, x)), 0);
-        acc = __crc32d(0, y << low);
+        acc = __crc32cd(0, y << low);
     }
     acc
 }
@@ -94,12 +94,12 @@ fn crc_shift(crc: u32, nbytes: usize) -> uint64x2_t {
 pub unsafe fn crc32c(mut crc0: u32, mut buf: *const u8, mut len: usize) -> u32 {
     crc0 = !crc0;
     while len != 0 && (buf as usize & 7) != 0 {
-        crc0 = unsafe { __crc32b(crc0, *buf) };
+        crc0 = unsafe { __crc32cb(crc0, *buf) };
         buf = unsafe { buf.add(1) };
         len -= 1;
     }
     if (buf as usize & 8) != 0 && len >= 8 {
-        crc0 = unsafe { __crc32d(crc0, *(buf.cast::<u64>())) };
+        crc0 = unsafe { __crc32cd(crc0, *(buf.cast::<u64>())) };
         buf = unsafe { buf.add(8) };
         len -= 8;
     }
@@ -124,7 +124,7 @@ pub unsafe fn crc32c(mut crc0: u32, mut buf: *const u8, mut len: usize) -> u32 {
         let mut x7 = unsafe { vld1q_u64(buf2.add(112).cast::<u64>()) };
         let mut x8 = unsafe { vld1q_u64(buf2.add(128).cast::<u64>()) };
 
-        let k_values = [0x26b7_0c3d_u64, 0x3f41_287a_u64];
+        let k_values = [0x7e90_8048_u64, 0xc96c_fdc0_u64];
         let mut k = unsafe { vld1q_u64(k_values.as_ptr()) };
         buf2 = unsafe { buf2.add(144) };
 
@@ -160,12 +160,12 @@ pub unsafe fn crc32c(mut crc0: u32, mut buf: *const u8, mut len: usize) -> u32 {
             x8 = veor3q_u64(x8, y8, unsafe { vld1q_u64(buf2.add(128).cast::<u64>()) });
 
             unsafe {
-                crc0 = __crc32d(crc0, *(buf.cast::<u64>()));
-                crc1 = __crc32d(crc1, *(buf.add(klen).cast::<u64>()));
-                crc2 = __crc32d(crc2, *(buf.add(klen * 2).cast::<u64>()));
-                crc0 = __crc32d(crc0, *(buf.add(8).cast::<u64>()));
-                crc1 = __crc32d(crc1, *(buf.add(klen + 8).cast::<u64>()));
-                crc2 = __crc32d(crc2, *(buf.add(klen * 2 + 8).cast::<u64>()));
+                crc0 = __crc32cd(crc0, *(buf.cast::<u64>()));
+                crc1 = __crc32cd(crc1, *(buf.add(klen).cast::<u64>()));
+                crc2 = __crc32cd(crc2, *(buf.add(klen * 2).cast::<u64>()));
+                crc0 = __crc32cd(crc0, *(buf.add(8).cast::<u64>()));
+                crc1 = __crc32cd(crc1, *(buf.add(klen + 8).cast::<u64>()));
+                crc2 = __crc32cd(crc2, *(buf.add(klen * 2 + 8).cast::<u64>()));
             }
 
             buf = unsafe { buf.add(16) };
@@ -173,7 +173,7 @@ pub unsafe fn crc32c(mut crc0: u32, mut buf: *const u8, mut len: usize) -> u32 {
         }
 
         // Reduce x0 ... x8 to just x0.
-        let k_values = [0xae68_9191_u64, 0xccaa_009e_u64];
+        let k_values = [0xf20c_0dfe_u64, 0x493c_7d27_u64];
         k = unsafe { vld1q_u64(k_values.as_ptr()) };
 
         let y0 = clmul_lo(x0, k);
@@ -201,7 +201,7 @@ pub unsafe fn crc32c(mut crc0: u32, mut buf: *const u8, mut len: usize) -> u32 {
         x4 = veor3q_u64(x4, y4, x5);
         x6 = veor3q_u64(x6, y6, x7);
 
-        let k_values = [0xf1da_05aa_u64, 0x8125_6527_u64];
+        let k_values = [0x3da6_d0cb_u64, 0xba4f_c28e_u64];
         k = unsafe { vld1q_u64(k_values.as_ptr()) };
 
         let y0 = clmul_lo(x0, k);
@@ -211,7 +211,7 @@ pub unsafe fn crc32c(mut crc0: u32, mut buf: *const u8, mut len: usize) -> u32 {
         x0 = veor3q_u64(x0, y0, x2);
         x4 = veor3q_u64(x4, y4, x6);
 
-        let k_values = [0x8f35_2d95_u64, 0x1d95_13d7_u64];
+        let k_values = [0x740e_ef02_u64, 0x9e4a_ddf8_u64];
         k = unsafe { vld1q_u64(k_values.as_ptr()) };
         let y0 = clmul_lo(x0, k);
         x0 = clmul_hi(x0, k);
@@ -219,12 +219,12 @@ pub unsafe fn crc32c(mut crc0: u32, mut buf: *const u8, mut len: usize) -> u32 {
 
         // Final scalar chunk.
         unsafe {
-            crc0 = __crc32d(crc0, *(buf.cast::<u64>()));
-            crc1 = __crc32d(crc1, *(buf.add(klen).cast::<u64>()));
-            crc2 = __crc32d(crc2, *(buf.add(klen * 2).cast::<u64>()));
-            crc0 = __crc32d(crc0, *(buf.add(8).cast::<u64>()));
-            crc1 = __crc32d(crc1, *(buf.add(klen + 8).cast::<u64>()));
-            crc2 = __crc32d(crc2, *(buf.add(klen * 2 + 8).cast::<u64>()));
+            crc0 = __crc32cd(crc0, *(buf.cast::<u64>()));
+            crc1 = __crc32cd(crc1, *(buf.add(klen).cast::<u64>()));
+            crc2 = __crc32cd(crc2, *(buf.add(klen * 2).cast::<u64>()));
+            crc0 = __crc32cd(crc0, *(buf.add(8).cast::<u64>()));
+            crc1 = __crc32cd(crc1, *(buf.add(klen + 8).cast::<u64>()));
+            crc2 = __crc32cd(crc2, *(buf.add(klen * 2 + 8).cast::<u64>()));
         }
 
         let vc0 = crc_shift(crc0, klen * 2 + blk * 144);
@@ -233,8 +233,8 @@ pub unsafe fn crc32c(mut crc0: u32, mut buf: *const u8, mut len: usize) -> u32 {
         let vc = vgetq_lane_u64(veor3q_u64(vc0, vc1, vc2), 0);
 
         // Reduce 128 bits to 32 bits, and multiply by x^32.
-        crc0 = __crc32d(0, vgetq_lane_u64(x0, 0));
-        crc0 = __crc32d(crc0, vc ^ vgetq_lane_u64(x0, 1));
+        crc0 = __crc32cd(0, vgetq_lane_u64(x0, 0));
+        crc0 = __crc32cd(crc0, vc ^ vgetq_lane_u64(x0, 1));
 
         buf = buf2;
         len = unsafe { end.offset_from(buf).cast_unsigned() };
@@ -248,9 +248,9 @@ pub unsafe fn crc32c(mut crc0: u32, mut buf: *const u8, mut len: usize) -> u32 {
         // Main loop.
         loop {
             unsafe {
-                crc0 = __crc32d(crc0, *(buf.cast::<u64>()));
-                crc1 = __crc32d(crc1, *(buf.add(klen).cast::<u64>()));
-                crc2 = __crc32d(crc2, *(buf.add(klen * 2).cast::<u64>()));
+                crc0 = __crc32cd(crc0, *(buf.cast::<u64>()));
+                crc1 = __crc32cd(crc1, *(buf.add(klen).cast::<u64>()));
+                crc2 = __crc32cd(crc2, *(buf.add(klen * 2).cast::<u64>()));
             }
             buf = unsafe { buf.add(8) };
             len -= 24;
@@ -266,18 +266,18 @@ pub unsafe fn crc32c(mut crc0: u32, mut buf: *const u8, mut len: usize) -> u32 {
         // Final 8 bytes.
         buf = unsafe { buf.add(klen * 2) };
         crc0 = crc2;
-        crc0 = unsafe { __crc32d(crc0, *(buf.cast::<u64>()) ^ vc) };
+        crc0 = unsafe { __crc32cd(crc0, *(buf.cast::<u64>()) ^ vc) };
         buf = unsafe { buf.add(8) };
         len -= 8;
     }
 
     while len >= 8 {
-        crc0 = unsafe { __crc32d(crc0, *(buf.cast::<u64>())) };
+        crc0 = unsafe { __crc32cd(crc0, *(buf.cast::<u64>())) };
         buf = unsafe { buf.add(8) };
         len -= 8;
     }
     while len != 0 {
-        crc0 = unsafe { __crc32b(crc0, *buf) };
+        crc0 = unsafe { __crc32cb(crc0, *buf) };
         buf = unsafe { buf.add(1) };
         len -= 1;
     }
