@@ -13,8 +13,8 @@ crc32c_avx512_vpclmulqdq: CrcFn | None = None
 crc32c_avx512_pclmulqdq: CrcFn | None = None
 crc32c_see42_pclmulqdq: CrcFn | None = None
 
-crc32c_neon64: CrcFn | None = None
-crc32c_neon64_sha3: CrcFn | None = None
+crc32c_aes: CrcFn | None = None
+crc32c_aes_sha3: CrcFn | None = None
 
 try:
     from crc32c_rs import (
@@ -26,7 +26,7 @@ except ImportError:
     pass
 
 try:
-    from crc32c_rs import crc32c_neon64, crc32c_neon64_sha3
+    from crc32c_rs import crc32c_aes, crc32c_aes_sha3
 except ImportError:
     pass
 
@@ -67,18 +67,18 @@ def crc_impl() -> list[tuple[str, Callable[..., int]]]:
         logger.info("✅ crc32c_rs.sse42_pclmulqdq available")
 
     if (
-        crc32c_neon64 is not None and
+        crc32c_aes is not None and
         {"aes", "crc32"}.issubset(features)
     ):  # fmt: skip
-        impls.append(("neon64", crc32c_neon64))
-        logger.info("✅ crc32c_rs.neon64 available")
+        impls.append(("aes", crc32c_aes))
+        logger.info("✅ crc32c_rs.aes available")
 
     if (
-        crc32c_neon64_sha3 is not None and
+        crc32c_aes_sha3 is not None and
         {"aes", "crc32", "sha3"}.issubset(features)
     ):  # fmt: skip
-        impls.append(("neon64_sha3", crc32c_neon64_sha3))
-        logger.info("✅ crc32c_rs.neon64_sha3 available")
+        impls.append(("aes_sha3", crc32c_aes_sha3))
+        logger.info("✅ crc32c_rs.aes_sha3 available")
 
     impls.append(("fallback", crc32c_fallback))
     logger.info("")

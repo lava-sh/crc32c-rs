@@ -29,13 +29,13 @@ else:
 
 try:  # noqa: RUF067
     from ._crc32c_rs import (
-        _crc32c_neon64 as crc32c_neon64,
-        _crc32c_neon64_sha3 as crc32c_neon64_sha3,
+        _crc32c_aes as crc32c_aes,
+        _crc32c_aes_sha3 as crc32c_aes_sha3,
     )
 except ImportError:
     pass
 else:
     __all__ += (  # type: ignore[assignment]
-        "crc32c_neon64",
-        "crc32c_neon64_sha3",
+        "crc32c_aes",
+        "crc32c_aes_sha3",
     )
