@@ -26,7 +26,8 @@ def fmt_table(table: list[list[int]]) -> str:
         "// It is not intended for manual editing.",
         "",
         "#[rustfmt::skip]",
-        f"pub const CRC32C_TABLE: [[u32; 256]; {len(table)}] = [[",
+        "#[allow(clippy::unreadable_literal)]",
+        f"pub static CRC32C_TABLE: [[u32; 256]; {len(table)}] = [[",
     ]
     for i, row in enumerate(table):
         if i > 0:
@@ -39,5 +40,5 @@ def fmt_table(table: list[list[int]]) -> str:
     return "\n".join(lines)
 
 
-TABLE_RS.write_text(fmt_table(generate_table(4)), encoding="utf-8")
+TABLE_RS.write_text(fmt_table(generate_table(16)), encoding="utf-8")
 print(f"Generated table: {TABLE_RS}")
