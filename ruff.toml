@@ -11,6 +11,7 @@ include = [
     "README.md",
     "scripts/table.py",
     ".godbolt/godbolt_links.py",
+    "benchmark/run.py",
 ]
 
 [lint.isort]
@@ -42,7 +43,7 @@ ignore = [
 ]
 
 [lint.per-file-ignores]
-"{scripts/*.py,.godbolt/*.py}" = [
+"{scripts/*.py,.godbolt/*.py,benchmark/*.py}" = [
     "INP001", # Check for packages that are missing an `__init__.py` file
     "T201",   # Check for `print` statements
 ]
