@@ -28,13 +28,13 @@ def _crc32c_see42_pclmulqdq(
     /,
 ) -> builtins.int: ...
 
-def _crc32c_neon64_sha3(
+def _crc32c_aes_sha3(
     data: ReadableBuffer,
     value: builtins.int = 0,
     /,
 ) -> builtins.int: ...
 
-def _crc32c_neon64(
+def _crc32c_aes(
     data: ReadableBuffer,
     value: builtins.int = 0,
     /,
