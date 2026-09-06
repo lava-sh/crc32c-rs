@@ -20,7 +20,10 @@ fn clmul_hi(a: __m512i, b: __m512i) -> __m512i {
 #[inline]
 #[target_feature(enable = "sse4.2,pclmulqdq")]
 fn clmul_scalar(a: u32, b: u32) -> __m128i {
-    _mm_clmulepi64_si128::<0>(_mm_cvtsi32_si128(a as i32), _mm_cvtsi32_si128(b as i32))
+    _mm_clmulepi64_si128::<0>(
+        _mm_cvtsi32_si128(a.cast_signed()),
+        _mm_cvtsi32_si128(b.cast_signed()),
+    )
 }
 
 #[inline]
@@ -86,7 +89,7 @@ fn xnmodp(mut n: u64) -> u32 {
         if stack == 0 {
             break;
         }
-        let x = _mm_cvtsi32_si128(acc as i32);
+        let x = _mm_cvtsi32_si128(acc.cast_signed());
         let y = extract_u64(_mm_clmulepi64_si128::<0>(x, x), 0);
         acc = crc32_u64(0, y << low);
     }
@@ -128,12 +131,15 @@ pub unsafe fn crc32c(mut crc0: u32, mut buf: *const u8, mut len: usize) -> u32 {
         let mut k;
 
         k = _mm512_broadcast_i32x4(_mm_setr_epi32(
-            0xa87a_b8a8_u32 as i32,
+            0xa87a_b8a8_u32.cast_signed(),
             0,
-            0xab7a_ff2a_u32 as i32,
+            0xab7a_ff2a_u32.cast_signed(),
             0,
         ));
-        x0 = _mm512_xor_si512(_mm512_zextsi128_si512(_mm_cvtsi32_si128(crc0 as i32)), x0);
+        x0 = _mm512_xor_si512(
+            _mm512_zextsi128_si512(_mm_cvtsi32_si128(crc0.cast_signed())),
+            x0,
+        );
         crc0 = 0;
         buf2 = unsafe { buf2.add(192) };
         len -= 200;
@@ -160,9 +166,9 @@ pub unsafe fn crc32c(mut crc0: u32, mut buf: *const u8, mut len: usize) -> u32 {
             len -= 200;
         }
         k = _mm512_broadcast_i32x4(_mm_setr_epi32(
-            0x740e_ef02_u32 as i32,
+            0x740e_ef02_u32.cast_signed(),
             0,
-            0x9e4a_ddf8_u32 as i32,
+            0x9e4a_ddf8_u32.cast_signed(),
             0,
         ));
         y0 = clmul_lo(x0, k);
@@ -176,17 +182,17 @@ pub unsafe fn crc32c(mut crc0: u32, mut buf: *const u8, mut len: usize) -> u32 {
         buf = unsafe { buf.add(8) };
         vc = 0;
         k = _mm512_setr_epi32(
-            0x1c29_1d04_u32 as i32,
+            0x1c29_1d04_u32.cast_signed(),
             0,
-            0xddc0_152b_u32 as i32,
+            0xddc0_152b_u32.cast_signed(),
             0,
-            0x3da6_d0cb_u32 as i32,
+            0x3da6_d0cb_u32.cast_signed(),
             0,
-            0xba4f_c28e_u32 as i32,
+            0xba4f_c28e_u32.cast_signed(),
             0,
-            0xf20c_0dfe_u32 as i32,
+            0xf20c_0dfe_u32.cast_signed(),
             0,
-            0x493c_7d27_u32 as i32,
+            0x493c_7d27_u32.cast_signed(),
             0,
             0,
             0,
