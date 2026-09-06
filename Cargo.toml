@@ -75,3 +75,6 @@ too_many_lines = "allow"
 # FIXME: remove after PyO3 0.29.3 is released
 # See: https://github.com/PyO3/pyo3/pull/6309
 clone_on_copy = "allow"
+
+# Maybe "TODO"
+missing_safety_doc = "allow"

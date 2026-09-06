@@ -5,15 +5,11 @@ use core::sync::atomic::{AtomicUsize, Ordering};
 macro_rules! detect_features {
     (x86, [$($feat:tt),+ $(,)?]) => {{
         #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
-        { true $(&& is_x86_feature_detected!($feat))+ }
+        { true $(&& std::arch::is_x86_feature_detected!($feat))+ }
     }};
     (aarch64, [$($feat:tt),+ $(,)?]) => {{
         #[cfg(any(target_arch = "aarch64", target_arch = "arm64ec"))]
-        { true $(&& is_aarch64_feature_detected!($feat))+ }
-    }};
-    (arm, [$($feat:tt),+ $(,)?]) => {{
-        #[cfg(target_arch = "arm")]
-        { true $(&& is_arm_feature_detected!($feat))+ }
+        { true $(&& std::arch::is_aarch64_feature_detected!($feat))+ }
     }};
 }
 
@@ -28,8 +24,8 @@ pub enum SimdIsa {
     Avx512Vpclmulqdq = 2,
     #[cfg(any(target_arch = "x86_64", target_arch = "x86"))]
     Avx512Pclmulqdq = 3,
-    #[cfg(target_arch = "arm")]
-    Neon32 = 4,
+    #[cfg(any(target_arch = "aarch64", target_arch = "arm64ec"))]
+    Neon64Sha3 = 4,
     #[cfg(any(target_arch = "aarch64", target_arch = "arm64ec"))]
     Neon64 = 5,
 }
@@ -51,17 +47,13 @@ impl SimdIsa {
         }
         #[cfg(any(target_arch = "aarch64", target_arch = "arm64ec"))]
         {
-            if is_aarch64_feature_detected!("neon") {
+            if detect_features!(aarch64, ["crc", "aes", "sha3"]) {
+                return Self::Neon64Sha3;
+            }
+            if detect_features!(aarch64, ["crc", "aes"]) {
                 return Self::Neon64;
             }
         }
-        #[cfg(target_arch = "arm")]
-        {
-            if is_arm_feature_detected!("neon") {
-                return Self::Neon32;
-            }
-        }
-
         Self::Fallback
     }
 

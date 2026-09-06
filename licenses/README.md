@@ -14,6 +14,8 @@ All original licenses are included in the `licenses/` directory.
   - SSE4.2 + PCLMULQDQ (v7s3x3) -> `src/arch/see42_pclmulqdq.rs`
   - AVX512 + PCLMULQDQ (v9s3x4e) -> `src/arch/avx512_pclmulqdq.rs`
   - AVX512 + VPCLMULQDQ (v3s1_s3) -> `src/arch/avx512_vpclmulqdq.rs`
+  - AArch64 NEON + CRC + PMULL (v3s4x2e_v2) -> `src/arch/neon64.rs`
+  - AArch64 NEON + CRC + PMULL + EOR3/SHA3 (v9s3x2e_s3) -> `src/arch/neon64_sha3.rs`
 
 ##### How to update?
 
