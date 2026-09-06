@@ -49,7 +49,7 @@ jobs:
         shell: bash
         run: |
           uv venv .venv --python ${{ matrix.python-version }}
-          if False; then
+          if [[ "${{ matrix.os }}" == "windows-latest" ]]; then
             echo ".venv/Scripts" >> "$GITHUB_PATH"
             echo "PYO3_PYTHON=.venv/Scripts/python" >> "$GITHUB_ENV"
             echo "UV_LINK_MODE=copy" >> "$GITHUB_ENV"
