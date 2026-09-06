@@ -55,8 +55,8 @@ fn extract_u64(value: __m128i, index: i32) -> u64 {
     #[cfg(target_arch = "x86_64")]
     {
         match index {
-            0 => _mm_extract_epi64::<0>(value) as u64,
-            1 => _mm_extract_epi64::<1>(value) as u64,
+            0 => _mm_extract_epi64::<0>(value).cast_unsigned(),
+            1 => _mm_extract_epi64::<1>(value).cast_unsigned(),
             _ => unreachable!(),
         }
     }

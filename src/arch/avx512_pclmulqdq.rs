@@ -55,8 +55,8 @@ fn extract_u64(value: __m128i, index: i32) -> u64 {
     #[cfg(target_arch = "x86_64")]
     {
         match index {
-            0 => _mm_extract_epi64::<0>(value) as u64,
-            1 => _mm_extract_epi64::<1>(value) as u64,
+            0 => _mm_extract_epi64::<0>(value).cast_unsigned(),
+            1 => _mm_extract_epi64::<1>(value).cast_unsigned(),
             _ => unreachable!(),
         }
     }
@@ -292,7 +292,7 @@ pub unsafe fn crc32c(mut crc0: u32, mut buf: *const u8, mut len: usize) -> u32 {
         crc0 = crc32_u64(0, extract_u64(x0, 0));
         crc0 = crc32_u64(crc0, vc ^ extract_u64(x0, 1));
         buf = buf2;
-        len = unsafe { end.offset_from(buf) as usize };
+        len = unsafe { end.offset_from(buf).cast_unsigned() };
     }
     while len >= 8 {
         crc0 = crc32_u64(crc0, unsafe { buf.cast::<u64>().read_unaligned() });
