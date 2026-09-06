@@ -3,6 +3,7 @@ respect-gitignore = true
 exclude = [
     ".git/",
     ".github/",
+    "benchmark/README.md",
 ]
 include = [
     "README.md",
