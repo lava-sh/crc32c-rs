@@ -1,4 +1,3 @@
-import abc
 import builtins
 import sys
 from typing import TypeAlias
@@ -6,11 +5,7 @@ from typing import TypeAlias
 if sys.version_info >= (3, 12):
     from collections.abc import Buffer
 else:
-    class Buffer(abc.ABC): ...
-
-    Buffer.register(memoryview)
-    Buffer.register(bytearray)
-    Buffer.register(bytes)
+    from typing_extensions import Buffer
 
 ReadableBuffer: TypeAlias = Buffer
 
