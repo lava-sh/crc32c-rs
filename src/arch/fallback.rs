@@ -16,7 +16,7 @@ unsafe fn prefetch(location: *const u8) {
 
 #[inline(always)]
 #[cfg(not(any(target_arch = "x86", target_arch = "x86_64")))]
-unsafe fn prefetch(_: *const u8) {}
+const unsafe fn prefetch(_: *const u8) {}
 
 #[inline]
 pub fn crc32c(crc0: u32, buf: &[u8], len: usize) -> u32 {
