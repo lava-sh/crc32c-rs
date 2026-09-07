@@ -4,21 +4,6 @@
 use super::table::CRC32C_TABLE;
 
 #[inline]
-#[target_feature(enable = "sse")]
-#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
-unsafe fn prefetch(location: *const u8) {
-    #[cfg(target_arch = "x86")]
-    use core::arch::x86::{_MM_HINT_T0, _mm_prefetch};
-    #[cfg(target_arch = "x86_64")]
-    use core::arch::x86_64::{_MM_HINT_T0, _mm_prefetch};
-    _mm_prefetch(location.cast::<i8>(), _MM_HINT_T0);
-}
-
-#[inline(always)]
-#[cfg(not(any(target_arch = "x86", target_arch = "x86_64")))]
-const unsafe fn prefetch(_: *const u8) {}
-
-#[inline]
 pub fn crc32c(crc0: u32, buf: &[u8], len: usize) -> u32 {
     const UNROLL: usize = 4;
     const BYTES_AT_ONCE: usize = 16 * UNROLL;
@@ -34,7 +19,7 @@ pub fn crc32c(crc0: u32, buf: &[u8], len: usize) -> u32 {
         // SAFETY: length >= 320, so PREFETCH_AHEAD bytes are
         // within the original buffer.
         unsafe {
-            prefetch(current.cast::<u8>().add(PREFETCH_AHEAD));
+            core::intrinsics::prefetch_read_data::<_, 3>(current.cast::<u8>().add(PREFETCH_AHEAD));
         }
 
         for _ in 0..UNROLL {
