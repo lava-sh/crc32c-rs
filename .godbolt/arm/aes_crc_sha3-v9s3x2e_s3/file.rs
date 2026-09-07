@@ -11,8 +11,7 @@
 // MIT or zlib licensed
 #![no_main]
 
-use std::arch::asm;
-use std::arch::aarch64::*;
+use std::arch::{aarch64::*, asm};
 
 #[inline]
 #[target_feature(enable = "aes")]
