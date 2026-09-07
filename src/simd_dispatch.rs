@@ -124,11 +124,11 @@ pub enum SimdIsa {
     Fallback = 0,
 
     #[cfg(any(target_arch = "x86_64", target_arch = "x86"))]
-    // Genoa (1)
-    Avx512vlVpclmulqdq_v3s2x4,
-    #[cfg(any(target_arch = "x86_64", target_arch = "x86"))]
     // Ice Lake (1)
     Avx512vlVpclmulqdq_v4s5x3,
+    #[cfg(any(target_arch = "x86_64", target_arch = "x86"))]
+    // Genoa (1)
+    Avx512vlVpclmulqdq_v3s2x4,
     #[cfg(any(target_arch = "x86_64", target_arch = "x86"))]
     // Sapphire Rapids (1)
     Avx512vlVpclmulqdq_v3s1_s3,
@@ -143,17 +143,14 @@ pub enum SimdIsa {
     // Ice Lake (3)
     Sse42Pclmulqdq_v7s3x3,
     #[cfg(any(target_arch = "x86_64", target_arch = "x86"))]
-    // Genoa (3)
-    Sse42Pclmulqdq_v1s3x2,
-    #[cfg(any(target_arch = "x86_64", target_arch = "x86"))]
     // Milan (1)
     Sse42Pclmulqdq_v1s4x2,
     #[cfg(any(target_arch = "x86_64", target_arch = "x86"))]
     // Rome (1)
     Sse42Pclmulqdq_v1s3x3,
     #[cfg(any(target_arch = "x86_64", target_arch = "x86"))]
-    // Rome (2), Milan (2)
-    Sse42_s3k4096e,
+    // Genoa (3)
+    Sse42Pclmulqdq_v1s3x2,
 
     #[cfg(any(target_arch = "aarch64", target_arch = "arm64ec"))]
     // Apple M1 (1)
@@ -166,9 +163,6 @@ pub enum SimdIsa {
     #[cfg(any(target_arch = "aarch64", target_arch = "arm64ec"))]
     // Apple M1 (2)
     AesCrc_v12e_v1,
-    #[cfg(any(target_arch = "aarch64", target_arch = "arm64ec"))]
-    // Ampere Altra (2)
-    CrcNeon_s3k95760_s3,
 }
 
 impl SimdIsa {
@@ -216,9 +210,6 @@ impl SimdIsa {
                 CpuModel::Milan if detect_features!(x86, ["sse4.2", "pclmulqdq"]) => {
                     return Self::Sse42Pclmulqdq_v1s4x2;
                 }
-                CpuModel::Milan | CpuModel::Milan if detect_features!(x86, ["sse4.2"]) => {
-                    return Self::Sse42_s3k4096e;
-                }
 
                 CpuModel::Rome if detect_features!(x86, ["sse4.2", "pclmulqdq"]) => {
                     return Self::Sse42Pclmulqdq_v1s3x3;
@@ -236,9 +227,6 @@ impl SimdIsa {
             if detect_features!(x86, ["sse4.2", "pclmulqdq"]) {
                 return Self::Sse42Pclmulqdq_v8s3x3;
             }
-            if detect_features!(x86, ["sse4.2"]) {
-                return Self::Sse42_s3k4096e;
-            }
         }
         #[cfg(any(target_arch = "aarch64", target_arch = "arm64ec"))]
         {
@@ -250,9 +238,6 @@ impl SimdIsa {
                     target_vendor = "apple" => return Self::AesCrc_v12e_v1,
                     _ => return Self::AesCrc_v3s4x2e_v2,
                 }
-            }
-            if detect_features!(aarch64, ["crc"]) {
-                return Self::CrcNeon_s3k95760_s3;
             }
         }
         Self::Fallback
@@ -274,5 +259,62 @@ impl SimdIsa {
         // SAFETY: `SimdIsa` is `#[repr(usize)]`, any valid discriminant is
         // a valid bit pattern for the enum, so transmute cannot produce UB.
         unsafe { core::mem::transmute::<usize, Self>(raw) }
+    }
+
+    #[cfg(any(target_arch = "x86_64", target_arch = "x86"))]
+    #[inline(always)]
+    pub fn has_sse42_pclmulqdq() -> bool {
+        matches!(
+            Self::detected(),
+            Self::Sse42Pclmulqdq_v8s3x3
+                | Self::Sse42Pclmulqdq_v7s3x3
+                | Self::Sse42Pclmulqdq_v1s3x2
+                | Self::Sse42Pclmulqdq_v1s4x2
+                | Self::Sse42Pclmulqdq_v1s3x3
+                | Self::Avx512vlPclmulqdq_v9s3x4e
+                | Self::Avx512vlVpclmulqdq_v3s1_s3
+                | Self::Avx512vlVpclmulqdq_v3s2x4
+                | Self::Avx512vlVpclmulqdq_v4s5x3
+        )
+    }
+
+    #[cfg(any(target_arch = "x86_64", target_arch = "x86"))]
+    #[inline(always)]
+    pub fn has_avx512_pclmulqdq() -> bool {
+        matches!(
+            Self::detected(),
+            Self::Avx512vlPclmulqdq_v9s3x4e
+                | Self::Avx512vlVpclmulqdq_v3s1_s3
+                | Self::Avx512vlVpclmulqdq_v3s2x4
+                | Self::Avx512vlVpclmulqdq_v4s5x3
+        )
+    }
+
+    #[cfg(any(target_arch = "x86_64", target_arch = "x86"))]
+    #[inline(always)]
+    pub fn has_avx512_vpclmulqdq() -> bool {
+        matches!(
+            Self::detected(),
+            Self::Avx512vlVpclmulqdq_v3s1_s3
+                | Self::Avx512vlVpclmulqdq_v3s2x4
+                | Self::Avx512vlVpclmulqdq_v4s5x3
+        )
+    }
+
+    #[cfg(any(target_arch = "aarch64", target_arch = "arm64ec"))]
+    #[inline(always)]
+    pub fn has_crc_aes() -> bool {
+        matches!(
+            Self::detected(),
+            Self::AesSha3_v9s3x2e_s3
+                | Self::AesCrc_v3s4x2e_v2
+                | Self::AesCrc_v12e_v1
+        )
+    }
+
+    #[cfg(any(target_arch = "aarch64", target_arch = "arm64ec"))]
+    #[inline(always)]
+    pub fn has_crc_aes_sha3() -> bool {
+        Self::detected() == Self::AesSha3_v9s3x2e_s3
     }
 }
