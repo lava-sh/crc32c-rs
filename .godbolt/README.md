@@ -43,8 +43,8 @@ I have not found a clear way to run Rust NEON checks on Godbolt yet.
 - [avx512vl_pclmulqdq-v9s3x4e](https://godbolt.org/z/j6s9bYfsv)
 - [avx512vl_vpclmulqdq-v3s1_s3](https://godbolt.org/z/nWKfWr4cr)
 - [avx512vl_vpclmulqdq-v4s5x3](https://godbolt.org/z/3eGWee1zs)
-- [see42_pclmulqdq-v7s3x3](https://godbolt.org/z/ncEbz9Me6)
-- [see42_pclmulqdq-v8s3x3](https://godbolt.org/z/e3rqz6caq)
+- [sse42_pclmulqdq-v7s3x3](https://godbolt.org/z/ncEbz9Me6)
+- [sse42_pclmulqdq-v8s3x3](https://godbolt.org/z/e3rqz6caq)
 
 If the short links stop working, regenerate them from the repository root:
 
