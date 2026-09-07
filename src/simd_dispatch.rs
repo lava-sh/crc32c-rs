@@ -158,10 +158,16 @@ pub enum SimdIsa {
     #[cfg(any(target_arch = "aarch64", target_arch = "arm64ec"))]
     // Apple M1 (1)
     AesSha3_v9s3x2e_s3,
-    #[cfg(any(target_arch = "aarch64", target_arch = "arm64ec"))]
+    #[cfg(all(
+        any(target_arch = "aarch64", target_arch = "arm64ec"),
+        not(target_vendor = "apple")
+    ))]
     // Ampere Altra (1)
     AesCrc_v3s4x2e_v2,
-    #[cfg(any(target_arch = "aarch64", target_arch = "arm64ec"))]
+    #[cfg(all(
+        any(target_arch = "aarch64", target_arch = "arm64ec"),
+        target_vendor = "apple"
+    ))]
     // Apple M1 (2)
     AesCrc_v12e_v1,
     #[cfg(any(target_arch = "aarch64", target_arch = "arm64ec"))]
