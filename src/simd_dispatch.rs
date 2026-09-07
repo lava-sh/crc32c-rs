@@ -17,6 +17,7 @@ macro_rules! detect_features {
     }};
 }
 
+#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 #[repr(u8)]
 enum CpuVendor {
@@ -25,6 +26,7 @@ enum CpuVendor {
     Amd,
 }
 
+#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 #[repr(C)]
 struct VendorInfo {
     ebx: u32,
@@ -32,8 +34,8 @@ struct VendorInfo {
     ecx: u32,
 }
 
+#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 impl CpuVendor {
-    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     fn detect() -> Self {
         #[cfg(target_arch = "x86_64")]
         let leaf0 = core::arch::x86_64::__cpuid(0);
@@ -60,8 +62,10 @@ impl CpuVendor {
     }
 }
 
+#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 const ICE_LAKE_MODELS: &[u32] = &[0x6A, 0x6C, 0x7D, 0x7E, 0x8C, 0x8D, 0xA5];
 
+#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 #[repr(u8)]
 enum CpuModel {
@@ -74,6 +78,7 @@ enum CpuModel {
     Genoa,          // 0x1A
 }
 
+#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 impl CpuModel {
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     fn detect(vendor: CpuVendor, eax1: u32) -> Self {
@@ -182,9 +187,6 @@ impl SimdIsa {
                 CpuModel::SapphireRapids if detect_features!(x86, ["avx512vl", "vpclmulqdq"]) => {
                     return Self::Avx512vlVpclmulqdq_v3s1_s3;
                 }
-                CpuModel::SapphireRapids if detect_features!(x86, ["sse4.2", "pclmulqdq"]) => {
-                    return Self::Sse42Pclmulqdq_v8s3x3;
-                }
 
                 CpuModel::Genoa if detect_features!(x86, ["avx512vl", "vpclmulqdq"]) => {
                     return Self::Avx512vlVpclmulqdq_v3s2x4;
@@ -203,22 +205,21 @@ impl SimdIsa {
                 CpuModel::CascadeLake if detect_features!(x86, ["avx512vl", "pclmulqdq"]) => {
                     return Self::Avx512vlPclmulqdq_v9s3x4e;
                 }
-                CpuModel::CascadeLake if detect_features!(x86, ["sse4.2", "pclmulqdq"]) => {
+                CpuModel::SapphireRapids | CpuModel::CascadeLake
+                    if detect_features!(x86, ["sse4.2", "pclmulqdq"]) =>
+                {
                     return Self::Sse42Pclmulqdq_v8s3x3;
                 }
 
                 CpuModel::Milan if detect_features!(x86, ["sse4.2", "pclmulqdq"]) => {
                     return Self::Sse42Pclmulqdq_v1s4x2;
                 }
-                CpuModel::Milan if detect_features!(x86, ["sse4.2"]) => {
+                CpuModel::Milan | CpuModel::Milan if detect_features!(x86, ["sse4.2"]) => {
                     return Self::Sse42_s3k4096e;
                 }
 
                 CpuModel::Rome if detect_features!(x86, ["sse4.2", "pclmulqdq"]) => {
                     return Self::Sse42Pclmulqdq_v1s3x3;
-                }
-                CpuModel::Rome if detect_features!(x86, ["sse4.2"]) => {
-                    return Self::Sse42_s3k4096e;
                 }
 
                 _ => {}
@@ -243,7 +244,10 @@ impl SimdIsa {
                 return Self::AesSha3_v9s3x2e_s3;
             }
             if detect_features!(aarch64, ["crc", "aes"]) {
-                return Self::AesCrc_v3s4x2e_v2;
+                cfg_select! {
+                    target_vendor = "apple" => return Self::AesCrc_v12e_v1,
+                    _ => return Self::AesCrc_v3s4x2e_v2,
+                }
             }
             if detect_features!(aarch64, ["crc"]) {
                 return Self::CrcNeon_s3k95760_s3;
