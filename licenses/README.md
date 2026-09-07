@@ -11,11 +11,26 @@ All original licenses are included in the `licenses/` directory.
 - License: MIT / zlib
 - Source: [https://github.com/corsix/fast-crc32][gh-fast-crc32]
 - Ported algorithms:
-  - SSE4.2 + PCLMULQDQ (v7s3x3) -> `src/arch/see42_pclmulqdq.rs`
-  - AVX512 + PCLMULQDQ (v9s3x4e) -> `src/arch/avx512_pclmulqdq.rs`
-  - AVX512 + VPCLMULQDQ (v3s1_s3) -> `src/arch/avx512_vpclmulqdq.rs`
-  - AArch64 NEON + CRC + PMULL (v3s4x2e_v2) -> `src/arch/aes.rs`
-  - AArch64 NEON + CRC + PMULL + EOR3/SHA3 (v9s3x2e_s3) -> `src/arch/aes_sha3.rs`
+  - SSE4.2 + PCLMULQDQ (`v1s3x2`) -> `src/arch/sse42_pclmulqdq_v1s3x2.rs`
+  - SSE4.2 + PCLMULQDQ (`v1s3x3`) -> `src/arch/sse42_pclmulqdq_v1s3x3.rs`
+  - SSE4.2 + PCLMULQDQ (`v1s4x2`) -> `src/arch/sse42_pclmulqdq_v1s4x2.rs`
+  - SSE4.2 + PCLMULQDQ (`v7s3x3`) -> `src/arch/sse42_pclmulqdq_v7s3x3.rs`
+  - SSE4.2 + PCLMULQDQ (`v8s3x3`) -> `src/arch/sse42_pclmulqdq_v8s3x3.rs`
+  - SSE4.2 scalar (`s3k4096e`) -> `src/arch/sse42_s3k4096e.rs`
+  - AVX-512VL + PCLMULQDQ (`v9s3x4e`) -> `src/arch/avx512vl_pclmulqdq_v9s3x4e.rs`
+  - AVX-512VL + VPCLMULQDQ (`v3s1_s3`) -> `src/arch/avx512vl_vpclmulqdq_v3s1_s3.rs`
+  - AVX-512VL + VPCLMULQDQ (`v3s2x4`) -> `src/arch/avx512vl_vpclmulqdq_v3s2x4.rs`
+  - AVX-512VL + VPCLMULQDQ (`v4s5x3`) -> `src/arch/avx512vl_vpclmulqdq_v4s5x3.rs`
+  - AArch64 NEON + CRC + PMULL (`v3s4x2e_v2`) -> `src/arch/aes_v3s4x2e_v2.rs`
+  - AArch64 NEON + CRC + PMULL (`v12e_v1`) -> `src/arch/aes_crc_v12e_v1.rs`
+  - AArch64 NEON + CRC + PMULL (`s3k95760_s3`) -> `src/arch/crc_neon_s3k95760_s3.rs`
+  - AArch64 NEON + CRC + PMULL + EOR3/SHA3 (`v9s3x2e_s3`) -> `src/arch/aes_sha3_v9s3x2e_s3.rs`
+
+The suffix follows `corsix/fast-crc32`: `v` is the number of vector
+accumulators, `s` is the number of scalar accumulators, `x` is the load ratio,
+`k` is an outer-loop block size, and `e` means pointer-based loop termination.
+A trailing variant such as `_v1`, `_v2`, or `_s3` names the tail schedule used
+after the main schedule.
 
 ##### How to update?
 
