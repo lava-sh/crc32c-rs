@@ -244,10 +244,10 @@ impl SimdIsa {
                 return Self::AesSha3_v9s3x2e_s3;
             }
             if detect_features!(aarch64, ["crc", "aes"]) {
-                cfg_select! {
-                    target_vendor = "apple" => return Self::AesCrc_v12e_v1,
-                    _ => return Self::AesCrc_v3s4x2e_v2,
-                }
+                #[cfg(target_vendor = "apple")]
+                return Self::AesCrc_v12e_v1;
+                #[cfg(not(target_vendor = "apple"))]
+                return Self::AesCrc_v3s4x2e_v2;
             }
             if detect_features!(aarch64, ["crc"]) {
                 return Self::CrcNeon_s3k95760_s3;
