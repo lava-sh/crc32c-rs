@@ -114,8 +114,8 @@ at runtime, but you can also call a specific implementation directly:
 | `crc32c_avx512_vpclmulqdq` | `AVX-512F + AVX-512VL + VPCLMULQDQ` |
 | `crc32c_avx512_pclmulqdq`  | `AVX-512VL + PCLMULQDQ`             |
 | `crc32c_see42_pclmulqdq`   | `SSE4.2 + PCLMULQDQ`                |
-| `crc32c_neon64_sha3`       | `CRC + AES + SHA3`                  |
-| `crc32c_neon64`            | `CRC + AES`                         |
+| `crc32c_aes_sha3`          | `CRC + AES + SHA3`                  |
+| `crc32c_aes`               | `CRC + AES`                         |
 | `crc32c_fallback`          | No special CPU features             |
 
 Architecture-specific implementations are available only on compatible builds.
