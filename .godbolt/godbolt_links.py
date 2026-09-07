@@ -168,29 +168,23 @@ def create_short_link(client: Client, config: dict[str, Any]) -> str:
 
 
 def find_pairs(root: Path) -> list[tuple[Path, Path]]:
-    source_directories = sorted(
-        {
-            path.parent
-            for path in root.rglob("*")
-            if path.is_file() and path.suffix.lower() in LANGUAGES
-        },
-    )
+    source_directories = {
+        path.parent
+        for path in (*root.rglob("file.c"), *root.rglob("file.rs"))
+        if path.is_file()
+    }
     pairs = []
 
-    for directory in source_directories:
-        c_files = sorted(
-            path for path in directory.iterdir() if path.suffix.lower() in SOURCE_SUFFIXES
-        )
-        rust_files = sorted(path for path in directory.glob("*.rs"))
-        if not c_files and not rust_files:
-            continue
-        if len(c_files) != 1 or len(rust_files) != 1:
-            message = (
-                f"{directory}: expected exactly one C/C++ file and one Rust file, "
-                f"found {len(c_files)} and {len(rust_files)}"
-            )
+    for directory in sorted(source_directories):
+        c_path = directory / "file.c"
+        rust_path = directory / "file.rs"
+        has_c = c_path.is_file()
+        has_rust = rust_path.is_file()
+        if has_c != has_rust:
+            missing = "file.rs" if has_c else "file.c"
+            message = f"{directory}: missing paired {missing}"
             raise ValueError(message)
-        pairs.append((c_files[0], rust_files[0]))
+        pairs.append((c_path, rust_path))
     return pairs
 
 
