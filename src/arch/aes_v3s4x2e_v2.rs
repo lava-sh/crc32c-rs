@@ -1,4 +1,4 @@
-#![allow(clippy::wildcard_imports, clippy::cast_ptr_alignment)]
+#![allow(clippy::wildcard_imports)]
 
 use core::arch::{aarch64::*, asm};
 
