@@ -5,7 +5,7 @@
 //
 // ```console
 // make generate
-// ./generate -i avx512_vpclmulqdq -p crc32c -a v3s1_s3
+// ./generate -i avx512_vpclmulqdq -p crc32c -a v4s5x3
 // ```
 //
 // MIT or zlib licensed

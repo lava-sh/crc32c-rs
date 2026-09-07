@@ -168,9 +168,16 @@ def create_short_link(client: Client, config: dict[str, Any]) -> str:
 
 
 def find_pairs(root: Path) -> list[tuple[Path, Path]]:
+    source_directories = sorted(
+        {
+            path.parent
+            for path in root.rglob("*")
+            if path.is_file() and path.suffix.lower() in LANGUAGES
+        },
+    )
     pairs = []
 
-    for directory in sorted(path for path in root.iterdir() if path.is_dir()):
+    for directory in source_directories:
         c_files = sorted(
             path for path in directory.iterdir() if path.suffix.lower() in SOURCE_SUFFIXES
         )
@@ -207,7 +214,8 @@ def main() -> None:
         for sources in parsed_pairs:
             compiler_ids = [resolve_compiler(source, catalogs) for source in sources]
             link = create_short_link(client, make_config(sources, compiler_ids))
-            print(f"{sources[0].path.parent.name}: {link}")
+            directory = sources[0].path.parent.relative_to(ROOT).as_posix()
+            print(f"{directory}: {link}")
 
 
 if __name__ == "__main__":
