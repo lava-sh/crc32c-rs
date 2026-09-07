@@ -5,7 +5,7 @@
 //
 // ```console
 // make generate
-// ./generate -i sse -p crc32c -a s3k4096e
+// ./generate -i sse -p crc32c -a v7s3x3
 // ```
 //
 // MIT or zlib licensed
@@ -194,14 +194,26 @@ pub unsafe fn crc32c(mut crc0: u32, mut buf: *const u8, mut len: usize) -> u32 {
             y6 = _mm_xor_si128(y6, unsafe { _mm_loadu_si128(buf2.add(96).cast()) });
             x6 = _mm_xor_si128(x6, y6);
             crc0 = crc32_u64(crc0, unsafe { buf.cast::<u64>().read_unaligned() });
-            crc1 = crc32_u64(crc1, unsafe { buf.add(klen).cast::<u64>().read_unaligned() });
-            crc2 = crc32_u64(crc2, unsafe { buf.add(klen * 2).cast::<u64>().read_unaligned() });
+            crc1 = crc32_u64(crc1, unsafe {
+                buf.add(klen).cast::<u64>().read_unaligned()
+            });
+            crc2 = crc32_u64(crc2, unsafe {
+                buf.add(klen * 2).cast::<u64>().read_unaligned()
+            });
             crc0 = crc32_u64(crc0, unsafe { buf.add(8).cast::<u64>().read_unaligned() });
-            crc1 = crc32_u64(crc1, unsafe { buf.add(klen + 8).cast::<u64>().read_unaligned() });
-            crc2 = crc32_u64(crc2, unsafe { buf.add(klen * 2 + 8).cast::<u64>().read_unaligned() });
+            crc1 = crc32_u64(crc1, unsafe {
+                buf.add(klen + 8).cast::<u64>().read_unaligned()
+            });
+            crc2 = crc32_u64(crc2, unsafe {
+                buf.add(klen * 2 + 8).cast::<u64>().read_unaligned()
+            });
             crc0 = crc32_u64(crc0, unsafe { buf.add(16).cast::<u64>().read_unaligned() });
-            crc1 = crc32_u64(crc1, unsafe { buf.add(klen + 16).cast::<u64>().read_unaligned() });
-            crc2 = crc32_u64(crc2, unsafe { buf.add(klen * 2 + 16).cast::<u64>().read_unaligned() });
+            crc1 = crc32_u64(crc1, unsafe {
+                buf.add(klen + 16).cast::<u64>().read_unaligned()
+            });
+            crc2 = crc32_u64(crc2, unsafe {
+                buf.add(klen * 2 + 16).cast::<u64>().read_unaligned()
+            });
             buf = unsafe { buf.add(24) };
             buf2 = unsafe { buf2.add(112) };
             len -= 184;
@@ -251,14 +263,26 @@ pub unsafe fn crc32c(mut crc0: u32, mut buf: *const u8, mut len: usize) -> u32 {
         x0 = _mm_xor_si128(x0, y0);
         // Final scalar chunk.
         crc0 = crc32_u64(crc0, unsafe { buf.cast::<u64>().read_unaligned() });
-        crc1 = crc32_u64(crc1, unsafe { buf.add(klen).cast::<u64>().read_unaligned() });
-        crc2 = crc32_u64(crc2, unsafe { buf.add(klen * 2).cast::<u64>().read_unaligned() });
+        crc1 = crc32_u64(crc1, unsafe {
+            buf.add(klen).cast::<u64>().read_unaligned()
+        });
+        crc2 = crc32_u64(crc2, unsafe {
+            buf.add(klen * 2).cast::<u64>().read_unaligned()
+        });
         crc0 = crc32_u64(crc0, unsafe { buf.add(8).cast::<u64>().read_unaligned() });
-        crc1 = crc32_u64(crc1, unsafe { buf.add(klen + 8).cast::<u64>().read_unaligned() });
-        crc2 = crc32_u64(crc2, unsafe { buf.add(klen * 2 + 8).cast::<u64>().read_unaligned() });
+        crc1 = crc32_u64(crc1, unsafe {
+            buf.add(klen + 8).cast::<u64>().read_unaligned()
+        });
+        crc2 = crc32_u64(crc2, unsafe {
+            buf.add(klen * 2 + 8).cast::<u64>().read_unaligned()
+        });
         crc0 = crc32_u64(crc0, unsafe { buf.add(16).cast::<u64>().read_unaligned() });
-        crc1 = crc32_u64(crc1, unsafe { buf.add(klen + 16).cast::<u64>().read_unaligned() });
-        crc2 = crc32_u64(crc2, unsafe { buf.add(klen * 2 + 16).cast::<u64>().read_unaligned() });
+        crc1 = crc32_u64(crc1, unsafe {
+            buf.add(klen + 16).cast::<u64>().read_unaligned()
+        });
+        crc2 = crc32_u64(crc2, unsafe {
+            buf.add(klen * 2 + 16).cast::<u64>().read_unaligned()
+        });
         buf = unsafe { buf.add(24) };
         let vc0 = crc_shift(crc0, klen * 2 + 8);
         let vc1 = crc_shift(crc1, klen + 8);

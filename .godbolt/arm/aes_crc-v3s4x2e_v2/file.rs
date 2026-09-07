@@ -105,7 +105,6 @@ fn crc_shift(crc: u32, nbytes: usize) -> uint64x2_t {
 }
 
 #[target_feature(enable = "crc,aes")]
-#[inline(never)]
 #[unsafe(no_mangle)]
 pub unsafe fn crc32c(mut crc0: u32, mut buf: *const u8, mut len: usize) -> u32 {
     crc0 = !crc0;

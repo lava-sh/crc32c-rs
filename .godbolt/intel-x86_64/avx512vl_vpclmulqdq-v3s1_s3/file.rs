@@ -114,7 +114,6 @@ fn crc_shift(crc: u32, nbytes: usize) -> __m128i {
 }
 
 #[target_feature(enable = "avx512vl,vpclmulqdq")]
-#[inline(never)]
 #[unsafe(no_mangle)]
 pub unsafe fn crc32c(mut crc0: u32, mut buf: *const u8, mut len: usize) -> u32 {
     crc0 = !crc0;
@@ -163,9 +162,15 @@ pub unsafe fn crc32c(mut crc0: u32, mut buf: *const u8, mut len: usize) -> u32 {
             x1 = clmul_hi(x1, k);
             y2 = clmul_lo(x2, k);
             x2 = clmul_hi(x2, k);
-            x0 = _mm512_ternarylogic_epi64::<0x96>(x0, y0, unsafe { _mm512_loadu_si512(buf2.cast()) });
-            x1 = _mm512_ternarylogic_epi64::<0x96>(x1, y1, unsafe { _mm512_loadu_si512(buf2.add(64).cast()) });
-            x2 = _mm512_ternarylogic_epi64::<0x96>(x2, y2, unsafe { _mm512_loadu_si512(buf2.add(128).cast()) });
+            x0 = _mm512_ternarylogic_epi64::<0x96>(x0, y0, unsafe {
+                _mm512_loadu_si512(buf2.cast())
+            });
+            x1 = _mm512_ternarylogic_epi64::<0x96>(x1, y1, unsafe {
+                _mm512_loadu_si512(buf2.add(64).cast())
+            });
+            x2 = _mm512_ternarylogic_epi64::<0x96>(x2, y2, unsafe {
+                _mm512_loadu_si512(buf2.add(128).cast())
+            });
             crc0 = crc32_u64(crc0, unsafe { buf.cast::<u64>().read_unaligned() });
             buf = unsafe { buf.add(8) };
             buf2 = unsafe { buf2.add(192) };
@@ -231,8 +236,12 @@ pub unsafe fn crc32c(mut crc0: u32, mut buf: *const u8, mut len: usize) -> u32 {
         let mut crc2 = 0u32;
         loop {
             crc0 = crc32_u64(crc0, unsafe { buf.cast::<u64>().read_unaligned() });
-            crc1 = crc32_u64(crc1, unsafe { buf.add(klen).cast::<u64>().read_unaligned() });
-            crc2 = crc32_u64(crc2, unsafe { buf.add(klen * 2).cast::<u64>().read_unaligned() });
+            crc1 = crc32_u64(crc1, unsafe {
+                buf.add(klen).cast::<u64>().read_unaligned()
+            });
+            crc2 = crc32_u64(crc2, unsafe {
+                buf.add(klen * 2).cast::<u64>().read_unaligned()
+            });
             buf = unsafe { buf.add(8) };
             len -= 24;
             if len < 32 {
