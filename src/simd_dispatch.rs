@@ -306,9 +306,7 @@ impl SimdIsa {
     pub fn has_crc_aes() -> bool {
         matches!(
             Self::detected(),
-            Self::AesSha3_v9s3x2e_s3
-                | Self::AesCrc_v3s4x2e_v2
-                | Self::AesCrc_v12e_v1
+            Self::AesSha3_v9s3x2e_s3 | Self::AesCrc_v3s4x2e_v2 | Self::AesCrc_v12e_v1
         )
     }
 
