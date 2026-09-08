@@ -47,6 +47,7 @@ dependencies = []
 Homepage = "https://github.com/lava-sh/crc32c-rs"
 Repository = "https://github.com/lava-sh/crc32c-rs"
 Issues = "https://github.com/lava-sh/crc32c-rs/issues"
+Changelog = "https://github.com/lava-sh/crc32c-rs/blob/main/CHANGELOG.md"
 
 [dependency-groups]
 typos = ["typos == 1.50.1"]
