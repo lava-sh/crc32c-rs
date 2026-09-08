@@ -2,9 +2,7 @@
 
 Each implementation directory contains a standalone `file.c` and `file.rs` pair
 used when porting code from C to Rust and comparing generated assembly on
-[Compiler Explorer](https://godbolt.org). The link generator searches
-recursively, so architecture and implementation directories may be nested
-below `.godbolt/`.
+[Compiler Explorer](https://godbolt.org).
 
 The first two lines of every source file are required:
 
