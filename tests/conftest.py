@@ -63,7 +63,6 @@ def crc_impl() -> list[tuple[str, Callable[..., int]]]:
     logger.info("CPU: %s", host.name)
     logger.info("Vendor: %s", host.vendor)
     logger.info("Family: %s", host.family)
-    logger.info("Microarchitecture: %s", getattr(host, "microarchitecture", "unknown"))
     logger.info("Features: %s", " ".join(sorted(features)))
     logger.info("")
 
