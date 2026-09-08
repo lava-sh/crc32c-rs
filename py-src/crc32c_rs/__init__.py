@@ -23,7 +23,6 @@ try:  # noqa: RUF067
         _crc32c_sse42_pclmulqdq_v1s4x2 as crc32c_sse42_pclmulqdq_v1s4x2,
         _crc32c_sse42_pclmulqdq_v7s3x3 as crc32c_sse42_pclmulqdq_v7s3x3,
         _crc32c_sse42_pclmulqdq_v8s3x3 as crc32c_sse42_pclmulqdq_v8s3x3,
-        _crc32c_sse42_s3k4096e as crc32c_sse42_s3k4096e,
     )
 except ImportError:
     pass
@@ -38,7 +37,6 @@ else:
         "crc32c_sse42_pclmulqdq_v1s4x2",
         "crc32c_sse42_pclmulqdq_v7s3x3",
         "crc32c_sse42_pclmulqdq_v8s3x3",
-        "crc32c_sse42_s3k4096e",
     )
 
 try:  # noqa: RUF067
@@ -46,7 +44,6 @@ try:  # noqa: RUF067
         _crc32c_aes_crc_v12e_v1 as crc32c_aes_crc_v12e_v1,
         _crc32c_aes_sha3_v9s3x2e_s3 as crc32c_aes_sha3_v9s3x2e_s3,
         _crc32c_aes_v3s4x2e_v2 as crc32c_aes_v3s4x2e_v2,
-        _crc32c_crc_neon_s3k95760_s3 as crc32c_crc_neon_s3k95760_s3,
     )
 except ImportError:
     pass
@@ -55,5 +52,4 @@ else:
         "crc32c_aes_crc_v12e_v1",
         "crc32c_aes_sha3_v9s3x2e_s3",
         "crc32c_aes_v3s4x2e_v2",
-        "crc32c_crc_neon_s3k95760_s3",
     )

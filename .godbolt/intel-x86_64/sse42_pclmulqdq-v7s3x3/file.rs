@@ -114,8 +114,8 @@ fn crc_shift(crc: u32, nbytes: usize) -> __m128i {
     clmul_scalar(crc, xnmodp((nbytes * 8 - 33) as u64))
 }
 
-#[target_feature(enable = "sse4.2,pclmulqdq")]
 #[unsafe(no_mangle)]
+#[target_feature(enable = "sse4.2,pclmulqdq")]
 pub unsafe fn crc32c(mut crc0: u32, mut buf: *const u8, mut len: usize) -> u32 {
     crc0 = !crc0;
     while len != 0 && (buf as usize & 7) != 0 {
@@ -134,6 +134,7 @@ pub unsafe fn crc32c(mut crc0: u32, mut buf: *const u8, mut len: usize) -> u32 {
         let mut buf2 = buf;
         let mut crc1 = 0u32;
         let mut crc2 = 0u32;
+        // First vector chunk.
         let mut x0 = unsafe { _mm_loadu_si128(buf2.cast()) };
         let mut x1 = unsafe { _mm_loadu_si128(buf2.add(16).cast()) };
         let mut x2 = unsafe { _mm_loadu_si128(buf2.add(32).cast()) };
@@ -151,7 +152,6 @@ pub unsafe fn crc32c(mut crc0: u32, mut buf: *const u8, mut len: usize) -> u32 {
         let mut y6;
         let mut vc;
 
-        // First vector chunk.
         k = _mm_setr_epi32(
             0x2ad9_1c30_u32.cast_signed(),
             0,

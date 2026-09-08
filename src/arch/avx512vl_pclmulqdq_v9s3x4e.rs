@@ -1,9 +1,9 @@
 #![allow(clippy::wildcard_imports)]
 
 #[cfg(target_arch = "x86")]
-use std::arch::x86::*;
+use core::arch::x86::*;
 #[cfg(target_arch = "x86_64")]
-use std::arch::x86_64::*;
+use core::arch::x86_64::*;
 
 #[inline]
 #[target_feature(enable = "pclmulqdq")]
@@ -65,6 +65,7 @@ fn extract_u64(value: __m128i, index: i32) -> u64 {
     }
 }
 
+// x^n mod P, in log(n) time
 #[inline]
 #[target_feature(enable = "sse4.2,pclmulqdq")]
 fn xnmodp(mut n: u64) -> u32 {
@@ -123,6 +124,7 @@ pub unsafe fn crc32c(mut crc0: u32, mut buf: *const u8, mut len: usize) -> u32 {
         let mut buf2 = unsafe { buf.add(klen * 3) };
         let mut crc1 = 0u32;
         let mut crc2 = 0u32;
+        // First vector chunk.
         let mut x0 = unsafe { _mm_loadu_si128(buf2.cast()) };
         let mut x1 = unsafe { _mm_loadu_si128(buf2.add(16).cast()) };
         let mut x2 = unsafe { _mm_loadu_si128(buf2.add(32).cast()) };
@@ -151,6 +153,7 @@ pub unsafe fn crc32c(mut crc0: u32, mut buf: *const u8, mut len: usize) -> u32 {
         );
         buf2 = unsafe { buf2.add(144) };
         let mut blocks = blk - 1;
+        // Main loop.
         while blocks != 0 {
             y0 = clmul_lo(x0, k);
             x0 = clmul_hi(x0, k);
@@ -195,6 +198,7 @@ pub unsafe fn crc32c(mut crc0: u32, mut buf: *const u8, mut len: usize) -> u32 {
             x8 = _mm_ternarylogic_epi64::<0x96>(x8, y8, unsafe {
                 _mm_loadu_si128(buf2.add(128).cast())
             });
+            // Final scalar chunk.
             crc0 = crc32_u64(crc0, unsafe { buf.cast::<u64>().read_unaligned() });
             crc1 = crc32_u64(crc1, unsafe {
                 buf.add(klen).cast::<u64>().read_unaligned()
@@ -227,6 +231,7 @@ pub unsafe fn crc32c(mut crc0: u32, mut buf: *const u8, mut len: usize) -> u32 {
             buf2 = unsafe { buf2.add(144) };
             blocks -= 1;
         }
+        // Reduce x0 ... x8 to just x0.
         k = _mm_setr_epi32(
             0xf20c_0dfe_u32.cast_signed(),
             0,
@@ -308,6 +313,7 @@ pub unsafe fn crc32c(mut crc0: u32, mut buf: *const u8, mut len: usize) -> u32 {
         let vc1 = crc_shift(crc1, klen + blk * 144);
         let vc2 = crc_shift(crc2, blk * 144);
         let vc = extract_u64(_mm_ternarylogic_epi64::<0x96>(vc0, vc1, vc2), 0);
+        // Reduce 128 bits to 32 bits, and multiply by x^32.
         crc0 = crc32_u64(0, extract_u64(x0, 0));
         crc0 = crc32_u64(crc0, vc ^ extract_u64(x0, 1));
         buf = buf2;

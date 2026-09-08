@@ -23,7 +23,6 @@ try:
         crc32c_sse42_pclmulqdq_v1s4x2,
         crc32c_sse42_pclmulqdq_v7s3x3,
         crc32c_sse42_pclmulqdq_v8s3x3,
-        crc32c_sse42_s3k4096e,
     )
 except ImportError:
     pass
@@ -38,7 +37,6 @@ else:
         "sse42_pclmulqdq_v1s4x2": crc32c_sse42_pclmulqdq_v1s4x2,
         "sse42_pclmulqdq_v7s3x3": crc32c_sse42_pclmulqdq_v7s3x3,
         "sse42_pclmulqdq_v8s3x3": crc32c_sse42_pclmulqdq_v8s3x3,
-        "sse42_s3k4096e": crc32c_sse42_s3k4096e,
     }
 
 try:
@@ -46,7 +44,6 @@ try:
         crc32c_aes_crc_v12e_v1,
         crc32c_aes_sha3_v9s3x2e_s3,
         crc32c_aes_v3s4x2e_v2,
-        crc32c_crc_neon_s3k95760_s3,
     )
 except ImportError:
     pass
@@ -55,7 +52,6 @@ else:
         "aes_crc_v12e_v1": crc32c_aes_crc_v12e_v1,
         "aes_v3s4x2e_v2": crc32c_aes_v3s4x2e_v2,
         "aes_sha3_v9s3x2e_s3": crc32c_aes_sha3_v9s3x2e_s3,
-        "crc_neon_s3k95760_s3": crc32c_crc_neon_s3k95760_s3,
     }
 
 
@@ -83,7 +79,6 @@ def crc_impl() -> list[tuple[str, Callable[..., int]]]:
         "sse42_pclmulqdq_v1s4x2": {"sse4_2", "pclmulqdq"},
         "sse42_pclmulqdq_v7s3x3": {"sse4_2", "pclmulqdq"},
         "sse42_pclmulqdq_v8s3x3": {"sse4_2", "pclmulqdq"},
-        "sse42_s3k4096e": {"sse4_2", "pclmulqdq"},
     }
     for name, required in x86_requirements.items():
         implementation = x86_impls.get(name)

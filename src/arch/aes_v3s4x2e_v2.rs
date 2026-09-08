@@ -8,13 +8,13 @@ fn clmul_lo_e(a: uint64x2_t, b: uint64x2_t, c: uint64x2_t) -> uint64x2_t {
     let r;
     unsafe {
         asm!(
-        "pmull {r:v}.1q, {a:v}.1d, {b:v}.1d",
-        "eor {r:v}.16b, {r:v}.16b, {c:v}.16b",
-        r = out(vreg) r,
-        a = in(vreg) a,
-        b = in(vreg) b,
-        c = in(vreg) c,
-        options(pure, nomem, nostack),
+            "pmull {r:v}.1q, {a:v}.1d, {b:v}.1d",
+            "eor {r:v}.16b, {r:v}.16b, {c:v}.16b",
+            r = out(vreg) r,
+            a = in(vreg) a,
+            b = in(vreg) b,
+            c = in(vreg) c,
+            options(pure, nomem, nostack),
         );
     }
     r
@@ -26,13 +26,13 @@ fn clmul_hi_e(a: uint64x2_t, b: uint64x2_t, c: uint64x2_t) -> uint64x2_t {
     let r;
     unsafe {
         asm!(
-        "pmull2 {r:v}.1q, {a:v}.2d, {b:v}.2d",
-        "eor {r:v}.16b, {r:v}.16b, {c:v}.16b",
-        r = out(vreg) r,
-        a = in(vreg) a,
-        b = in(vreg) b,
-        c = in(vreg) c,
-        options(pure, nomem, nostack),
+            "pmull2 {r:v}.1q, {a:v}.2d, {b:v}.2d",
+            "eor {r:v}.16b, {r:v}.16b, {c:v}.16b",
+            r = out(vreg) r,
+            a = in(vreg) a,
+            b = in(vreg) b,
+            c = in(vreg) c,
+            options(pure, nomem, nostack),
         );
     }
     r
@@ -46,16 +46,17 @@ fn clmul_scalar(a: u32, b: u32) -> uint64x2_t {
     let r;
     unsafe {
         asm!(
-        "pmull {r:v}.1q, {a:v}.1d, {b:v}.1d",
-        r = out(vreg) r,
-        a = in(vreg) a,
-        b = in(vreg) b,
-        options(pure, nomem, nostack),
+            "pmull {r:v}.1q, {a:v}.1d, {b:v}.1d",
+            r = out(vreg) r,
+            a = in(vreg) a,
+            b = in(vreg) b,
+            options(pure, nomem, nostack),
         );
     }
     r
 }
 
+// x^n mod P, in log(n) time
 #[inline]
 #[target_feature(enable = "crc,aes")]
 fn xnmodp(mut n: u64) -> u32 {

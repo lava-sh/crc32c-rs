@@ -29,14 +29,12 @@ I have not found a clear way to run Rust NEON checks on Godbolt yet.
 - [sse42_pclmulqdq-v1s3x2](https://godbolt.org/z/WsWzGsczY)
 - [sse42_pclmulqdq-v1s3x3](https://godbolt.org/z/qTa93j3o8)
 - [sse42_pclmulqdq-v1s4x2](https://godbolt.org/z/qaxWKahen)
-- [sse42_s3k4096e](https://godbolt.org/z/x1fMnfjEo)
 
 ### ARM
 
 - [aes_crc-v12e_v1](https://godbolt.org/z/dej4ds6cq)
 - [aes_crc-v3s4x2e_v2](https://godbolt.org/z/fMvYzrTEs)
 - [aes_crc_sha3-v9s3x2e_s3](https://godbolt.org/z/T73Mvz6Wf)
-- [crc_neon-s3k95760_s3](https://godbolt.org/z/53TseEcYe)
 
 ### Intel x86-64
 

@@ -63,6 +63,7 @@ fn clmul_scalar(a: u32, b: u32) -> uint64x2_t {
     r
 }
 
+// x^n mod P, in log(n) time
 #[inline]
 #[target_feature(enable = "crc,aes")]
 fn xnmodp(mut n: u64) -> u32 {
@@ -100,8 +101,8 @@ fn crc_shift(crc: u32, nbytes: usize) -> uint64x2_t {
     clmul_scalar(crc, xnmodp((nbytes * 8 - 33) as u64))
 }
 
-#[target_feature(enable = "crc,aes,sha3")]
 #[unsafe(no_mangle)]
+#[target_feature(enable = "crc,aes,sha3")]
 pub unsafe fn crc32c(mut crc0: u32, mut buf: *const u8, mut len: usize) -> u32 {
     crc0 = !crc0;
     while len != 0 && (buf as usize & 7) != 0 {

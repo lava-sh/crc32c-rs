@@ -21,11 +21,13 @@ use std::arch::x86_64::*;
 fn clmul_lo(a: __m128i, b: __m128i) -> __m128i {
     _mm_clmulepi64_si128::<0>(a, b)
 }
+
 #[inline]
 #[target_feature(enable = "pclmulqdq")]
 fn clmul_hi(a: __m128i, b: __m128i) -> __m128i {
     _mm_clmulepi64_si128::<17>(a, b)
 }
+
 #[inline]
 #[target_feature(enable = "sse4.2,pclmulqdq")]
 fn clmul_scalar(a: u32, b: u32) -> __m128i {
@@ -34,6 +36,7 @@ fn clmul_scalar(a: u32, b: u32) -> __m128i {
         _mm_cvtsi32_si128(b.cast_signed()),
     )
 }
+
 #[inline]
 #[target_feature(enable = "sse4.2")]
 fn crc32_u64(crc: u32, value: u64) -> u32 {
@@ -46,6 +49,7 @@ fn crc32_u64(crc: u32, value: u64) -> u32 {
         _mm_crc32_u64(u64::from(crc), value) as u32
     }
 }
+
 #[inline]
 #[target_feature(enable = "sse4.2")]
 fn extract_u64(value: __m128i, index: i32) -> u64 {
@@ -68,6 +72,8 @@ fn extract_u64(value: __m128i, index: i32) -> u64 {
         }
     }
 }
+
+// x^n mod P, in log(n) time
 #[inline]
 #[target_feature(enable = "sse4.2,pclmulqdq")]
 fn xnmodp(mut n: u64) -> u32 {
@@ -95,14 +101,15 @@ fn xnmodp(mut n: u64) -> u32 {
     }
     acc
 }
+
 #[inline]
 #[target_feature(enable = "sse4.2,pclmulqdq")]
 fn crc_shift(crc: u32, nbytes: usize) -> __m128i {
     clmul_scalar(crc, xnmodp((nbytes * 8 - 33) as u64))
 }
 
-#[target_feature(enable = "sse4.2,pclmulqdq")]
 #[unsafe(no_mangle)]
+#[target_feature(enable = "sse4.2,pclmulqdq")]
 pub unsafe fn crc32c(mut crc0: u32, mut buf: *const u8, mut len: usize) -> u32 {
     crc0 = !crc0;
     while len != 0 && (buf as usize & 7) != 0 {
@@ -122,6 +129,7 @@ pub unsafe fn crc32c(mut crc0: u32, mut buf: *const u8, mut len: usize) -> u32 {
         let mut crc1 = 0u32;
         let mut crc2 = 0u32;
         let mut crc3 = 0u32;
+        // First vector chunk.
         let mut x0 = unsafe { _mm_loadu_si128(buf2.cast()) };
         let k = _mm_setr_epi32(
             0xf20c_0dfe_u32.cast_signed(),
@@ -131,12 +139,14 @@ pub unsafe fn crc32c(mut crc0: u32, mut buf: *const u8, mut len: usize) -> u32 {
         );
         buf2 = unsafe { buf2.add(16) };
         len -= 80;
+        // Main loop.
         while len >= 80 {
             let y0 = clmul_lo(x0, k);
             x0 = _mm_xor_si128(
                 clmul_hi(x0, k),
                 _mm_xor_si128(y0, unsafe { _mm_loadu_si128(buf2.cast()) }),
             );
+            // Final scalar chunk.
             crc0 = crc32_u64(crc0, unsafe { buf.cast::<u64>().read_unaligned() });
             crc1 = crc32_u64(crc1, unsafe {
                 buf.add(klen).cast::<u64>().read_unaligned()
@@ -189,6 +199,7 @@ pub unsafe fn crc32c(mut crc0: u32, mut buf: *const u8, mut len: usize) -> u32 {
             _mm_xor_si128(_mm_xor_si128(vc0, vc1), _mm_xor_si128(vc2, vc3)),
             0,
         );
+        // Reduce 128 bits to 32 bits, and multiply by x^32.
         crc0 = crc32_u64(0, extract_u64(x0, 0));
         crc0 = crc32_u64(crc0, vc ^ extract_u64(x0, 1));
         buf = buf2;

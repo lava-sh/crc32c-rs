@@ -8,13 +8,13 @@ fn clmul_lo_e(a: uint64x2_t, b: uint64x2_t, c: uint64x2_t) -> uint64x2_t {
     let r;
     unsafe {
         asm!(
-        "pmull {r:v}.1q, {a:v}.1d, {b:v}.1d",
-        "eor {r:v}.16b, {r:v}.16b, {c:v}.16b",
-        r = out(vreg) r,
-        a = in(vreg) a,
-        b = in(vreg) b,
-        c = in(vreg) c,
-        options(pure, nomem, nostack),
+            "pmull {r:v}.1q, {a:v}.1d, {b:v}.1d",
+            "eor {r:v}.16b, {r:v}.16b, {c:v}.16b",
+            r = out(vreg) r,
+            a = in(vreg) a,
+            b = in(vreg) b,
+            c = in(vreg) c,
+            options(pure, nomem, nostack),
         );
     }
     r
@@ -26,13 +26,13 @@ fn clmul_hi_e(a: uint64x2_t, b: uint64x2_t, c: uint64x2_t) -> uint64x2_t {
     let r;
     unsafe {
         asm!(
-        "pmull2 {r:v}.1q, {a:v}.2d, {b:v}.2d",
-        "eor {r:v}.16b, {r:v}.16b, {c:v}.16b",
-        r = out(vreg) r,
-        a = in(vreg) a,
-        b = in(vreg) b,
-        c = in(vreg) c,
-        options(pure, nomem, nostack),
+            "pmull2 {r:v}.1q, {a:v}.2d, {b:v}.2d",
+            "eor {r:v}.16b, {r:v}.16b, {c:v}.16b",
+            r = out(vreg) r,
+            a = in(vreg) a,
+            b = in(vreg) b,
+            c = in(vreg) c,
+            options(pure, nomem, nostack),
         );
     }
     r
@@ -46,11 +46,11 @@ fn clmul_scalar(a: u32, b: u32) -> uint64x2_t {
     let r;
     unsafe {
         asm!(
-        "pmull {r:v}.1q, {a:v}.1d, {b:v}.1d",
-        r = out(vreg) r,
-        a = in(vreg) a,
-        b = in(vreg) b,
-        options(pure, nomem, nostack),
+            "pmull {r:v}.1q, {a:v}.1d, {b:v}.1d",
+            r = out(vreg) r,
+            a = in(vreg) a,
+            b = in(vreg) b,
+            options(pure, nomem, nostack),
         );
     }
     r
@@ -73,6 +73,7 @@ pub unsafe fn crc32c(mut crc0: u32, mut buf: *const u8, mut len: usize) -> u32 {
     if len >= 192 {
         let end = unsafe { buf.add(len) };
         let limit = unsafe { buf.add(len - 192) };
+        // First vector chunk.
         let mut x0 = unsafe { vld1q_u64(buf.cast::<u64>()) };
         let mut x1 = unsafe { vld1q_u64(buf.add(16).cast::<u64>()) };
         let mut x2 = unsafe { vld1q_u64(buf.add(32).cast::<u64>()) };
@@ -88,6 +89,7 @@ pub unsafe fn crc32c(mut crc0: u32, mut buf: *const u8, mut len: usize) -> u32 {
         let mut k = unsafe { vld1q_u64([0xa87a_b8a8_u64, 0xab7a_ff2a_u64].as_ptr()) };
         x0 = veorq_u64(vsetq_lane_u64(u64::from(crc0), vmovq_n_u64(0), 0), x0);
         buf = unsafe { buf.add(192) };
+        // Main loop.
         while buf <= limit {
             let y0 = clmul_lo_e(x0, k, unsafe { vld1q_u64(buf.cast::<u64>()) });
             x0 = clmul_hi_e(x0, k, y0);
@@ -115,6 +117,7 @@ pub unsafe fn crc32c(mut crc0: u32, mut buf: *const u8, mut len: usize) -> u32 {
             x11 = clmul_hi_e(x11, k, y11);
             buf = unsafe { buf.add(192) };
         }
+        // Reduce x0 ... x11 to just x0.
         k = unsafe { vld1q_u64([0xf20c_0dfe_u64, 0x493c_7d27_u64].as_ptr()) };
         let y0 = clmul_lo_e(x0, k, x1);
         x0 = clmul_hi_e(x0, k, y0);
@@ -141,22 +144,26 @@ pub unsafe fn crc32c(mut crc0: u32, mut buf: *const u8, mut len: usize) -> u32 {
         x4 = x8;
         let y0 = clmul_lo_e(x0, k, x4);
         x0 = clmul_hi_e(x0, k, y0);
+        // Reduce 128 bits to 32 bits, and multiply by x^32.
         crc0 = __crc32cd(0, vgetq_lane_u64(x0, 0));
         crc0 = __crc32cd(crc0, vgetq_lane_u64(x0, 1));
         len = unsafe { end.offset_from(buf).cast_unsigned() };
     }
     if len >= 16 {
+        // First vector chunk.
         let mut x0 = unsafe { vld1q_u64(buf.cast::<u64>()) };
         let k = unsafe { vld1q_u64([0xf20c_0dfe_u64, 0x493c_7d27_u64].as_ptr()) };
         x0 = veorq_u64(vsetq_lane_u64(u64::from(crc0), vmovq_n_u64(0), 0), x0);
         buf = unsafe { buf.add(16) };
         len -= 16;
+        // Main loop.
         while len >= 16 {
             let y0 = clmul_lo_e(x0, k, unsafe { vld1q_u64(buf.cast::<u64>()) });
             x0 = clmul_hi_e(x0, k, y0);
             buf = unsafe { buf.add(16) };
             len -= 16;
         }
+        // Reduce 128 bits to 32 bits, and multiply by x^32.
         crc0 = __crc32cd(0, vgetq_lane_u64(x0, 0));
         crc0 = __crc32cd(crc0, vgetq_lane_u64(x0, 1));
     }
