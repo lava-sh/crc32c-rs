@@ -50,12 +50,12 @@ impl CpuVendor {
 #[repr(u8)]
 enum CpuModel {
     Unknown = 0,
-    CascadeLake,    // 0x55
-    IceLake,        // 0x6A/0x6C/0x7D/0x7E/0x8C/0x8D/0xA5
-    SapphireRapids, // 0x8F
-    Rome,           // 0x17
-    Milan,          // 0x19 models 0x00-0x0F, 0x20-0x5F (Zen 3)
-    Genoa,          // 0x19 models 0x10-0x1F, 0x60-0xAF (Zen 4)
+    CascadeLake
+    IceLake,
+    SapphireRapids,
+    Rome,
+    Milan,
+    Genoa,
 }
 
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
