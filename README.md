@@ -156,30 +156,6 @@ checksum = crc32c_avx512vl_vpclmulqdq_v3s1_s3(b"Hello world!")
 print(checksum)  # 2073618257
 ```
 
-### CPU and implementation notes
-
-> [!NOTE]
-> The following single-core CRC32C benchmark results are taken from the
-> [`corsix/fast-crc32` README](https://github.com/corsix/fast-crc32/blob/main/README.md).
-> These are benchmarks from that project, not from `crc32c-rs`.
-
-| Processor                          | Instruction set                         | Closest backend                          |          Speed |
-|------------------------------------|-----------------------------------------|------------------------------------------|---------------:|
-| Apple M1                           | `CRC + AES`                             | `crc32c_aes_crc_v12e_v1`                 |     77.69 GB/s |
-| **Apple M1**                       | **`CRC + AES + SHA3`**                  | **`crc32c_aes_sha3_v9s3x2e_s3`**         | **85.05 GB/s** |
-| GCP Tau T2A (Ampere Altra Arm)     | `CRC + AES`                             | `crc32c_aes_crc_v12e_v1`                 |     21.81 GB/s |
-| **GCP Tau T2A (Ampere Altra Arm)** | **`CRC + AES`**                         | **`crc32c_aes_v3s4x2e_v2`**              | **35.87 GB/s** |
-| Intel Cascade Lake                 | `SSE4.2 + PCLMULQDQ`                    | `crc32c_sse42_pclmulqdq_v8s3x3`          |     28.55 GB/s |
-| **Intel Cascade Lake**             | **`AVX-512VL + PCLMULQDQ`**             | **`crc32c_avx512vl_pclmulqdq_v9s3x4e`**  | **31.55 GB/s** |
-| Intel Ice Lake                     | `SSE4.2 + PCLMULQDQ`                    | `crc32c_sse42_pclmulqdq_v7s3x3`          |     42.58 GB/s |
-| **Intel Ice Lake**                 | **`AVX-512F + AVX-512VL + VPCLMULQDQ`** | **`crc32c_avx512vl_vpclmulqdq_v4s5x3`**  | **63.98 GB/s** |
-| Intel Sapphire Rapids              | `SSE4.2 + PCLMULQDQ`                    | `crc32c_sse42_pclmulqdq_v8s3x3`          |     36.98 GB/s |
-| **Intel Sapphire Rapids**          | **`AVX-512F + AVX-512VL + VPCLMULQDQ`** | **`crc32c_avx512vl_vpclmulqdq_v3s1_s3`** | **97.30 GB/s** |
-| **AMD EPYC Rome**                  | **`SSE4.2 + PCLMULQDQ`**                | **`crc32c_sse42_pclmulqdq_v1s3x3`**      | **31.16 GB/s** |
-| **AMD EPYC Milan**                 | **`SSE4.2 + PCLMULQDQ`**                | **`crc32c_sse42_pclmulqdq_v1s4x2`**      | **31.76 GB/s** |
-| AMD EPYC Genoa                     | `SSE4.2 + PCLMULQDQ`                    | `crc32c_sse42_pclmulqdq_v1s3x2`          |     36.20 GB/s |
-| **AMD EPYC Genoa**                 | **`AVX-512F + AVX-512VL + VPCLMULQDQ`** | **`crc32c_avx512vl_vpclmulqdq_v3s2x4`**  | **71.95 GB/s** |
-
 <div align="center">
 
 ## Contributors
