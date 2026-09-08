@@ -23,13 +23,14 @@ _High-performance CRC32C implementation compliant with RFC 3720 (iSCSI)_
 
 - High-performance CRC32C implementation written in Rust
 
-- Runtime dispatch keyed by CPU model: the vendor and CPUID model select a microarchitecture-tuned implementation 
-  (loop blocking, unroll factor and register allocation differ between Ice Lake,
-  Sapphire Rapids, Cascade Lake, Milan, Rome and Genoa); unknown CPUs fall back to a generic feature-based choice
-    - x86/x86_64: `SSE4.2 + PCLMULQDQ`, `AVX-512VL + PCLMULQDQ`, or
-      `AVX-512F + AVX-512VL + VPCLMULQDQ`
-    - AArch64/ARM64EC: `CRC + AES`, with an optimized `SHA3` variant when available
-    - Other platforms: a portable fallback implementation
+- Runtime dispatch keyed by CPU model: the vendor and CPUID model select a microarchitecture-tuned
+  implementation (loop blocking, unroll factor and register allocation differ between Ice Lake,
+  Sapphire Rapids, Cascade Lake, Milan, Rome and Genoa); unknown CPUs fall back to a generic
+  feature-based choice
+  - x86/x86_64: `SSE4.2 + PCLMULQDQ`, `AVX-512VL + PCLMULQDQ`, or
+    `AVX-512F + AVX-512VL + VPCLMULQDQ`
+  - AArch64/ARM64EC: `CRC + AES`, with an optimized `SHA3` variant when available
+  - Other platforms: a portable fallback implementation
 
 ## Installation
 
@@ -85,10 +86,10 @@ crc = crc32c(b"Hello")
 print(crc32c(b" world!", crc))  # 2073618257
 ```
 
-By default, `crc32c_rs.crc32c` selects an implementation at runtime. Dispatch is keyed by CPU model first: the vendor
-and CPUID model (family/model) are looked up, and if the CPU is a known one, its microarchitecture-tuned implementation
-is used whenever the required instruction sets are present. Only for unknown CPUs does dispatch fall back to a generic
-feature-based choice.
+By default, `crc32c_rs.crc32c` selects an implementation at runtime. Dispatch is keyed by CPU model
+first: the vendor and CPUID model (family/model) are looked up, and if the CPU is a known one, its
+microarchitecture-tuned implementation is used whenever the required instruction sets are present.
+Only for unknown CPUs does dispatch fall back to a generic feature-based choice.
 
 #### x86/x86_64
 
@@ -103,7 +104,8 @@ Model-tuned selection (checked in this order):
 | Milan             | —                             | —                            | `v1s4x2`                  |
 | Rome              | —                             | —                            | `v1s3x3`                  |
 
-Unknown model: `AVX-512VL + VPCLMULQDQ` -> `v4s5x3`, else `AVX-512VL + PCLMULQDQ` -> `v9s3x4e`, 
+Unknown model: `AVX-512VL + VPCLMULQDQ` -> `v4s5x3`,
+else `AVX-512VL + PCLMULQDQ` -> `v9s3x4e`,
 else `SSE4.2 + PCLMULQDQ` -> `v8s3x3`, else fallback.
 
 #### AArch64/ARM64EC

@@ -13,6 +13,9 @@ disable = [
     "MD041",
 ]
 
+[MD013]
+line_length = 100
+
 [MD033]
 allowed-elements = [
     "no-markdown-equivalent",
