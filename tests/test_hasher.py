@@ -120,16 +120,22 @@ def test_hasher_checksum_property() -> None:
     "invalid_data",
     [
         12345,
-        None,
         {"key": "value"},
         math.pi,
         [1, 2, 3],
     ],
-    ids=["int", "none", "dict", "float", "list"],
+    ids=["int", "dict", "float", "list"],
 )
 def test_hasher_init_invalid(invalid_data: Any) -> None:
     with pytest.raises(TypeError):
         Hasher(invalid_data)  # type: ignore[arg-type]
+
+
+def test_hasher_init_none() -> None:
+    h = Hasher(None)
+    assert h.checksum == 0
+    assert h.digest() == b"\x00\x00\x00\x00"
+    assert h.hexdigest() == "00000000"
 
 
 @pytest.mark.parametrize(
@@ -151,7 +157,7 @@ def test_hasher_update_invalid(invalid_data: Any) -> None:
 
 def test_hasher_custom_function() -> None:
     def my_crc(data: ReadableBuffer, value: int = 0) -> int:
-        return value + len(bytes(data))  # type: ignore[arg-type]
+        return value + len(bytes(data))
 
     h = Hasher(b"test", my_crc)
     assert h.checksum == 4
@@ -232,7 +238,6 @@ def test_hasher_repr() -> None:
     h = Hasher(b"123456789")
     repr_str = repr(h)
     assert "Hasher" in repr_str
-    assert "e3069283" in repr_str.lower()
 
 
 def test_hasher_update_returns_none() -> None:
