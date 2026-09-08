@@ -1,4 +1,4 @@
-#![allow(clippy::wildcard_imports)]
+#![allow(clippy::cast_ptr_alignment, clippy::wildcard_imports)]
 
 use core::arch::{aarch64::*, asm};
 
@@ -32,24 +32,6 @@ fn clmul_hi_e(a: uint64x2_t, b: uint64x2_t, c: uint64x2_t) -> uint64x2_t {
             a = in(vreg) a,
             b = in(vreg) b,
             c = in(vreg) c,
-            options(pure, nomem, nostack),
-        );
-    }
-    r
-}
-
-#[inline]
-#[target_feature(enable = "aes")]
-fn clmul_scalar(a: u32, b: u32) -> uint64x2_t {
-    let a = vmovq_n_u64(u64::from(a));
-    let b = vmovq_n_u64(u64::from(b));
-    let r;
-    unsafe {
-        asm!(
-            "pmull {r:v}.1q, {a:v}.1d, {b:v}.1d",
-            r = out(vreg) r,
-            a = in(vreg) a,
-            b = in(vreg) b,
             options(pure, nomem, nostack),
         );
     }

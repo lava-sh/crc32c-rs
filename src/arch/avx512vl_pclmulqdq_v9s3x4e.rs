@@ -51,8 +51,8 @@ fn extract_u64(value: __m128i, index: i32) -> u64 {
         } else {
             _mm_srli_si128(value, 8)
         };
-        (_mm_cvtsi128_si32(value) as u32) as u64
-            | ((_mm_cvtsi128_si32(_mm_srli_si128(value, 4)) as u32) as u64) << 32
+        u64::from(_mm_cvtsi128_si32(value).cast_unsigned())
+            | (u64::from(_mm_cvtsi128_si32(_mm_srli_si128(value, 4)).cast_unsigned()) << 32)
     }
 
     #[cfg(target_arch = "x86_64")]
