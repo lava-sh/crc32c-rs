@@ -45,7 +45,7 @@ I have not found a clear way to run Rust NEON checks on Godbolt yet.
 - [sse42_pclmulqdq-v7s3x3](https://godbolt.org/z/cfb6G8hff)
 - [sse42_pclmulqdq-v8s3x3](https://godbolt.org/z/aj3vejv9a)
 
-If the short links stop working, regenerate them from the repository root:
+If the short links stop working, regenerate them:
 
 ```console
 uv run .godbolt/godbolt_links.py
