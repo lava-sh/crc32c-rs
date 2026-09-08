@@ -277,6 +277,7 @@ pub unsafe fn crc32c(mut crc0: u32, mut buf: *const u8, mut len: usize) -> u32 {
         crc2 = crc32_u64(crc2, unsafe {
             buf.add(klen * 2 + 16).cast::<u64>().read_unaligned()
         });
+        buf = unsafe { buf.add(24) };
         let vc0 = crc_shift(crc0, klen * 2 + 8);
         let vc1 = crc_shift(crc1, klen + 8);
         let mut vc = extract_u64(_mm_xor_si128(vc0, vc1), 0);

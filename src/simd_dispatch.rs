@@ -74,8 +74,8 @@ enum CpuModel {
     IceLake,        // 0x6A/0x6C/0x7D/0x7E/0x8C/0x8D/0xA5
     SapphireRapids, // 0x8F
     Rome,           // 0x17
-    Milan,          // 0x19
-    Genoa,          // 0x1A
+    Milan,          // 0x19 models 0x00-0x0F, 0x20-0x5F (Zen 3)
+    Genoa,          // 0x19 models 0x10-0x1F, 0x60-0xAF (Zen 4)
 }
 
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
@@ -107,8 +107,14 @@ impl CpuModel {
             },
             CpuVendor::Amd => match family {
                 0x17 => Self::Rome,
-                0x19 => Self::Milan,
-                0x1A => Self::Genoa,
+                // Family 0x19 covers both Zen 3 and Zen 4
+                0x19 => match model {
+                    // Zen 3: Milan / Milan-X.
+                    0x00..=0x0F | 0x20..=0x5F => Self::Milan,
+                    // Zen 4: Genoa / Genoa-X / Raphael / Phoenix / Bergamo.
+                    0x10..=0x1F | 0x60..=0xAF => Self::Genoa,
+                    _ => Self::Unknown,
+                },
                 _ => Self::Unknown,
             },
             _ => Self::Unknown,
