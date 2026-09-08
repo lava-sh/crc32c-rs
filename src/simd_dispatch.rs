@@ -27,14 +27,6 @@ enum CpuVendor {
 }
 
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
-#[repr(C)]
-struct VendorInfo {
-    ebx: u32,
-    edx: u32,
-    ecx: u32,
-}
-
-#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 impl CpuVendor {
     fn detect() -> Self {
         #[cfg(target_arch = "x86_64")]
@@ -42,21 +34,11 @@ impl CpuVendor {
         #[cfg(target_arch = "x86")]
         let leaf0 = core::arch::x86::__cpuid(0);
 
-        let vi = VendorInfo {
-            ebx: leaf0.ebx,
-            edx: leaf0.edx,
-            ecx: leaf0.ecx,
-        };
-        let s = unsafe {
-            core::str::from_utf8_unchecked(core::slice::from_raw_parts(
-                (&raw const vi).cast::<u8>(),
-                size_of::<VendorInfo>(),
-            ))
-        };
-
-        match s {
-            "GenuineIntel" => Self::Intel,
-            "AuthenticAMD" => Self::Amd,
+        match (leaf0.ebx, leaf0.edx, leaf0.ecx) {
+            // Genu       ineI         ntel
+            (0x756e_6547, 0x4965_6e69, 0x6c65_746e) => Self::Intel,
+            // Auth       enti         cAMD
+            (0x6874_7541, 0x6974_6e65, 0x444d_4163) => Self::Amd,
             _ => Self::Unknown,
         }
     }
