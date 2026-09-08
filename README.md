@@ -102,12 +102,12 @@ Model-tuned selection (checked in this order):
 
 | CPU model (CPUID) | With `AVX-512VL + VPCLMULQDQ` | With `AVX-512VL + PCLMULQDQ` | With `SSE4.2 + PCLMULQDQ` |
 |-------------------|-------------------------------|------------------------------|---------------------------|
-| Sapphire Rapids   | `v3s1_s3`                     | —                            | `v8s3x3`                  |
-| Genoa             | `v3s2x4`                      | —                            | `v1s3x2`                  |
-| Ice Lake          | `v4s5x3`                      | —                            | `v7s3x3`                  |
-| Cascade Lake      | —                             | `v9s3x4e`                    | `v8s3x3`                  |
-| Milan             | —                             | —                            | `v1s4x2`                  |
-| Rome              | —                             | —                            | `v1s3x3`                  |
+| Sapphire Rapids   | `v3s1_s3`                     | ×                            | `v8s3x3`                  |
+| Genoa             | `v3s2x4`                      | ×                            | `v1s3x2`                  |
+| Ice Lake          | `v4s5x3`                      | ×                            | `v7s3x3`                  |
+| Cascade Lake      | ×                             | `v9s3x4e`                    | `v8s3x3`                  |
+| Milan             | ×                             | ×                            | `v1s4x2`                  |
+| Rome              | ×                             | ×                            | `v1s3x3`                  |
 
 Unknown model: `AVX-512VL + VPCLMULQDQ` -> `v4s5x3`,
 else `AVX-512VL + PCLMULQDQ` -> `v9s3x4e`,
