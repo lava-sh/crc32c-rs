@@ -19,7 +19,14 @@ mod crc32c_rs {
         avx512vl_vpclmulqdq_v4s5x3, sse42_pclmulqdq_v1s3x2, sse42_pclmulqdq_v1s3x3,
         sse42_pclmulqdq_v1s4x2, sse42_pclmulqdq_v7s3x3, sse42_pclmulqdq_v8s3x3,
     };
-    use crate::{arch::fallback, detect_features, py_buffer::PyBuffer, simd_dispatch::SimdIsa};
+    #[cfg(any(
+        target_arch = "x86",
+        target_arch = "x86_64",
+        target_arch = "aarch64",
+        target_arch = "arm64ec",
+    ))]
+    use crate::detect_features;
+    use crate::{arch::fallback, py_buffer::PyBuffer, simd_dispatch::SimdIsa};
 
     // releasing / reacquiring the GIL has  overhead that outweighs the benefit
     // for small buffers, so only detach the GIL for inputs at or above this size.
