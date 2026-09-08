@@ -1,23 +1,20 @@
-import abc
 import sys
 from collections.abc import Callable
-from typing import Self, runtime_checkable
+from typing import Self, TypeAlias
+
+from ._crc32c_rs import _crc32c
 
 if sys.version_info >= (3, 12):
     from collections.abc import Buffer
 else:
-    from typing import Protocol
-
-    @runtime_checkable
-    class Buffer(Protocol, abc.ABC):  # ty: ignore[invalid-protocol]
-        def __buffer__(self, flags: int, /) -> memoryview: ...
+    Buffer = bytes | bytearray | memoryview
 
 
-from ._crc32c_rs import _crc32c
+ReadableBuffer: TypeAlias = Buffer
 
 
 class Hasher:
-    def __init__(self, data: Buffer = b"", fn: Callable = _crc32c) -> None:
+    def __init__(self, data: ReadableBuffer = b"", fn: Callable = _crc32c) -> None:
         self._fn = fn
         self._checksum = self._fn(data)
 
