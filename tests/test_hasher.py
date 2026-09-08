@@ -128,7 +128,7 @@ def test_hasher_checksum_property() -> None:
 )
 def test_hasher_init_invalid(invalid_data: Any) -> None:
     with pytest.raises(TypeError):
-        Hasher(invalid_data)  # type: ignore[arg-type]
+        Hasher(invalid_data)
 
 
 def test_hasher_init_none() -> None:
@@ -152,7 +152,7 @@ def test_hasher_init_none() -> None:
 def test_hasher_update_invalid(invalid_data: Any) -> None:
     h = Hasher()
     with pytest.raises(TypeError):
-        h.update(invalid_data)  # type: ignore[arg-type]
+        h.update(invalid_data)
 
 
 def test_hasher_custom_function() -> None:
