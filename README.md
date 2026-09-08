@@ -23,11 +23,13 @@ _High-performance CRC32C implementation compliant with RFC 3720 (iSCSI)_
 
 - High-performance CRC32C implementation written in Rust
 
-- Runtime dispatch to the fastest available implementation:
-  - x86/x86_64: `SSE4.2 + PCLMULQDQ`, `AVX-512VL + PCLMULQDQ`, or
-    `AVX-512F + AVX-512VL + VPCLMULQDQ`
-  - AArch64/ARM64EC: `CRC + AES`, with an optimized `SHA3` variant when available
-  - Other platforms: a portable fallback implementation
+- Runtime dispatch keyed by CPU model: the vendor and CPUID model select a microarchitecture-tuned implementation 
+  (loop blocking, unroll factor and register allocation differ between Ice Lake,
+  Sapphire Rapids, Cascade Lake, Milan, Rome and Genoa); unknown CPUs fall back to a generic feature-based choice
+    - x86/x86_64: `SSE4.2 + PCLMULQDQ`, `AVX-512VL + PCLMULQDQ`, or
+      `AVX-512F + AVX-512VL + VPCLMULQDQ`
+    - AArch64/ARM64EC: `CRC + AES`, with an optimized `SHA3` variant when available
+    - Other platforms: a portable fallback implementation
 
 ## Installation
 
@@ -83,21 +85,31 @@ crc = crc32c(b"Hello")
 print(crc32c(b" world!", crc))  # 2073618257
 ```
 
-By default, `crc32c_rs.crc32c` detects the CPU's supported instruction
-sets at runtime and selects the fastest available implementation. It
-checks the implementations from the highest acceleration level to the lowest:
+By default, `crc32c_rs.crc32c` selects an implementation at runtime. Dispatch is keyed by CPU model first: the vendor
+and CPUID model (family/model) are looked up, and if the CPU is a known one, its microarchitecture-tuned implementation
+is used whenever the required instruction sets are present. Only for unknown CPUs does dispatch fall back to a generic
+feature-based choice.
 
 #### x86/x86_64
 
-1. `AVX-512F + AVX-512VL + VPCLMULQDQ`
-2. `AVX-512VL + PCLMULQDQ`
-3. `SSE4.2 + PCLMULQDQ`
-4. fallback
+Model-tuned selection (checked in this order):
+
+| CPU model (CPUID) | With `AVX-512VL + VPCLMULQDQ` | With `AVX-512VL + PCLMULQDQ` | With `SSE4.2 + PCLMULQDQ` |
+|-------------------|-------------------------------|------------------------------|---------------------------|
+| Sapphire Rapids   | `v3s1_s3`                     | —                            | `v8s3x3`                  |
+| Genoa             | `v3s2x4`                      | —                            | `v1s3x2`                  |
+| Ice Lake          | `v4s5x3`                      | —                            | `v7s3x3`                  |
+| Cascade Lake      | —                             | `v9s3x4e`                    | `v8s3x3`                  |
+| Milan             | —                             | —                            | `v1s4x2`                  |
+| Rome              | —                             | —                            | `v1s3x3`                  |
+
+Unknown model: `AVX-512VL + VPCLMULQDQ` -> `v4s5x3`, else `AVX-512VL + PCLMULQDQ` -> `v9s3x4e`, 
+else `SSE4.2 + PCLMULQDQ` -> `v8s3x3`, else fallback.
 
 #### AArch64/ARM64EC
 
-1. `CRC + AES + SHA3`
-2. `CRC + AES`
+1. `CRC + AES + SHA3` → `v9s3x2e_s3`
+2. `CRC + AES` -> `v12e_v1` on Apple, `v3s4x2e_v2` elsewhere
 3. fallback
 
 #### Other platforms
