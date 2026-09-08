@@ -10,7 +10,6 @@
 //
 // MIT or zlib licensed
 #![no_main]
-#![allow(clippy::cast_ptr_alignment)]
 
 use std::arch::{aarch64::*, asm};
 
