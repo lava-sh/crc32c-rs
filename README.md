@@ -115,7 +115,7 @@ else `SSE4.2 + PCLMULQDQ` -> `v8s3x3`, else fallback.
 
 #### AArch64/ARM64EC
 
-1. `CRC + AES + SHA3` → `v9s3x2e_s3`
+1. `CRC + AES + SHA3` -> `v9s3x2e_s3`
 2. `CRC + AES` -> `v12e_v1` on Apple, `v3s4x2e_v2` elsewhere
 3. fallback
 
