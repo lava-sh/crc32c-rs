@@ -25,6 +25,29 @@ LANGUAGES = {
 SOURCE_SUFFIXES = set(LANGUAGES) - {".rs"}
 MIN_HEADER_LINES = 2
 
+FILTERS_BY_LANGUAGE = {
+    "rust": {
+        "labels": True,
+        "libraryCode": True,
+        "directives": True,
+        "commentOnly": True,
+        "trim": False,
+        "debugCalls": False,
+        "intel": True,
+    },
+    "c++": {
+        "labels": True,
+        "libraryCode": True,
+        "directives": True,
+        "commentOnly": True,
+        "trim": False,
+        "debugCalls": False,
+        "demangle": True,
+        "verboseDemangling": True,
+        "intel": True,
+    },
+}
+
 
 @dataclass(frozen=True)
 class Source:
@@ -132,7 +155,7 @@ def make_config(sources: list[Source], compiler_ids: list[str]) -> dict[str, Any
                     "source": editor_id,
                     "compiler": compiler_id,
                     "lang": source.language,
-                    "filters": {"debugCalls": True},
+                    "filters": FILTERS_BY_LANGUAGE[source.language],
                     "options": source.options,
                 },
             ),
