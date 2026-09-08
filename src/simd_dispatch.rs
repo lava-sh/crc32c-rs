@@ -50,7 +50,7 @@ impl CpuVendor {
 #[repr(u8)]
 enum CpuModel {
     Unknown = 0,
-    CascadeLake
+    CascadeLake,
     IceLake,
     SapphireRapids,
     Rome,
