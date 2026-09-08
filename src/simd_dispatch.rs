@@ -79,8 +79,17 @@ impl CpuModel {
 
         match vendor {
             CpuVendor::Intel if family == 0x6 => match model {
+                // `Skylake-SP`, `Cascade Lake` and `Cooper Lake` all share the
+                // same base CPUID Model identifier, 0x55 (Family 6, Model 85).
+                //
+                // No stepping check needed here since all of them natively
+                // support both `AVX-512 VL` and `PCLMULQDQ`.
+                //
+                // https://github.com/torvalds/linux/blob/5acbae5f/arch/x86/include/asm/intel-family.h#L96
                 0x55 => Self::CascadeLake,
-                0x6A | 0x6C | 0x7D | 0x7E | 0x8C | 0x8D | 0xA5 => Self::IceLake,
+                // https://github.com/torvalds/linux/blob/5acbae5f/arch/x86/include/asm/intel-family.h#L112-L116
+                0x6A | 0x6C | 0x7D | 0x7E | 0x9D => Self::IceLake,
+                // https://github.com/torvalds/linux/blob/5acbae5f/arch/x86/include/asm/intel-family.h#L123
                 0x8F => Self::SapphireRapids,
                 _ => Self::Unknown,
             },

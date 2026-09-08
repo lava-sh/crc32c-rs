@@ -1,6 +1,6 @@
 import builtins
 import sys
-from typing import Protocol, TypeAlias, runtime_checkable
+from typing import TypeAlias
 
 if sys.version_info >= (3, 12):
     from collections.abc import Buffer
@@ -98,27 +98,3 @@ def _crc32c_aes_sha3_v9s3x2e_s3(
     value: builtins.int = 0,
     /,
 ) -> builtins.int: ...
-
-@runtime_checkable
-class CRC32CFn(Protocol):
-    def __call__(self, data: ReadableBuffer, value: int = 0, /) -> int: ...
-
-class _Hasher:
-    def __init__(
-        self,
-        data: ReadableBuffer = b"",
-        fn: CRC32CFn | None = None,
-        /,
-    ) -> None: ...
-
-    @property
-    def digest_size(self) -> builtins.int: ...
-    @property
-    def block_size(self) -> builtins.int: ...
-    @property
-    def checksum(self) -> builtins.int: ...
-
-    def update(self, data: ReadableBuffer, /) -> None: ...
-    def digest(self) -> builtins.bytes: ...
-    def hexdigest(self) -> str: ...
-    def copy(self) -> _Hasher: ...
