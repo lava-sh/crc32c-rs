@@ -56,7 +56,7 @@ def crc_impl() -> list[tuple[str, Callable[..., int]]]:
         implementation = impls_.get(name)
         if implementation is not None and required.issubset(features):
             impls.append((name, implementation))
-            logger.info("crc32c_rs.%s available", name)
+            logger.info("✅ crc32c_rs.%s available", name)
 
     impls.append(("crc32c_fallback", crc32c_fallback))
     logger.info("")
