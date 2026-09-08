@@ -67,7 +67,7 @@ fn clmul_scalar(a: u32, b: u32) -> uint64x2_t {
 #[inline]
 #[target_feature(enable = "crc,aes")]
 fn xnmodp(mut n: u64) -> u32 {
-    let mut stack = !1u64;
+    let mut stack = !1_u64;
     while n > 191 {
         stack = (stack << 1) + (n & 1);
         n = (n >> 1) - 16;
@@ -122,8 +122,8 @@ pub unsafe fn crc32c(mut crc0: u32, mut buf: *const u8, mut len: usize) -> u32 {
         let klen = blk * 16;
         let mut buf2 = unsafe { buf.add(klen * 3) };
         let limit = unsafe { buf.add(klen).sub(32) };
-        let mut crc1 = 0u32;
-        let mut crc2 = 0u32;
+        let mut crc1 = 0_u32;
+        let mut crc2 = 0_u32;
 
         // First vector chunk.
         let mut x0 = unsafe { vld1q_u64(buf2.cast::<u64>()) };
@@ -254,8 +254,8 @@ pub unsafe fn crc32c(mut crc0: u32, mut buf: *const u8, mut len: usize) -> u32 {
 
     if len >= 32 {
         let klen = ((len - 8) / 24) * 8;
-        let mut crc1 = 0u32;
-        let mut crc2 = 0u32;
+        let mut crc1 = 0_u32;
+        let mut crc2 = 0_u32;
 
         // Main loop.
         loop {

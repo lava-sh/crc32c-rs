@@ -37,11 +37,23 @@ Regenerate C code using [fast-crc32 generator][gh-fast-crc32]:
 ```bash
 make generate
 
-./generate -i sse -p crc32c -a v7s3x3
-./generate -i avx512_pclmulqdq -p crc32c -a v7s3x3
+# AMD x86-64
+./generate -i avx512_vpclmulqdq -p crc32c -a v3s2x4
+./generate -i sse -p crc32c -a v1s3x2
+./generate -i sse -p crc32c -a v1s3x3
+./generate -i sse -p crc32c -a v1s4x2
+
+# Intel x86-64
 ./generate -i avx512_vpclmulqdq -p crc32c -a v3s1_s3
+./generate -i avx512_vpclmulqdq -p crc32c -a v4s5x3
+./generate -i avx512 -p crc32c -a v9s3x4e
+./generate -i sse -p crc32c -a v7s3x3
+./generate -i sse -p crc32c -a v8s3x3
+
+# AArch64
+./generate -i neon -p crc32c -a v12e_v1
 ./generate -i neon -p crc32c -a v3s4x2e_v2
-./generate -i neon_eor3 -p crc32c -a v9s3x2e_s3 
+./generate -i neon_eor3 -p crc32c -a v9s3x2e_s3
 ```
 
 Port to Rust line by line

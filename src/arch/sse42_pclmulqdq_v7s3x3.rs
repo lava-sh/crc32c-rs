@@ -69,7 +69,7 @@ fn extract_u64(value: __m128i, index: i32) -> u64 {
 #[inline]
 #[target_feature(enable = "sse4.2,pclmulqdq")]
 fn xnmodp(mut n: u64) -> u32 {
-    let mut stack = !1u64;
+    let mut stack = !1_u64;
     for _ in 0.. {
         if n <= 191 {
             break;
@@ -121,8 +121,8 @@ pub unsafe fn crc32c(mut crc0: u32, mut buf: *const u8, mut len: usize) -> u32 {
         let blk = (len - 8) / 184;
         let klen = blk * 24;
         let mut buf2 = buf;
-        let mut crc1 = 0u32;
-        let mut crc2 = 0u32;
+        let mut crc1 = 0_u32;
+        let mut crc2 = 0_u32;
         // First vector chunk.
         let mut x0 = unsafe { _mm_loadu_si128(buf2.cast()) };
         let mut x1 = unsafe { _mm_loadu_si128(buf2.add(16).cast()) };
