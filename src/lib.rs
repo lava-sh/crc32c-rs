@@ -1,5 +1,6 @@
 mod arch;
 mod exceptions;
+mod hasher;
 mod py_buffer;
 mod simd_dispatch;
 
@@ -8,7 +9,7 @@ mod simd_dispatch;
 static GLOBAL_ALLOCATOR: mimalloc::MiMalloc = mimalloc::MiMalloc;
 
 #[pyo3::pymodule(name = "_crc32c_rs")]
-mod crc32c_rs {
+pub mod crc32c_rs {
     use pyo3::prelude::*;
 
     #[cfg(any(target_arch = "aarch64", target_arch = "arm64ec"))]
@@ -31,6 +32,8 @@ mod crc32c_rs {
 
     #[pymodule_export]
     use crate::exceptions::UnsupportedCPUFeatureError;
+    #[pymodule_export]
+    use crate::hasher::Hasher;
 
     #[inline]
     fn crc32c_dispatch(
@@ -61,7 +64,7 @@ mod crc32c_rs {
     }
 
     #[pyfunction(name = "_crc32c", signature = (data, value = 0, /))]
-    fn crc32c(py: Python<'_>, data: &Bound<'_, PyAny>, value: u32) -> PyResult<u32> {
+    pub fn crc32c(py: Python<'_>, data: &Bound<'_, PyAny>, value: u32) -> PyResult<u32> {
         let buffer = PyBuffer::get(py, data)?;
 
         let impl_fn = match SimdIsa::detected() {

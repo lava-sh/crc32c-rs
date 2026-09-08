@@ -71,6 +71,7 @@ suspicious  = { level = "warn", priority = -1 }
 inline_always = "allow"
 cast_possible_truncation = "allow"
 too_many_lines = "allow"
+missing_errors_doc = "allow"
 
 # FIXME: remove after PyO3 0.29.3 is released
 # See: https://github.com/PyO3/pyo3/pull/6309

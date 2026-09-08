@@ -1,4 +1,5 @@
 __all__ = (
+    "Hasher",
     "UnsupportedCPUFeatureError",
     "__version__",
     "crc32c",
@@ -10,6 +11,7 @@ from ._crc32c_rs import (
     __version__,
     _crc32c as crc32c,
     _crc32c_fallback as crc32c_fallback,
+    _Hasher as Hasher,
 )
 
 try:  # noqa: RUF067
