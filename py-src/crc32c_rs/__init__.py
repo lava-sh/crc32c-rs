@@ -5,14 +5,13 @@ __all__ = (
     "crc32c",
     "crc32c_fallback",
 )
-
 from ._crc32c_rs import (
     UnsupportedCPUFeatureError,
     __version__,
     _crc32c as crc32c,
     _crc32c_fallback as crc32c_fallback,
-    _Hasher as Hasher,
 )
+from ._hasher import Hasher
 
 try:  # noqa: RUF067
     from ._crc32c_rs import (
@@ -29,7 +28,7 @@ try:  # noqa: RUF067
 except ImportError:
     pass
 else:
-    __all__ += (
+    __all__ += (  # type: ignore[assignment]
         "crc32c_avx512vl_pclmulqdq_v9s3x4e",
         "crc32c_avx512vl_vpclmulqdq_v3s1_s3",
         "crc32c_avx512vl_vpclmulqdq_v3s2x4",
@@ -50,7 +49,7 @@ try:  # noqa: RUF067
 except ImportError:
     pass
 else:
-    __all__ += (
+    __all__ += (  # type: ignore[assignment]
         "crc32c_aes_crc_v12e_v1",
         "crc32c_aes_sha3_v9s3x2e_s3",
         "crc32c_aes_v3s4x2e_v2",

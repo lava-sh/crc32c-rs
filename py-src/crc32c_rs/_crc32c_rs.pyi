@@ -106,7 +106,7 @@ class CRC32CFn(Protocol):
 class _Hasher:
     def __init__(
         self,
-        data: ReadableBuffer | None = None,
+        data: ReadableBuffer = b"",
         fn: CRC32CFn | None = None,
         /,
     ) -> None: ...

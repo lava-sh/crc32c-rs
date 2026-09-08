@@ -35,6 +35,11 @@ def test_hasher_init_empty() -> None:
     assert h.hexdigest() == "00000000"
 
 
+def test_hasher_init_none_raises_error() -> None:
+    with pytest.raises(TypeError):
+        Hasher(None)  # ty: ignore[invalid-argument-type]
+
+
 def test_hasher_update() -> None:
     h = Hasher()
     h.update(b"123")
@@ -131,28 +136,26 @@ def test_hasher_init_invalid(invalid_data: Any) -> None:
         Hasher(invalid_data)
 
 
-def test_hasher_init_none() -> None:
-    h = Hasher(None)
-    assert h.checksum == 0
-    assert h.digest() == b"\x00\x00\x00\x00"
-    assert h.hexdigest() == "00000000"
-
-
 @pytest.mark.parametrize(
     "invalid_data",
     [
         12345,
-        None,
         {"key": "value"},
         math.pi,
         [1, 2, 3],
     ],
-    ids=["int", "none", "dict", "float", "list"],
+    ids=["int", "dict", "float", "list"],
 )
 def test_hasher_update_invalid(invalid_data: Any) -> None:
     h = Hasher()
     with pytest.raises(TypeError):
         h.update(invalid_data)
+
+
+def test_hasher_update_none_raises_error() -> None:
+    h = Hasher()
+    with pytest.raises(TypeError):
+        h.update(None)  # ty: ignore[invalid-argument-type]
 
 
 def test_hasher_custom_function() -> None:

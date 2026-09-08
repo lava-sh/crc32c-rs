@@ -1,6 +1,5 @@
 mod arch;
 mod exceptions;
-mod hasher;
 mod py_buffer;
 mod simd_dispatch;
 
@@ -9,7 +8,7 @@ mod simd_dispatch;
 static GLOBAL_ALLOCATOR: mimalloc::MiMalloc = mimalloc::MiMalloc;
 
 #[pyo3::pymodule(name = "_crc32c_rs")]
-pub mod crc32c_rs {
+mod crc32c_rs {
     use pyo3::prelude::*;
 
     #[cfg(any(target_arch = "aarch64", target_arch = "arm64ec"))]
@@ -20,7 +19,7 @@ pub mod crc32c_rs {
         avx512vl_vpclmulqdq_v4s5x3, sse42_pclmulqdq_v1s3x2, sse42_pclmulqdq_v1s3x3,
         sse42_pclmulqdq_v1s4x2, sse42_pclmulqdq_v7s3x3, sse42_pclmulqdq_v8s3x3,
     };
-    use crate::{arch::fallback, py_buffer::PyBuffer, simd_dispatch::SimdIsa};
+    use crate::{arch::fallback, detect_features, py_buffer::PyBuffer, simd_dispatch::SimdIsa};
 
     // releasing / reacquiring the GIL has  overhead that outweighs the benefit
     // for small buffers, so only detach the GIL for inputs at or above this size.
@@ -32,8 +31,6 @@ pub mod crc32c_rs {
 
     #[pymodule_export]
     use crate::exceptions::UnsupportedCPUFeatureError;
-    #[pymodule_export]
-    use crate::hasher::Hasher;
 
     #[inline]
     fn crc32c_dispatch(
@@ -64,7 +61,7 @@ pub mod crc32c_rs {
     }
 
     #[pyfunction(name = "_crc32c", signature = (data, value = 0, /))]
-    pub fn crc32c(py: Python<'_>, data: &Bound<'_, PyAny>, value: u32) -> PyResult<u32> {
+    fn crc32c(py: Python<'_>, data: &Bound<'_, PyAny>, value: u32) -> PyResult<u32> {
         let buffer = PyBuffer::get(py, data)?;
 
         let impl_fn = match SimdIsa::detected() {
@@ -105,7 +102,7 @@ pub mod crc32c_rs {
         data: &Bound<'_, PyAny>,
         value: u32,
     ) -> PyResult<u32> {
-        if !SimdIsa::has_avx512_vpclmulqdq() {
+        if !detect_features!(x86, ["avx512vl", "vpclmulqdq"]) {
             return Err(UnsupportedCPUFeatureError::new_err(
                 "AVX512VL and VPCLMULQDQ are not supported by this CPU",
             ));
@@ -126,7 +123,7 @@ pub mod crc32c_rs {
         data: &Bound<'_, PyAny>,
         value: u32,
     ) -> PyResult<u32> {
-        if !SimdIsa::has_avx512_vpclmulqdq() {
+        if !detect_features!(x86, ["avx512vl", "vpclmulqdq"]) {
             return Err(UnsupportedCPUFeatureError::new_err(
                 "AVX512VL and VPCLMULQDQ are not supported by this CPU",
             ));
@@ -147,7 +144,7 @@ pub mod crc32c_rs {
         data: &Bound<'_, PyAny>,
         value: u32,
     ) -> PyResult<u32> {
-        if !SimdIsa::has_sse42_pclmulqdq() {
+        if !detect_features!(x86, ["sse4.2", "pclmulqdq"]) {
             return Err(UnsupportedCPUFeatureError::new_err(
                 "SSE4.2 and PCLMULQDQ are not supported by this CPU",
             ));
@@ -169,7 +166,7 @@ pub mod crc32c_rs {
         value: u32,
     ) -> PyResult<u32> {
         let buffer = PyBuffer::get(py, data)?;
-        if !SimdIsa::has_sse42_pclmulqdq() {
+        if !detect_features!(x86, ["sse4.2", "pclmulqdq"]) {
             return Err(UnsupportedCPUFeatureError::new_err(
                 "SSE4.2 and PCLMULQDQ are not supported by this CPU",
             ));
@@ -190,7 +187,7 @@ pub mod crc32c_rs {
         value: u32,
     ) -> PyResult<u32> {
         let buffer = PyBuffer::get(py, data)?;
-        if !SimdIsa::has_sse42_pclmulqdq() {
+        if !detect_features!(x86, ["sse4.2", "pclmulqdq"]) {
             return Err(UnsupportedCPUFeatureError::new_err(
                 "SSE4.2 and PCLMULQDQ are not supported by this CPU",
             ));
@@ -211,7 +208,7 @@ pub mod crc32c_rs {
         value: u32,
     ) -> PyResult<u32> {
         let buffer = PyBuffer::get(py, data)?;
-        if !SimdIsa::has_sse42_pclmulqdq() {
+        if !detect_features!(x86, ["sse4.2", "pclmulqdq"]) {
             return Err(UnsupportedCPUFeatureError::new_err(
                 "SSE4.2 and PCLMULQDQ are not supported by this CPU",
             ));
@@ -231,7 +228,7 @@ pub mod crc32c_rs {
         data: &Bound<'_, PyAny>,
         value: u32,
     ) -> PyResult<u32> {
-        if !SimdIsa::has_crc_aes() {
+        if !detect_features!(aarch64, ["crc", "aes"]) {
             return Err(UnsupportedCPUFeatureError::new_err(
                 "CRC and AES are not supported by this CPU",
             ));
@@ -247,7 +244,7 @@ pub mod crc32c_rs {
         data: &Bound<'_, PyAny>,
         value: u32,
     ) -> PyResult<u32> {
-        if !SimdIsa::has_avx512_vpclmulqdq() {
+        if !detect_features!(x86, ["avx512vl", "vpclmulqdq"]) {
             return Err(UnsupportedCPUFeatureError::new_err(
                 "AVX512VL and VPCLMULQDQ are not supported by this CPU",
             ));
@@ -268,7 +265,7 @@ pub mod crc32c_rs {
         data: &Bound<'_, PyAny>,
         value: u32,
     ) -> PyResult<u32> {
-        if !SimdIsa::has_avx512_pclmulqdq() {
+        if !detect_features!(x86, ["avx512vl", "pclmulqdq"]) {
             return Err(UnsupportedCPUFeatureError::new_err(
                 "AVX512VL and PCLMULQDQ are not supported by this CPU",
             ));
@@ -289,7 +286,7 @@ pub mod crc32c_rs {
         data: &Bound<'_, PyAny>,
         value: u32,
     ) -> PyResult<u32> {
-        if !SimdIsa::has_sse42_pclmulqdq() {
+        if !detect_features!(x86, ["sse4.2", "pclmulqdq"]) {
             return Err(UnsupportedCPUFeatureError::new_err(
                 "SSE4.2 and PCLMULQDQ are not supported by this CPU",
             ));
@@ -310,7 +307,7 @@ pub mod crc32c_rs {
         data: &Bound<'_, PyAny>,
         value: u32,
     ) -> PyResult<u32> {
-        if !SimdIsa::has_crc_aes_sha3() {
+        if !detect_features!(aarch64, ["crc", "aes", "sha3"]) {
             return Err(UnsupportedCPUFeatureError::new_err(
                 "CRC, AES, and SHA3 are not supported by this CPU",
             ));
@@ -327,7 +324,7 @@ pub mod crc32c_rs {
     #[cfg(any(target_arch = "aarch64", target_arch = "arm64ec"))]
     #[pyfunction(name = "_crc32c_aes_v3s4x2e_v2", signature = (data, value = 0, /))]
     fn crc32c_aes_v3s4x2e_v2(py: Python<'_>, data: &Bound<'_, PyAny>, value: u32) -> PyResult<u32> {
-        if !SimdIsa::has_crc_aes() {
+        if !detect_features!(aarch64, ["crc", "aes"]) {
             return Err(UnsupportedCPUFeatureError::new_err(
                 "CRC and AES are not supported by this CPU",
             ));

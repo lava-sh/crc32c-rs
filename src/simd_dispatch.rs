@@ -6,6 +6,7 @@ use core::sync::atomic::{AtomicUsize, Ordering};
     target_arch = "aarch64",
     target_arch = "arm64ec",
 ))]
+#[macro_export]
 macro_rules! detect_features {
     (x86, [$($feat:tt),+ $(,)?]) => {{
         #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
@@ -45,9 +46,6 @@ impl CpuVendor {
 }
 
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
-const ICE_LAKE_MODELS: &[u32] = &[0x6A, 0x6C, 0x7D, 0x7E, 0x8C, 0x8D, 0xA5];
-
-#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 #[repr(u8)]
 enum CpuModel {
@@ -62,8 +60,7 @@ enum CpuModel {
 
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 impl CpuModel {
-    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
-    fn detect(vendor: CpuVendor, eax1: u32) -> Self {
+    const fn detect(vendor: CpuVendor, eax1: u32) -> Self {
         let base_family = (eax1 >> 8) & 0xF;
         let base_model = (eax1 >> 4) & 0xF;
         let ext_family = (eax1 >> 20) & 0xFF;
@@ -83,7 +80,7 @@ impl CpuModel {
         match vendor {
             CpuVendor::Intel if family == 0x6 => match model {
                 0x55 => Self::CascadeLake,
-                m if ICE_LAKE_MODELS.contains(&m) => Self::IceLake,
+                0x6A | 0x6C | 0x7D | 0x7E | 0x8C | 0x8D | 0xA5 => Self::IceLake,
                 0x8F => Self::SapphireRapids,
                 _ => Self::Unknown,
             },
@@ -247,60 +244,5 @@ impl SimdIsa {
         // SAFETY: `SimdIsa` is `#[repr(usize)]`, any valid discriminant is
         // a valid bit pattern for the enum, so transmute cannot produce UB.
         unsafe { core::mem::transmute::<usize, Self>(raw) }
-    }
-
-    #[cfg(any(target_arch = "x86_64", target_arch = "x86"))]
-    #[inline(always)]
-    pub fn has_sse42_pclmulqdq() -> bool {
-        matches!(
-            Self::detected(),
-            Self::Sse42Pclmulqdq_v8s3x3
-                | Self::Sse42Pclmulqdq_v7s3x3
-                | Self::Sse42Pclmulqdq_v1s3x2
-                | Self::Sse42Pclmulqdq_v1s4x2
-                | Self::Sse42Pclmulqdq_v1s3x3
-                | Self::Avx512vlPclmulqdq_v9s3x4e
-                | Self::Avx512vlVpclmulqdq_v3s1_s3
-                | Self::Avx512vlVpclmulqdq_v3s2x4
-                | Self::Avx512vlVpclmulqdq_v4s5x3
-        )
-    }
-
-    #[cfg(any(target_arch = "x86_64", target_arch = "x86"))]
-    #[inline(always)]
-    pub fn has_avx512_pclmulqdq() -> bool {
-        matches!(
-            Self::detected(),
-            Self::Avx512vlPclmulqdq_v9s3x4e
-                | Self::Avx512vlVpclmulqdq_v3s1_s3
-                | Self::Avx512vlVpclmulqdq_v3s2x4
-                | Self::Avx512vlVpclmulqdq_v4s5x3
-        )
-    }
-
-    #[cfg(any(target_arch = "x86_64", target_arch = "x86"))]
-    #[inline(always)]
-    pub fn has_avx512_vpclmulqdq() -> bool {
-        matches!(
-            Self::detected(),
-            Self::Avx512vlVpclmulqdq_v3s1_s3
-                | Self::Avx512vlVpclmulqdq_v3s2x4
-                | Self::Avx512vlVpclmulqdq_v4s5x3
-        )
-    }
-
-    #[cfg(any(target_arch = "aarch64", target_arch = "arm64ec"))]
-    #[inline(always)]
-    pub fn has_crc_aes() -> bool {
-        matches!(
-            Self::detected(),
-            Self::AesSha3_v9s3x2e_s3 | Self::AesCrc_v3s4x2e_v2 | Self::AesCrc_v12e_v1
-        )
-    }
-
-    #[cfg(any(target_arch = "aarch64", target_arch = "arm64ec"))]
-    #[inline(always)]
-    pub fn has_crc_aes_sha3() -> bool {
-        Self::detected() == Self::AesSha3_v9s3x2e_s3
     }
 }
