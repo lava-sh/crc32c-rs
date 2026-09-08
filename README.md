@@ -24,12 +24,12 @@ _High-performance CRC32C implementation compliant with [RFC 3720 (iSCSI)](https:
 - High-performance CRC32C implementation written in Rust
 
 - Runtime dispatch keyed by CPU model: the vendor and CPUID model select a microarchitecture-tuned
-  implementation (loop blocking, unroll factor and register allocation differ between 
+  implementation (loop blocking, unroll factor and register allocation differ between
   [Ice Lake](https://en.wikipedia.org/wiki/Ice_Lake_(microprocessor)),
-  [Sapphire Rapids](https://en.wikipedia.org/wiki/Sapphire_Rapids), 
+  [Sapphire Rapids](https://en.wikipedia.org/wiki/Sapphire_Rapids),
   [Cascade Lake](https://en.wikipedia.org/wiki/Cascade_Lake),
   [Milan](https://en.wikipedia.org/wiki/Zen_3),
-  [Rome](https://en.wikipedia.org/wiki/Zen_2) 
+  [Rome](https://en.wikipedia.org/wiki/Zen_2)
   and [Genoa](https://en.wikipedia.org/wiki/Zen_4)); unknown CPUs fall back to a generic
   feature-based choice
   - x86/x86_64: `SSE4.2 + PCLMULQDQ`, `AVX-512VL + PCLMULQDQ`, or
