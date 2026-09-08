@@ -1,6 +1,6 @@
 import builtins
 import sys
-from typing import TypeAlias
+from typing import Protocol, TypeAlias, runtime_checkable
 
 if sys.version_info >= (3, 12):
     from collections.abc import Buffer
@@ -14,7 +14,12 @@ __version__: str
 class UnsupportedCPUFeatureError(RuntimeError):
     """Raised when the current CPU does not support required instructions."""
 
-def _crc32c(data: ReadableBuffer, value: builtins.int = 0, /) -> builtins.int: ...
+# fmt: off
+def _crc32c(
+    data: ReadableBuffer,
+    value: builtins.int = 0,
+    /,
+) -> builtins.int: ...
 
 def _crc32c_fallback(
     data: ReadableBuffer,
@@ -22,32 +27,98 @@ def _crc32c_fallback(
     /,
 ) -> builtins.int: ...
 
-def _crc32c_see42_pclmulqdq(
+def _crc32c_avx512vl_pclmulqdq_v9s3x4e(
     data: ReadableBuffer,
     value: builtins.int = 0,
     /,
 ) -> builtins.int: ...
 
-def _crc32c_aes_sha3(
+def _crc32c_avx512vl_vpclmulqdq_v3s1_s3(
     data: ReadableBuffer,
     value: builtins.int = 0,
     /,
 ) -> builtins.int: ...
 
-def _crc32c_aes(
+def _crc32c_avx512vl_vpclmulqdq_v3s2x4(
     data: ReadableBuffer,
     value: builtins.int = 0,
     /,
 ) -> builtins.int: ...
 
-def _crc32c_avx512_pclmulqdq(
+def _crc32c_avx512vl_vpclmulqdq_v4s5x3(
     data: ReadableBuffer,
     value: builtins.int = 0,
     /,
 ) -> builtins.int: ...
 
-def _crc32c_avx512_vpclmulqdq(
+def _crc32c_sse42_pclmulqdq_v1s3x2(
     data: ReadableBuffer,
     value: builtins.int = 0,
     /,
 ) -> builtins.int: ...
+
+def _crc32c_sse42_pclmulqdq_v1s3x3(
+    data: ReadableBuffer,
+    value: builtins.int = 0,
+    /,
+) -> builtins.int: ...
+
+def _crc32c_sse42_pclmulqdq_v1s4x2(
+    data: ReadableBuffer,
+    value: builtins.int = 0,
+    /,
+) -> builtins.int: ...
+
+def _crc32c_sse42_pclmulqdq_v7s3x3(
+    data: ReadableBuffer,
+    value: builtins.int = 0,
+    /,
+) -> builtins.int: ...
+
+def _crc32c_sse42_pclmulqdq_v8s3x3(
+    data: ReadableBuffer,
+    value: builtins.int = 0,
+    /,
+) -> builtins.int: ...
+
+def _crc32c_aes_crc_v12e_v1(
+    data: ReadableBuffer,
+    value: builtins.int = 0,
+    /,
+) -> builtins.int: ...
+
+def _crc32c_aes_v3s4x2e_v2(
+    data: ReadableBuffer,
+    value: builtins.int = 0,
+    /,
+) -> builtins.int: ...
+
+def _crc32c_aes_sha3_v9s3x2e_s3(
+    data: ReadableBuffer,
+    value: builtins.int = 0,
+    /,
+) -> builtins.int: ...
+
+@runtime_checkable
+class CRC32CFn(Protocol):
+    def __call__(self, data: ReadableBuffer, value: int = 0, /) -> int: ...
+
+class _Hasher:
+    def __init__(
+        self,
+        data: ReadableBuffer = b"",
+        fn: CRC32CFn | None = None,
+        /,
+    ) -> None: ...
+
+    @property
+    def digest_size(self) -> builtins.int: ...
+    @property
+    def block_size(self) -> builtins.int: ...
+    @property
+    def checksum(self) -> builtins.int: ...
+
+    def update(self, data: ReadableBuffer, /) -> None: ...
+    def digest(self) -> builtins.bytes: ...
+    def hexdigest(self) -> str: ...
+    def copy(self) -> _Hasher: ...

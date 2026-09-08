@@ -3,7 +3,7 @@
 
 # crc32c-rs
 
-_High-performance CRC32C implementation compliant with RFC 3720 (iSCSI)_
+_High-performance CRC32C implementation compliant with [RFC 3720 (iSCSI)](https://datatracker.ietf.org/doc/html/rfc3720)_
 <!-- rumdl-enable MD036-->
 
 [![PyPI version](https://shieldcn.dev/badge/dynamic/json.svg?url=https%3A%2F%2Fpypi.org%2Fpypi%2Fcrc32c-rs%2Fjson&query=%24.info.version&variant=branded&size=xs&mode=light&logo=python&label=pypi+version)](https://pypi.org/project/crc32c-rs)
@@ -23,7 +23,15 @@ _High-performance CRC32C implementation compliant with RFC 3720 (iSCSI)_
 
 - High-performance CRC32C implementation written in Rust
 
-- Runtime dispatch to the fastest available implementation:
+- Runtime dispatch keyed by CPU model: the vendor and CPUID model select a microarchitecture-tuned
+  implementation (loop blocking, unroll factor and register allocation differ between
+  [Ice Lake](https://en.wikipedia.org/wiki/Ice_Lake_(microprocessor)),
+  [Sapphire Rapids](https://en.wikipedia.org/wiki/Sapphire_Rapids),
+  [Cascade Lake](https://en.wikipedia.org/wiki/Cascade_Lake),
+  [Milan](https://en.wikipedia.org/wiki/Zen_3),
+  [Rome](https://en.wikipedia.org/wiki/Zen_2)
+  and [Genoa](https://en.wikipedia.org/wiki/Zen_4)); unknown CPUs fall back to a generic
+  feature-based choice
   - x86/x86_64: `SSE4.2 + PCLMULQDQ`, `AVX-512VL + PCLMULQDQ`, or
     `AVX-512F + AVX-512VL + VPCLMULQDQ`
   - AArch64/ARM64EC: `CRC + AES`, with an optimized `SHA3` variant when available
@@ -83,21 +91,32 @@ crc = crc32c(b"Hello")
 print(crc32c(b" world!", crc))  # 2073618257
 ```
 
-By default, `crc32c_rs.crc32c` detects the CPU's supported instruction
-sets at runtime and selects the fastest available implementation. It
-checks the implementations from the highest acceleration level to the lowest:
+By default, `crc32c_rs.crc32c` selects an implementation at runtime. Dispatch is keyed by CPU model
+first: the vendor and CPUID model (family/model) are looked up, and if the CPU is a known one, its
+microarchitecture-tuned implementation is used whenever the required instruction sets are present.
+Only for unknown CPUs does dispatch fall back to a generic feature-based choice.
 
 #### x86/x86_64
 
-1. `AVX-512F + AVX-512VL + VPCLMULQDQ`
-2. `AVX-512VL + PCLMULQDQ`
-3. `SSE4.2 + PCLMULQDQ`
-4. fallback
+Model-tuned selection (checked in this order):
+
+|    CPU model    | With `AVX-512VL + VPCLMULQDQ` | With `AVX-512VL + PCLMULQDQ` | With `SSE4.2 + PCLMULQDQ` |
+|:---------------:|:-----------------------------:|:----------------------------:|:-------------------------:|
+| Sapphire Rapids |           `v3s1_s3`           |              ×               |         `v8s3x3`          |
+|      Genoa      |           `v3s2x4`            |              ×               |         `v1s3x2`          |
+|    Ice Lake     |           `v4s5x3`            |              ×               |         `v7s3x3`          |
+|  Cascade Lake   |               ×               |          `v9s3x4e`           |         `v8s3x3`          |
+|      Milan      |               ×               |              ×               |         `v1s4x2`          |
+|      Rome       |               ×               |              ×               |         `v1s3x3`          |
+
+Unknown model: `AVX-512VL + VPCLMULQDQ` -> `v4s5x3`,
+else `AVX-512VL + PCLMULQDQ` -> `v9s3x4e`,
+else `SSE4.2 + PCLMULQDQ` -> `v8s3x3`, else fallback.
 
 #### AArch64/ARM64EC
 
-1. `CRC + AES + SHA3`
-2. `CRC + AES`
+1. `CRC + AES + SHA3` -> `v9s3x2e_s3`
+2. `CRC + AES` -> `v12e_v1` on Apple, `v3s4x2e_v2` elsewhere
 3. fallback
 
 #### Other platforms
@@ -109,41 +128,33 @@ Portable fallback.
 The default `crc32c_rs.crc32c` function selects an implementation
 at runtime, but you can also call a specific implementation directly:
 
-| Function                   | Required CPU features               |
-|----------------------------|-------------------------------------|
-| `crc32c_avx512_vpclmulqdq` | `AVX-512F + AVX-512VL + VPCLMULQDQ` |
-| `crc32c_avx512_pclmulqdq`  | `AVX-512VL + PCLMULQDQ`             |
-| `crc32c_see42_pclmulqdq`   | `SSE4.2 + PCLMULQDQ`                |
-| `crc32c_aes_sha3`          | `CRC + AES + SHA3`                  |
-| `crc32c_aes`               | `CRC + AES`                         |
-| `crc32c_fallback`          | No special CPU features             |
+| Function                             |        Required CPU features        |
+|--------------------------------------|:-----------------------------------:|
+| `crc32c`                             |        Runtime CPU dispatch         |
+| `crc32c_fallback`                    |       No special CPU features       |
+| `crc32c_avx512vl_vpclmulqdq_v3s1_s3` | `AVX-512F + AVX-512VL + VPCLMULQDQ` |
+| `crc32c_avx512vl_vpclmulqdq_v3s2x4`  | `AVX-512F + AVX-512VL + VPCLMULQDQ` |
+| `crc32c_avx512vl_vpclmulqdq_v4s5x3`  | `AVX-512F + AVX-512VL + VPCLMULQDQ` |
+| `crc32c_avx512vl_pclmulqdq_v9s3x4e`  |       `AVX-512VL + PCLMULQDQ`       |
+| `crc32c_sse42_pclmulqdq_v1s3x2`      |        `SSE4.2 + PCLMULQDQ`         |
+| `crc32c_sse42_pclmulqdq_v1s3x3`      |        `SSE4.2 + PCLMULQDQ`         |
+| `crc32c_sse42_pclmulqdq_v1s4x2`      |        `SSE4.2 + PCLMULQDQ`         |
+| `crc32c_sse42_pclmulqdq_v7s3x3`      |        `SSE4.2 + PCLMULQDQ`         |
+| `crc32c_sse42_pclmulqdq_v8s3x3`      |        `SSE4.2 + PCLMULQDQ`         |
+| `crc32c_aes_crc_v12e_v1`             |             `CRC + AES`             |
+| `crc32c_aes_v3s4x2e_v2`              |             `CRC + AES`             |
+| `crc32c_aes_sha3_v9s3x2e_s3`         |         `CRC + AES + SHA3`          |
 
 Architecture-specific implementations are available only on compatible builds.
 If the current processor does not support the required features, calling one of
 these functions raises `crc32c_rs.UnsupportedCPUFeatureError`.
 
 ```python
-from crc32c_rs import crc32c_avx512_vpclmulqdq
+from crc32c_rs import crc32c_avx512vl_vpclmulqdq_v3s1_s3
 
-checksum = crc32c_avx512_vpclmulqdq(b"Hello world!")
+checksum = crc32c_avx512vl_vpclmulqdq_v3s1_s3(b"Hello world!")
 print(checksum)  # 2073618257
 ```
-
-### CPU and implementation notes
-
-> [!NOTE]
-> The following single-core CRC32C benchmark results are taken from the
-> [`corsix/fast-crc32` README](https://github.com/corsix/fast-crc32/blob/main/README.md).
-> These are benchmarks from that project, not from `crc32c-rs`.
-
-| Processor             | Instruction set                     | Closest backend            |      Speed |
-|-----------------------|-------------------------------------|----------------------------|-----------:|
-| Intel Cascade Lake    | `AVX-512VL + PCLMULQDQ`             | `crc32c_avx512_pclmulqdq`  | 31.55 GB/s |
-| Intel Ice Lake        | `AVX-512F + AVX-512VL + VPCLMULQDQ` | `crc32c_avx512_vpclmulqdq` | 63.98 GB/s |
-| Intel Sapphire Rapids | `AVX-512F + AVX-512VL + VPCLMULQDQ` | `crc32c_avx512_vpclmulqdq` | 97.30 GB/s |
-| AMD EPYC Rome         | `SSE4.2 + PCLMULQDQ`                | `crc32c_see42_pclmulqdq`   | 31.16 GB/s |
-| AMD EPYC Milan        | `SSE4.2 + PCLMULQDQ`                | `crc32c_see42_pclmulqdq`   | 31.76 GB/s |
-| AMD EPYC Genoa        | `AVX-512F + AVX-512VL + VPCLMULQDQ` | `crc32c_avx512_vpclmulqdq` | 71.95 GB/s |
 
 <div align="center">
 

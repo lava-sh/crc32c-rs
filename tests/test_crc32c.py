@@ -39,11 +39,11 @@ def test_crc32c_memoryview_slice(crc_impl: CrcImpl) -> None:
 def test_crc32c_not_a_buffer(crc_impl: CrcImpl) -> None:
     for _, crc in crc_impl:
         with pytest_check.check, pytest.raises(TypeError):
-            crc(12345)  # type: ignore[arg-type]
+            crc(12345)
         with pytest_check.check, pytest.raises(TypeError):
-            crc(None)  # type: ignore[arg-type]
+            crc(None)
         with pytest_check.check, pytest.raises(TypeError):
-            crc({"key": "value"})  # type: ignore[arg-type]
+            crc({"key": "value"})
 
 
 @pytest.mark.parametrize(

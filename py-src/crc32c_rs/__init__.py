@@ -1,41 +1,56 @@
 __all__ = (
+    "Hasher",
     "UnsupportedCPUFeatureError",
     "__version__",
     "crc32c",
     "crc32c_fallback",
 )
-
 from ._crc32c_rs import (
     UnsupportedCPUFeatureError,
     __version__,
     _crc32c as crc32c,
     _crc32c_fallback as crc32c_fallback,
 )
+from ._hasher import Hasher
 
 try:  # noqa: RUF067
     from ._crc32c_rs import (
-        _crc32c_avx512_pclmulqdq as crc32c_avx512_pclmulqdq,
-        _crc32c_avx512_vpclmulqdq as crc32c_avx512_vpclmulqdq,
-        _crc32c_see42_pclmulqdq as crc32c_see42_pclmulqdq,
+        _crc32c_avx512vl_pclmulqdq_v9s3x4e as crc32c_avx512vl_pclmulqdq_v9s3x4e,
+        _crc32c_avx512vl_vpclmulqdq_v3s1_s3 as crc32c_avx512vl_vpclmulqdq_v3s1_s3,
+        _crc32c_avx512vl_vpclmulqdq_v3s2x4 as crc32c_avx512vl_vpclmulqdq_v3s2x4,
+        _crc32c_avx512vl_vpclmulqdq_v4s5x3 as crc32c_avx512vl_vpclmulqdq_v4s5x3,
+        _crc32c_sse42_pclmulqdq_v1s3x2 as crc32c_sse42_pclmulqdq_v1s3x2,
+        _crc32c_sse42_pclmulqdq_v1s3x3 as crc32c_sse42_pclmulqdq_v1s3x3,
+        _crc32c_sse42_pclmulqdq_v1s4x2 as crc32c_sse42_pclmulqdq_v1s4x2,
+        _crc32c_sse42_pclmulqdq_v7s3x3 as crc32c_sse42_pclmulqdq_v7s3x3,
+        _crc32c_sse42_pclmulqdq_v8s3x3 as crc32c_sse42_pclmulqdq_v8s3x3,
     )
 except ImportError:
     pass
 else:
     __all__ += (  # type: ignore[assignment]
-        "crc32c_avx512_pclmulqdq",
-        "crc32c_avx512_vpclmulqdq",
-        "crc32c_see42_pclmulqdq",
+        "crc32c_avx512vl_pclmulqdq_v9s3x4e",
+        "crc32c_avx512vl_vpclmulqdq_v3s1_s3",
+        "crc32c_avx512vl_vpclmulqdq_v3s2x4",
+        "crc32c_avx512vl_vpclmulqdq_v4s5x3",
+        "crc32c_sse42_pclmulqdq_v1s3x2",
+        "crc32c_sse42_pclmulqdq_v1s3x3",
+        "crc32c_sse42_pclmulqdq_v1s4x2",
+        "crc32c_sse42_pclmulqdq_v7s3x3",
+        "crc32c_sse42_pclmulqdq_v8s3x3",
     )
 
 try:  # noqa: RUF067
     from ._crc32c_rs import (
-        _crc32c_aes as crc32c_aes,
-        _crc32c_aes_sha3 as crc32c_aes_sha3,
+        _crc32c_aes_crc_v12e_v1 as crc32c_aes_crc_v12e_v1,
+        _crc32c_aes_sha3_v9s3x2e_s3 as crc32c_aes_sha3_v9s3x2e_s3,
+        _crc32c_aes_v3s4x2e_v2 as crc32c_aes_v3s4x2e_v2,
     )
 except ImportError:
     pass
 else:
     __all__ += (  # type: ignore[assignment]
-        "crc32c_aes",
-        "crc32c_aes_sha3",
+        "crc32c_aes_crc_v12e_v1",
+        "crc32c_aes_sha3_v9s3x2e_s3",
+        "crc32c_aes_v3s4x2e_v2",
     )

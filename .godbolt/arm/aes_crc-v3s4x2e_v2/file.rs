@@ -11,8 +11,7 @@
 // MIT or zlib licensed
 #![no_main]
 
-use std::arch::asm;
-use std::arch::aarch64::*;
+use std::arch::{aarch64::*, asm};
 
 #[inline]
 #[target_feature(enable = "aes")]
@@ -68,10 +67,11 @@ fn clmul_scalar(a: u32, b: u32) -> uint64x2_t {
     r
 }
 
+// x^n mod P, in log(n) time
 #[inline]
 #[target_feature(enable = "crc,aes")]
 fn xnmodp(mut n: u64) -> u32 {
-    let mut stack = !1u64;
+    let mut stack = !1_u64;
     while n > 191 {
         stack = (stack << 1) + (n & 1);
         n = (n >> 1) - 16;
@@ -105,9 +105,8 @@ fn crc_shift(crc: u32, nbytes: usize) -> uint64x2_t {
     clmul_scalar(crc, xnmodp((nbytes * 8 - 33) as u64))
 }
 
-#[target_feature(enable = "crc,aes")]
-#[inline(never)]
 #[unsafe(no_mangle)]
+#[target_feature(enable = "crc,aes")]
 pub unsafe fn crc32c(mut crc0: u32, mut buf: *const u8, mut len: usize) -> u32 {
     crc0 = !crc0;
     while len != 0 && (buf as usize & 7) != 0 {
@@ -127,9 +126,9 @@ pub unsafe fn crc32c(mut crc0: u32, mut buf: *const u8, mut len: usize) -> u32 {
         let klen = blk * 16;
         let mut buf2 = unsafe { buf.add(klen * 4) };
         let limit = unsafe { buf.add(klen).sub(32) };
-        let mut crc1 = 0u32;
-        let mut crc2 = 0u32;
-        let mut crc3 = 0u32;
+        let mut crc1 = 0_u32;
+        let mut crc2 = 0_u32;
+        let mut crc3 = 0_u32;
 
         // First vector chunk.
         let mut x0 = unsafe { vld1q_u64(buf2.cast::<u64>()) };

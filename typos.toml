@@ -4,3 +4,9 @@ extend-exclude = [
 ]
 
 [default.extend-words]
+# error: `ine` should be `one`, `in`, `dine`, `fine`, `line`, `mine`, `nine`, `pine`, `sine`, `tine`, `vine`, `wine`
+#   --> .\src\simd_dispatch.rs:39:27
+#    |
+# 39 |             // Genu       ineI         ntel
+#    |                           ^^^
+ine = "ine"

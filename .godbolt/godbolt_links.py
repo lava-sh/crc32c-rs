@@ -25,6 +25,29 @@ LANGUAGES = {
 SOURCE_SUFFIXES = set(LANGUAGES) - {".rs"}
 MIN_HEADER_LINES = 2
 
+FILTERS_BY_LANGUAGE = {
+    "rust": {
+        "labels": True,
+        "libraryCode": True,
+        "directives": True,
+        "commentOnly": True,
+        "trim": False,
+        "debugCalls": False,
+        "intel": True,
+    },
+    "c++": {
+        "labels": True,
+        "libraryCode": True,
+        "directives": True,
+        "commentOnly": True,
+        "trim": False,
+        "debugCalls": False,
+        "demangle": True,
+        "verboseDemangling": True,
+        "intel": True,
+    },
+}
+
 
 @dataclass(frozen=True)
 class Source:
@@ -132,7 +155,7 @@ def make_config(sources: list[Source], compiler_ids: list[str]) -> dict[str, Any
                     "source": editor_id,
                     "compiler": compiler_id,
                     "lang": source.language,
-                    "filters": {"debugCalls": True},
+                    "filters": FILTERS_BY_LANGUAGE[source.language],
                     "options": source.options,
                 },
             ),
@@ -168,22 +191,23 @@ def create_short_link(client: Client, config: dict[str, Any]) -> str:
 
 
 def find_pairs(root: Path) -> list[tuple[Path, Path]]:
+    source_directories = {
+        path.parent
+        for path in (*root.rglob("file.c"), *root.rglob("file.rs"))
+        if path.is_file()
+    }
     pairs = []
 
-    for directory in sorted(path for path in root.iterdir() if path.is_dir()):
-        c_files = sorted(
-            path for path in directory.iterdir() if path.suffix.lower() in SOURCE_SUFFIXES
-        )
-        rust_files = sorted(path for path in directory.glob("*.rs"))
-        if not c_files and not rust_files:
-            continue
-        if len(c_files) != 1 or len(rust_files) != 1:
-            message = (
-                f"{directory}: expected exactly one C/C++ file and one Rust file, "
-                f"found {len(c_files)} and {len(rust_files)}"
-            )
+    for directory in sorted(source_directories):
+        c_path = directory / "file.c"
+        rust_path = directory / "file.rs"
+        has_c = c_path.is_file()
+        has_rust = rust_path.is_file()
+        if has_c != has_rust:
+            missing = "file.rs" if has_c else "file.c"
+            message = f"{directory}: missing paired {missing}"
             raise ValueError(message)
-        pairs.append((c_files[0], rust_files[0]))
+        pairs.append((c_path, rust_path))
     return pairs
 
 
@@ -207,7 +231,8 @@ def main() -> None:
         for sources in parsed_pairs:
             compiler_ids = [resolve_compiler(source, catalogs) for source in sources]
             link = create_short_link(client, make_config(sources, compiler_ids))
-            print(f"{sources[0].path.parent.name}: {link}")
+            directory = sources[0].path.parent.relative_to(ROOT).as_posix()
+            print(f"{directory}: {link}")
 
 
 if __name__ == "__main__":
