@@ -1,23 +1,9 @@
 // Based on:
 // * https://github.com/MuntasirSZN/crc-fast-rust/tree/e3f3c613c3e158b2b82d576347ffc6e5e07ac5ba
 // * https://create.stephan-brumme.com/crc32/#slicing-by-16-overview
+use core::hint::{Locality, prefetch_read};
+
 use super::table::CRC32C_TABLE;
-
-#[inline]
-#[target_feature(enable = "sse")]
-#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
-unsafe fn prefetch(ptr: *const u8) {
-    #[cfg(target_arch = "x86")]
-    use core::arch::x86::{_MM_HINT_T0, _mm_prefetch};
-    #[cfg(target_arch = "x86_64")]
-    use core::arch::x86_64::{_MM_HINT_T0, _mm_prefetch};
-
-    _mm_prefetch::<_MM_HINT_T0>(ptr.cast::<i8>());
-}
-
-#[inline(always)]
-#[cfg(not(any(target_arch = "x86", target_arch = "x86_64")))]
-const unsafe fn prefetch(_: *const u8) {}
 
 #[inline]
 pub fn crc32c(crc0: u32, buf: &[u8], len: usize) -> u32 {
@@ -34,9 +20,10 @@ pub fn crc32c(crc0: u32, buf: &[u8], len: usize) -> u32 {
     while length >= BYTES_AT_ONCE + PREFETCH_AHEAD {
         // SAFETY: length >= 320, so PREFETCH_AHEAD bytes are
         // within the original buffer.
-        unsafe {
-            prefetch(current.cast::<u8>().add(PREFETCH_AHEAD));
-        }
+        prefetch_read(
+            unsafe { current.cast::<u8>().add(PREFETCH_AHEAD) },
+            Locality::L1,
+        );
 
         for _ in 0..UNROLL {
             // SAFETY: length >= BYTES_AT_ONCE, therefore all four

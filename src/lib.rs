@@ -1,3 +1,5 @@
+#![feature(hint_prefetch)]
+
 mod arch;
 mod exceptions;
 mod py_buffer;
