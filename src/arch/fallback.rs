@@ -20,7 +20,6 @@ pub fn crc32c(crc0: u32, buf: &[u8], len: usize) -> u32 {
     while length >= BYTES_AT_ONCE + PREFETCH_AHEAD {
         // SAFETY: length >= 320, so PREFETCH_AHEAD bytes are
         // within the original buffer.
-
         prefetch_read(
             unsafe { current.cast::<u8>().add(PREFETCH_AHEAD) },
             Locality::L1,
