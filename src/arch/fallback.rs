@@ -5,6 +5,7 @@ use super::table::CRC32C_TABLE;
 
 #[inline(always)]
 const fn prefetch(ptr: *const u8) {
+    // _MM_HINT_T0 = 3
     core::intrinsics::prefetch_read_instruction::<_, 3>(ptr);
 }
 
