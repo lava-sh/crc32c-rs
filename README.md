@@ -21,21 +21,11 @@ _High-performance CRC32C implementation compliant with [RFC 3720 (iSCSI)](https:
 
 ## Features
 
-- [High-performance](https://github.com/lava-sh/crc32c-rs/blob/main/benchmark%2FREADME.md) CRC32C implementation written in Rust
+- [x] [High-performance](https://github.com/lava-sh/crc32c-rs/blob/main/benchmark%2FREADME.md#results) CRC32C implementation written in Rust
 
-- Runtime dispatch keyed by CPU model: the vendor and CPUID model select a microarchitecture-tuned
-  implementation (loop blocking, unroll factor and register allocation differ between
-  [Ice Lake](https://en.wikipedia.org/wiki/Ice_Lake_(microprocessor)),
-  [Sapphire Rapids](https://en.wikipedia.org/wiki/Sapphire_Rapids),
-  [Cascade Lake](https://en.wikipedia.org/wiki/Cascade_Lake),
-  [Milan](https://en.wikipedia.org/wiki/Zen_3),
-  [Rome](https://en.wikipedia.org/wiki/Zen_2)
-  and [Genoa](https://en.wikipedia.org/wiki/Zen_4)); unknown CPUs fall back to a generic
-  feature-based choice
-  - x86/x86_64: `SSE4.2 + PCLMULQDQ`, `AVX-512VL + PCLMULQDQ`, or
-    `AVX-512F + AVX-512VL + VPCLMULQDQ`
-  - AArch64/ARM64EC: `CRC + AES`, with an optimized `SHA3` variant when available
-  - Other platforms: a portable fallback implementation
+- [x] Runtime SIMD dispatch with CPU-model-tuned implementations (see [below](#basic-usage))
+
+- [x] [Direct access](#direct-implementation-selection) to specific implementations for advanced use cases
 
 ## Installation
 
@@ -83,12 +73,22 @@ poetry add crc32c-rs
 ### Basic usage
 
 ```python
-from crc32c_rs import crc32c
+from crc32c_rs import crc32c, Hasher
 
 print(crc32c(b"Hello world!"))  # 2073618257
 
 crc = crc32c(b"Hello")
 print(crc32c(b" world!", crc))  # 2073618257
+
+h = Hasher()
+h.update(b"Hello")
+h.update(b" ")
+print(h.checksum)  # 4220938453
+h.update(b"world")
+h.update(b"!")
+print(h.checksum)  # 2073618257
+print(h.digest())  # b'{\x98\xe7Q'
+print(h.hexdigest())  # 7b98e751
 ```
 
 By default, `crc32c_rs.crc32c` selects an implementation at runtime. Dispatch is keyed by CPU model
