@@ -18,7 +18,7 @@ _activate_venv := '.\.venv\Scripts\Activate.ps1'
 [doc("Build Python wheel with mimalloc")]
 [script("pwsh.exe", "-NoLogo", "-NoProfile", "-Command")]
 [windows]
-[arg("mimalloc", long, short="m", value="true")]  
+[arg("mimalloc", long, short="m", value="true")]
 install mimalloc="false":
     $ErrorActionPreference = "Stop"
 
