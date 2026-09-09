@@ -3,21 +3,10 @@
 // * https://create.stephan-brumme.com/crc32/#slicing-by-16-overview
 use super::table::CRC32C_TABLE;
 
-#[inline]
-#[target_feature(enable = "sse")]
-#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
-unsafe fn prefetch(ptr: *const u8) {
-    #[cfg(target_arch = "x86")]
-    use core::arch::x86::{_MM_HINT_T0, _mm_prefetch};
-    #[cfg(target_arch = "x86_64")]
-    use core::arch::x86_64::{_MM_HINT_T0, _mm_prefetch};
-
-    _mm_prefetch::<_MM_HINT_T0>(ptr.cast::<i8>());
-}
-
 #[inline(always)]
-#[cfg(not(any(target_arch = "x86", target_arch = "x86_64")))]
-const unsafe fn prefetch(_: *const u8) {}
+const fn prefetch(ptr: *const u8) {
+    core::intrinsics::prefetch_read_instruction::<_, 3>(ptr);
+}
 
 #[inline]
 pub fn crc32c(crc0: u32, buf: &[u8], len: usize) -> u32 {
@@ -34,9 +23,8 @@ pub fn crc32c(crc0: u32, buf: &[u8], len: usize) -> u32 {
     while length >= BYTES_AT_ONCE + PREFETCH_AHEAD {
         // SAFETY: length >= 320, so PREFETCH_AHEAD bytes are
         // within the original buffer.
-        unsafe {
-            prefetch(current.cast::<u8>().add(PREFETCH_AHEAD));
-        }
+
+        prefetch(unsafe { current.cast::<u8>().add(PREFETCH_AHEAD) });
 
         for _ in 0..UNROLL {
             // SAFETY: length >= BYTES_AT_ONCE, therefore all four

@@ -1,3 +1,6 @@
+#![allow(internal_features)]
+#![feature(core_intrinsics)]
+
 mod arch;
 mod exceptions;
 mod py_buffer;
