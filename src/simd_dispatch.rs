@@ -1,10 +1,8 @@
-use core::sync::atomic::{AtomicUsize, Ordering};
-
 #[cfg(target_arch = "x86")]
 use core::arch::x86 as arch;
-
 #[cfg(target_arch = "x86_64")]
 use core::arch::x86_64 as arch;
+use core::sync::atomic::{AtomicUsize, Ordering};
 
 #[cfg(any(
     target_arch = "x86",
