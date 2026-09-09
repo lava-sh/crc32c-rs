@@ -1,3 +1,7 @@
+#[cfg(target_arch = "x86")]
+use core::arch::x86 as arch;
+#[cfg(target_arch = "x86_64")]
+use core::arch::x86_64 as arch;
 use core::sync::atomic::{AtomicUsize, Ordering};
 
 #[cfg(any(
@@ -30,10 +34,7 @@ enum CpuVendor {
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 impl CpuVendor {
     fn detect() -> Self {
-        #[cfg(target_arch = "x86_64")]
-        let leaf0 = core::arch::x86_64::__cpuid(0);
-        #[cfg(target_arch = "x86")]
-        let leaf0 = core::arch::x86::__cpuid(0);
+        let leaf0 = arch::__cpuid(0);
 
         match (leaf0.ebx, leaf0.edx, leaf0.ecx) {
             // Genu       ineI         ntel
@@ -164,11 +165,6 @@ impl SimdIsa {
     fn detect() -> Self {
         #[cfg(any(target_arch = "x86_64", target_arch = "x86"))]
         {
-            #[cfg(target_arch = "x86")]
-            use core::arch::x86 as arch;
-            #[cfg(target_arch = "x86_64")]
-            use core::arch::x86_64 as arch;
-
             let vendor = CpuVendor::detect();
             let eax1 = arch::__cpuid(1).eax;
             let model = CpuModel::detect(vendor, eax1);
