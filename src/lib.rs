@@ -1,5 +1,4 @@
-#![allow(internal_features)]
-#![feature(core_intrinsics)]
+#![feature(hint_prefetch)]
 
 mod arch;
 mod exceptions;

@@ -1,13 +1,9 @@
 // Based on:
 // * https://github.com/MuntasirSZN/crc-fast-rust/tree/e3f3c613c3e158b2b82d576347ffc6e5e07ac5ba
 // * https://create.stephan-brumme.com/crc32/#slicing-by-16-overview
-use super::table::CRC32C_TABLE;
+use core::hint::{Locality, prefetch_read_instruction};
 
-#[inline(always)]
-const fn prefetch(ptr: *const u8) {
-    // _MM_HINT_T0 = 3
-    core::intrinsics::prefetch_read_instruction::<_, 3>(ptr);
-}
+use super::table::CRC32C_TABLE;
 
 #[inline]
 pub fn crc32c(crc0: u32, buf: &[u8], len: usize) -> u32 {
@@ -25,7 +21,10 @@ pub fn crc32c(crc0: u32, buf: &[u8], len: usize) -> u32 {
         // SAFETY: length >= 320, so PREFETCH_AHEAD bytes are
         // within the original buffer.
 
-        prefetch(unsafe { current.cast::<u8>().add(PREFETCH_AHEAD) });
+        prefetch_read_instruction(
+            unsafe { current.cast::<u8>().add(PREFETCH_AHEAD) },
+            Locality::L3,
+        );
 
         for _ in 0..UNROLL {
             // SAFETY: length >= BYTES_AT_ONCE, therefore all four
