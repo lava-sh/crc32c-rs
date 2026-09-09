@@ -21,7 +21,7 @@ _High-performance CRC32C implementation compliant with [RFC 3720 (iSCSI)](https:
 
 ## Features
 
-- High-performance CRC32C implementation written in Rust
+- [High-performance](https://github.com/lava-sh/crc32c-rs/blob/main/benchmark%2FREADME.md) CRC32C implementation written in Rust
 
 - Runtime dispatch keyed by CPU model: the vendor and CPUID model select a microarchitecture-tuned
   implementation (loop blocking, unroll factor and register allocation differ between
