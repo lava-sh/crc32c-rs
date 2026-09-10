@@ -1,4 +1,6 @@
+import argparse
 import os
+import sys
 from collections.abc import Callable
 
 import archspec.cpu
@@ -11,16 +13,16 @@ import pyperf
 KiB = 1024
 
 PAYLOADS = {
-    "512 B": os.urandom(512),
-    "1 KiB": os.urandom(KiB),
-    "64 KiB": os.urandom(64 * KiB),
-    "512 KiB": os.urandom(512 * KiB),
-    "1 MiB": os.urandom(KiB * KiB),
-    "16 MiB": os.urandom(16 * KiB * KiB),
-    "32 MiB": os.urandom(32 * KiB * KiB),
-    "64 MiB": os.urandom(64 * KiB * KiB),
-    "128 MiB": os.urandom(128 * KiB * KiB),
-    "256 MiB": os.urandom(256 * KiB * KiB),
+    "512 B": 512,
+    "1 KiB": KiB,
+    "64 KiB": 64 * KiB,
+    "512 KiB": 512 * KiB,
+    "1 MiB": KiB * KiB,
+    "16 MiB": 16 * KiB * KiB,
+    "32 MiB": 32 * KiB * KiB,
+    "64 MiB": 64 * KiB * KiB,
+    "128 MiB": 128 * KiB * KiB,
+    "256 MiB": 256 * KiB * KiB,
 }
 
 
@@ -71,23 +73,43 @@ def get_impls() -> list[tuple[str, Callable]]:
     return impls
 
 
+def parse_own_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(add_help=False)
+    parser.add_argument("--impl")
+    parser.add_argument("--size")
+    args, rest = parser.parse_known_args()
+    sys.argv = [sys.argv[0], *rest]
+    return args
+
+
 def main() -> None:
-    impls = get_impls()
+    args = parse_own_args()
+
+    impls = dict(get_impls())
+    sizes = dict(PAYLOADS)
+
+    if args.impl is not None:
+        if args.impl not in impls:
+            msg = f"unknown impl: {args.impl}. Available: {list(impls)}"
+            raise SystemExit(msg)
+        impls = {args.impl: impls[args.impl]}
+
+    if args.size is not None:
+        if args.size not in sizes:
+            msg = f"unknown size: {args.size}. Available: {list(sizes)}"
+            raise SystemExit(msg)
+        sizes = {args.size: sizes[args.size]}
 
     # check correctness
-    for _, fn in impls:
-        result = fn(b"123456789")
-        expected = 0xE3069283
-        assert result == expected  # noqa: S101
+    expected = 0xE3069283
+    for name, fn in impls.items():
+        assert fn(b"123456789") == expected, name  # noqa: S101
 
-    runner = pyperf.Runner(
-        processes=5,
-        warmups=2,
-        values=25,
-    )
+    runner = pyperf.Runner()
 
-    for size, data in PAYLOADS.items():
-        for name, fn in impls:
+    for size, nbytes in sizes.items():
+        data = os.urandom(nbytes)
+        for name, fn in impls.items():
             runner.bench_func(f"{name} [{size}]", fn, data)
 
 
