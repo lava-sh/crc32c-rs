@@ -70,6 +70,14 @@ def parse_size_to_bytes(size: str) -> int:
     return int(value * SIZE_MULTIPLIERS.get(unit, 1))
 
 
+def merged_meta(*layers: dict) -> dict:
+    out: dict = {}
+    for layer in layers:
+        if layer:
+            out.update(layer)
+    return out
+
+
 def build_system_info(meta: dict) -> dict[str, str]:
     return {
         "OS": meta.get("platform") or platform.platform(),
@@ -79,10 +87,10 @@ def build_system_info(meta: dict) -> dict[str, str]:
     }
 
 
-def build_results(benchmarks: list[dict]) -> list[Result]:
+def build_results(benchmarks: list[dict], root_meta: dict) -> list[Result]:
     results = []
     for bench in benchmarks:
-        meta = bench.get("metadata", {})
+        meta = merged_meta(root_meta, bench.get("metadata", {}))
         match = NAME_RE.match(meta.get("name", "unknown"))
         name, size = (
             (match.group(1).strip(), match.group(2).strip())
@@ -90,24 +98,16 @@ def build_results(benchmarks: list[dict]) -> list[Result]:
             else (meta.get("name", "unknown"), "unknown")
         )
 
-        runs = bench.get("runs", [])
-        if not runs:
+        size_bytes = parse_size_to_bytes(size)
+        samples: list[float] = []
+        for run in bench.get("runs", []):
+            samples.extend(run.get("values", []))
+
+        if not samples or not size_bytes:
             continue
 
-        run_meta = runs[0].get("metadata", {})
-        duration = run_meta.get("duration")
-        loops = run_meta.get("calibrate_loops") or meta.get("loops")
-
-        warmups = runs[0].get("warmups", [])
-        samples = [t for lc, t in warmups if lc == loops] or [t for _, t in warmups]
-        avg_time = (
-            sum(samples) / len(samples)
-            if samples
-            else (duration / loops if duration and loops else 0.0)
-        )
-
-        total_bytes = parse_size_to_bytes(size) * (loops or 0)
-        throughput = total_bytes / duration / 1024 / 1024 if duration else 0.0
+        avg_time = sum(samples) / len(samples)
+        throughput = size_bytes / avg_time / 1024 / 1024
 
         results.append(Result(size=size, name=name, time=avg_time, throughput=throughput))
     return results
@@ -161,13 +161,14 @@ def main() -> None:
     )  # fmt: skip
     data = orjson.loads(json_path.read_bytes())
     benchmarks = data["benchmarks"]
-    results = build_results(benchmarks)
+    root_meta = data.get("metadata", {})
+    results = build_results(benchmarks, root_meta)
 
     if not results:
         print("No data to display.")
         return
 
-    system_info = build_system_info(data.get("metadata", {}))
+    system_info = build_system_info(root_meta)
     update_readme(generate_markdown(system_info, results))
     print("Tables updated in README.md")
 

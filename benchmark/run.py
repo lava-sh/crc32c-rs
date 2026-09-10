@@ -73,17 +73,19 @@ def get_impls() -> list[tuple[str, Callable]]:
     return impls
 
 
-def parse_own_args() -> argparse.Namespace:
+def add_cmdline_args(cmd: list[str], args: argparse.Namespace) -> None:
+    if args.impl:
+        cmd.extend(["--impl", args.impl])
+    if args.size:
+        cmd.extend(["--size", args.size])
+
+
+def main() -> None:
     parser = argparse.ArgumentParser(add_help=False)
     parser.add_argument("--impl")
     parser.add_argument("--size")
     args, rest = parser.parse_known_args()
     sys.argv = [sys.argv[0], *rest]
-    return args
-
-
-def main() -> None:
-    args = parse_own_args()
 
     impls = dict(get_impls())
     sizes = dict(PAYLOADS)
@@ -105,7 +107,8 @@ def main() -> None:
     for name, fn in impls.items():
         assert fn(b"123456789") == expected, name  # noqa: S101
 
-    runner = pyperf.Runner()
+    runner = pyperf.Runner(add_cmdline_args=add_cmdline_args)
+    runner.argparser.set_defaults(impl=args.impl, size=args.size)
 
     for size, nbytes in sizes.items():
         data = os.urandom(nbytes)
