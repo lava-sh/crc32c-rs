@@ -84,12 +84,15 @@ dev = [
     { include-group = "zizmor" },
 ]
 bench = [
+    # bench
     "crc32c == 2.9.0",
     "fastcrc == 0.3.6",
     "google-crc32c == 1.8.0",
+    "pyperf == 2.10.0",
+    { include-group = "archspec" },
+    # tables generator
     "markdown-it-py == 4.2.0",
     "tabulate == 0.10.0",
-    { include-group = "archspec" },
 ]
 
 [tool.uv.dependency-groups]
