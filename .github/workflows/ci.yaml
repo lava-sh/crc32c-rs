@@ -115,7 +115,10 @@ jobs:
         with:
           tool: nextest,cross
 
-      - run: cargo nextest run
+      - run: cargo nextest run --target ${{ matrix.target }}
+        env:
+          CARGO_TARGET_S390X_UNKNOWN_LINUX_GNU_LINKER: s390x-linux-gnu-gcc
+          CARGO_TARGET_S390X_UNKNOWN_LINUX_GNU_RUNNER: qemu-s390x-static
 
   tools:
     name: ${{ matrix.name }}
