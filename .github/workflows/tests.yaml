@@ -95,20 +95,28 @@ jobs:
         with:
           args: >
             bash -c
-            "export DEBIAN_FRONTEND=noninteractive &&
+            "export HOME=/root &&
             apt-get -y update &&
-            apt-get -y install
+            DEBIAN_FRONTEND=noninteractive apt-get -y install
             curl
+            build-essential
             python3
             python3-venv
             python3-pip &&
             python3 -c 'import sys, platform; print(sys.version); print(platform.machine()); print(sys.byteorder); assert sys.byteorder == \"big\"' &&
+            curl --proto '=https' --tlsv1.2 -sSf https://astral.sh/uv/install.sh | sh &&
+            export PATH=/root/.local/bin:\$PATH &&
+            uv python install 3.14 &&
+            uv python find 3.14 &&
+            . /root/.local/bin/env &&
             curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y &&
-            . \$HOME/.cargo/env &&
+            . /root/.cargo/env &&
+            rustc --version &&
+            cargo --version &&
             cd /github/workspace &&
-            python3 -m venv .venv &&
+            uv venv .venv --python 3.14 &&
             . .venv/bin/activate &&
-            pip install maturin pytest pytest-check &&
+            uv pip install maturin pytest pytest-check &&
             maturin build --release --out wheels --features mimalloc &&
-            pip install crc32c-rs --no-index --find-links wheels --force-reinstall &&
+            uv pip install crc32c-rs --no-index --find-links wheels --force-reinstall &&
             pytest"
