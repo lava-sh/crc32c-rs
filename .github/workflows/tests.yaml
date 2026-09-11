@@ -92,35 +92,23 @@ jobs:
 
       - name: "Build and test on s390x"
         uses: docker://multiarch/ubuntu-core:s390x-focal
-        env:
-          DEBIAN_FRONTEND: noninteractive
-          TZ: UTC
         with:
           args: >
             bash -c
-            "ln -fs /usr/share/zoneinfo/UTC /etc/localtime &&
+            "export DEBIAN_FRONTEND=noninteractive &&
             apt-get -y update &&
             apt-get -y install
             curl
-            git
-            build-essential
-            pkg-config
-            libssl-dev
             python3
             python3-venv
-            python3-pip
-            ca-certificates &&
-            python3 --version &&
-            python3 -c 'import sys, platform; print(sys.byteorder); print(platform.machine()); assert sys.byteorder == \"big\"' &&
+            python3-pip &&
+            python3 -c 'import sys, platform; print(sys.version); print(platform.machine()); print(sys.byteorder); assert sys.byteorder == \"big\"' &&
             curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y &&
             . \$HOME/.cargo/env &&
-            rustc --version &&
-            cargo --version &&
             cd /github/workspace &&
             python3 -m venv .venv &&
             . .venv/bin/activate &&
-            pip install maturin &&
+            pip install maturin pytest pytest-check &&
             maturin build --release --out wheels --features mimalloc &&
             pip install crc32c-rs --no-index --find-links wheels --force-reinstall &&
-            pip install pytest pytest-check &&
             pytest"
