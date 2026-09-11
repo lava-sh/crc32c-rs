@@ -85,9 +85,13 @@ jobs:
         with:
           targets: ${{ matrix.target }}
 
+      - uses: taiki-e/setup-cross-toolchain-action@v1
+        with:
+          target: ${{ matrix.target }}
+
       - uses: taiki-e/install-action@main # zizmor: ignore[unpinned-uses]
         with:
-          tool: nextest,cross
+          tool: nextest
 
       - run: cargo nextest run
 
