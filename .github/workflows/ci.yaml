@@ -126,6 +126,7 @@ jobs:
         env:
           CARGO_TARGET_S390X_UNKNOWN_LINUX_GNU_LINKER: s390x-linux-gnu-gcc
           CARGO_TARGET_S390X_UNKNOWN_LINUX_GNU_RUNNER: qemu-s390x-static
+          PYO3_CROSS_PYTHON_VERSION: "3.14"
 
   tools:
     name: ${{ matrix.name }}
