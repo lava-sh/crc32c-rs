@@ -79,10 +79,6 @@ jobs:
 #        run: pytest
 #
   big-endian:
-    name: "big-endian / Python 3.14"
-    runs-on: ubuntu-latest
-
-  big-endian:
     name: "big-endian / Python 3.14 / s390x"
     runs-on: ubuntu-latest
 
