@@ -78,8 +78,12 @@ jobs:
 #      - name: "Run pytest"
 #        run: pytest
 #
-  little-endian:
-    name: "little-endian / Python 3.14"
+  big-endian:
+    name: "big-endian / Python 3.14"
+    runs-on: ubuntu-latest
+
+  big-endian:
+    name: "big-endian / Python 3.14 / s390x"
     runs-on: ubuntu-latest
 
     steps:
@@ -87,36 +91,37 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: "Install uv"
-        uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
+      - name: "Setup QEMU"
+        run: docker run --rm --privileged multiarch/qemu-user-static:register --reset
+
+      - name: "Build and test on s390x"
+        uses: docker://multiarch/ubuntu-core:s390x-focal
         with:
-          enable-cache: false
-
-      - name: "Install Rust target"
-        run: rustup target add x86_64-unknown-linux-gnu
-
-      - name: "Create and activate .venv"
-        shell: bash
-        run: |
-          uv venv .venv --python 3.14
-          echo ".venv/bin" >> "$GITHUB_PATH"
-          echo "PYO3_PYTHON=$PWD/.venv/bin/python3" >> "$GITHUB_ENV"
-
-      - name: "Install dependencies"
-        run: uv pip install --group ci
-
-      - name: "Check little-endian"
-        run: |
-          python -c "import sys; assert sys.byteorder == 'little', sys.byteorder"
-          rustc -vV
-
-      - name: "Build little-endian wheel"
-        run: |
-          maturin build --out wheels --features mimalloc --target x86_64-unknown-linux-gnu
-
-      - name: "Install built wheel"
-        run: |
-          uv pip install crc32c-rs --no-index --find-links wheels --force-reinstall
-
-      - name: "Run pytest"
-        run: pytest
+          args: >
+            bash -c
+            "apt-get -y update &&
+            apt-get -y install
+            curl
+            git
+            build-essential
+            pkg-config
+            libssl-dev
+            python3
+            python3-venv
+            python3-pip
+            ca-certificates &&
+            python3 --version &&
+            python3 -c 'import sys, platform; print(sys.byteorder); print(platform.machine()); assert sys.byteorder == \"big\"' &&
+            curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y &&
+            . \$HOME/.cargo/env &&
+            rustc --version &&
+            cargo --version &&
+            git config --global --add safe.directory /github/workspace &&
+            cd /github/workspace &&
+            python3 -m venv .venv &&
+            . .venv/bin/activate &&
+            pip install maturin &&
+            maturin build --release --out wheels --features mimalloc &&
+            pip install crc32c-rs --no-index --find-links wheels --force-reinstall &&
+            pip install pytest pytest-check &&
+            pytest"
