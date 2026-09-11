@@ -85,7 +85,7 @@ jobs:
         with:
           enable-cache: false
 
-      - run: uv pip install toml-rs --system
+      - run: uv python install 3.14 && uv pip install toml-rs --system
 
       - run: |
           cat > normalize_cargo_toml.py <<'PY'
