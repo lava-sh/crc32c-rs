@@ -81,17 +81,40 @@ jobs:
         with:
           persist-credentials: false
 
+      - uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
+        with:
+          enable-cache: false
+
+      - run: uv pip install toml-rs --system
+
+      - run: |
+          cat > normalize_cargo_toml.py <<'PY'
+          from pathlib import Path
+          
+          import toml_rs
+          
+          CARGO_TOML = Path("Cargo.toml")
+          
+          doc = toml_rs.loads(
+              CARGO_TOML.read_text(encoding="utf-8"),
+              toml_version="1.1.0",
+          )
+          
+          toml_rs.dump(
+              doc,
+              CARGO_TOML,
+              toml_version="1.1.0",
+          )
+          PY
+          python normalize_cargo_toml.py
+
       - uses: dtolnay/rust-toolchain@nightly # zizmor: ignore[unpinned-uses]
         with:
           targets: ${{ matrix.target }}
 
-      - uses: taiki-e/setup-cross-toolchain-action@v1
-        with:
-          target: ${{ matrix.target }}
-
       - uses: taiki-e/install-action@main # zizmor: ignore[unpinned-uses]
         with:
-          tool: nextest
+          tool: nextest,cross
 
       - run: cargo nextest run
 
