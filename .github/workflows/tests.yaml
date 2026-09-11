@@ -92,10 +92,14 @@ jobs:
 
       - name: "Build and test on s390x"
         uses: docker://multiarch/ubuntu-core:s390x-focal
+        env:
+          DEBIAN_FRONTEND: noninteractive
+          TZ: UTC
         with:
           args: >
             bash -c
-            "apt-get -y update &&
+            "ln -fs /usr/share/zoneinfo/UTC /etc/localtime &&
+            apt-get -y update &&
             apt-get -y install
             curl
             git
@@ -112,7 +116,6 @@ jobs:
             . \$HOME/.cargo/env &&
             rustc --version &&
             cargo --version &&
-            git config --global --add safe.directory /github/workspace &&
             cd /github/workspace &&
             python3 -m venv .venv &&
             . .venv/bin/activate &&
