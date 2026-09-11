@@ -85,27 +85,26 @@ jobs:
         with:
           enable-cache: false
 
-      - run: uv python install 3.14 && uv pip install toml-rs --system
-
       - run: |
+          uv venv .venv --python 3.14
+          source .venv/bin/activate
+          uv pip install toml-rs
+          
           cat > normalize_cargo_toml.py <<'PY'
           from pathlib import Path
-          
           import toml_rs
-          
           CARGO_TOML = Path("Cargo.toml")
-          
           doc = toml_rs.loads(
               CARGO_TOML.read_text(encoding="utf-8"),
               toml_version="1.1.0",
           )
-          
           toml_rs.dump(
               doc,
               CARGO_TOML,
               toml_version="1.1.0",
           )
           PY
+
           python normalize_cargo_toml.py
 
       - uses: dtolnay/rust-toolchain@nightly # zizmor: ignore[unpinned-uses]
