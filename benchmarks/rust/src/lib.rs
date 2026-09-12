@@ -64,7 +64,6 @@ const fn kernel_entry(name: &'static str, func: Fn) -> Kernel {
 /// Portable table-based kernel, the only one available on every CPU.
 pub const FALLBACK: Kernel = kernel_entry("fallback", fallback_kernel);
 
-/// Every kernel whose required CPU features are present on this machine.
 #[must_use]
 pub fn available() -> Vec<Kernel> {
     let mut kernels = vec![FALLBACK];
