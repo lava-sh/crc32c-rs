@@ -19,14 +19,10 @@ concurrency:
 env:
   FORCE_COLOR: "1"
   CARGO_TERM_COLOR: always
-  # The `release` profile strips symbols, which would leave CodSpeed without any
-  # function names. Keep them, plus line tables, so the flame graphs stay readable.
-  CARGO_PROFILE_RELEASE_STRIP: "none"
-  CARGO_PROFILE_RELEASE_DEBUG: "line-tables-only"
 
 jobs:
   benchmarks:
-    name: "benchmarks / python 3.14"
+    name: "benchmarks"
     runs-on: ubuntu-latest
     timeout-minutes: 30
 
@@ -40,31 +36,23 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: "Install uv"
-        uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
+      - uses: dtolnay/rust-toolchain@nightly # zizmor: ignore[unpinned-uses]
+
+      # Caches `cargo-codspeed` as well, so it is only compiled once.
+      - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
+        if: github.event_name == 'pull_request'
         with:
-          enable-cache: false
+          lookup-only: false # zizmor: ignore[cache-poisoning]
+          shared-key: codspeed
 
-      - name: "Create and activate .venv"
-        run: |
-          uv venv .venv --python 3.14
-          echo ".venv/bin" >> "$GITHUB_PATH"
-          echo "PYO3_PYTHON=.venv/bin/python3" >> "$GITHUB_ENV"
+      - name: "Install cargo-codspeed"
+        run: cargo install cargo-codspeed@5.0.1 --locked
 
-      - name: "Install dependencies"
-        run: uv pip install --group codspeed
-
-      # The `mimalloc` feature is intentionally left out: its process-wide malloc
-      # override conflicts with the allocator instrumentation used to measure the
-      # benchmarks.
-      - name: "Run maturin"
-        run: maturin build --release --out wheels
-
-      - name: "Install built wheel"
-        run: uv pip install crc32c-rs --no-index --find-links wheels --force-reinstall
+      - name: "Build benchmarks"
+        run: cargo codspeed build --package crc32c-benchmarks
 
       - name: "Run benchmarks"
         uses: CodSpeedHQ/action@373d6868929f444bc08d901fd0eb0ad52a8875ea # v5.2.1
         with:
           mode: simulation
-          run: pytest benchmarks/ --codspeed
+          run: cargo codspeed run --package crc32c-benchmarks
