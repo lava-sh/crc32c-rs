@@ -7,6 +7,7 @@ output-prefer-rule-codes = true
 include = [
     "py-src/**/*.{py,pyi}",
     "tests/*.py",
+    "benchmarks/*.py",
     "pyproject.toml",
     "README.md",
     "scripts/table.py",
@@ -50,7 +51,7 @@ ignore = [
 "py-src/**/*.pyi" = [
     "PYI021", # Check for the presence of docstrings in stub files
 ]
-"tests/*.py" = [
+"{tests/*.py,benchmarks/*.py}" = [
     "DOC",     # Docstring's
     ######
     "S101",    # Check for uses of the `assert` keyword

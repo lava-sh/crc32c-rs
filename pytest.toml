@@ -2,6 +2,8 @@
 # config in toml only since v9.0.0
 minversion = "9.0"
 addopts = []
+# `benchmarks/` is only collected explicitly, by CodSpeed
+testpaths = ["tests"]
 log_cli = true
 log_cli_level = "INFO"
 log_cli_format = "%(message)s"

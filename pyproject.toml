@@ -91,6 +91,11 @@ bench = [
     "tabulate == 0.10.0",
     { include-group = "archspec" },
 ]
+codspeed = [
+    "pytest-codspeed == 5.0.3",
+    { include-group = "pytest" },
+    { include-group = "maturin" },
+]
 
 [tool.uv.dependency-groups]
 wasm-tests = { requires-python = ">= 3.13" }
