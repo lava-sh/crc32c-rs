@@ -9,7 +9,7 @@
 
 #![feature(hint_prefetch)]
 
-use core::fmt;
+use core::{fmt, ops};
 
 #[path = "../../../src/arch/mod.rs"]
 pub mod arch;
@@ -27,8 +27,7 @@ use crate::arch::{
 };
 use crate::{arch::fallback, simd_dispatch::SimdIsa};
 
-//                           value    ptr      len
-pub type Crc32cFn = unsafe fn(u32, *const u8, usize) -> u32;
+pub type Fn = unsafe fn(u32, *const u8, usize) -> u32;
 
 fn fallback_kernel(value: u32, ptr: *const u8, len: usize) -> u32 {
     // SAFETY: `ptr` and `len` always come from a live slice.
@@ -39,7 +38,7 @@ fn fallback_kernel(value: u32, ptr: *const u8, len: usize) -> u32 {
 #[derive(Clone, Copy)]
 pub struct Kernel {
     pub name: &'static str,
-    pub func: Crc32cFn,
+    pub func: Fn,
 }
 
 impl fmt::Display for Kernel {
@@ -58,7 +57,7 @@ impl Kernel {
     }
 }
 
-const fn kernel_entry(name: &'static str, func: Crc32cFn) -> Kernel {
+const fn kernel_entry(name: &'static str, func: Fn) -> Kernel {
     Kernel { name, func }
 }
 
@@ -141,7 +140,7 @@ pub fn available() -> Vec<Kernel> {
 /// Kept in sync with the match in `src/lib.rs`: a kernel missing from here is
 /// simply not benchmarked, it never changes what the extension module runs.
 #[must_use]
-pub fn kernel() -> Crc32cFn {
+pub fn kernel() -> Fn {
     match SimdIsa::detected() {
         #[cfg(any(target_arch = "x86_64", target_arch = "x86"))]
         SimdIsa::Avx512vlVpclmulqdq_v3s1_s3 => avx512vl_vpclmulqdq_v3s1_s3::crc32c,
@@ -175,7 +174,7 @@ pub fn kernel() -> Crc32cFn {
 ///
 /// The ISA detection is resolved once, before the measured section, just like
 /// the extension module does: the result is cached after the first call.
-pub fn dispatched() -> impl Fn(&[u8], u32) -> u32 + Copy {
+pub fn dispatched() -> impl ops::Fn(&[u8], u32) -> u32 + Copy {
     let kernel = kernel();
 
     move |data, value| {
