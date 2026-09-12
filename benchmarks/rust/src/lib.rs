@@ -65,19 +65,6 @@ const fn kernel_entry(name: &'static str, func: Fn) -> Kernel {
 pub const FALLBACK: Kernel = kernel_entry("fallback", fallback_kernel);
 
 /// Every kernel whose required CPU features are present on this machine.
-///
-/// The dispatcher picks a single kernel per CPU model, so measuring only that
-/// one hides how the other implementations behave on the same hardware. The
-/// checks below therefore mirror the `#[target_feature]` of each kernel rather
-/// than the model-based preferences of `SimdIsa::detect`: a kernel is measured
-/// as soon as the runner can execute it, whether or not it is the one the
-/// dispatcher would select.
-///
-/// The detection runs inside the benchmark process, so it sees exactly what
-/// the runner exposes. Under the simulation instrument that is the CPU as
-/// Valgrind emulates it, which is narrower than the bare metal underneath:
-/// kernels the emulation cannot execute are left out instead of being measured
-/// and crashing.
 #[must_use]
 pub fn available() -> Vec<Kernel> {
     let mut kernels = vec![FALLBACK];
