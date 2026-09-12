@@ -9,9 +9,6 @@
 
 #![feature(hint_prefetch)]
 
-// The kernels are compiled in as-is, so they keep the allowance granted to
-// them by `crc32c-rs` itself.
-#[allow(clippy::missing_safety_doc)]
 #[path = "../../../src/arch/mod.rs"]
 pub mod arch;
 pub mod payloads;
