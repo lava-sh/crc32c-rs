@@ -9,6 +9,8 @@
 
 #![feature(hint_prefetch)]
 
+use core::fmt;
+
 #[path = "../../../src/arch/mod.rs"]
 pub mod arch;
 pub mod payloads;
@@ -31,6 +33,107 @@ pub type Crc32cFn = unsafe fn(u32, *const u8, usize) -> u32;
 fn fallback_kernel(value: u32, ptr: *const u8, len: usize) -> u32 {
     // SAFETY: `ptr` and `len` always come from a live slice.
     unsafe { fallback::crc32c(value, core::slice::from_raw_parts(ptr, len), len) }
+}
+
+/// A CRC32C kernel, named after the module it is implemented in.
+#[derive(Clone, Copy)]
+pub struct Kernel {
+    pub name: &'static str,
+    pub func: Crc32cFn,
+}
+
+impl fmt::Display for Kernel {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str(self.name)
+    }
+}
+
+impl Kernel {
+    /// Runs the kernel on `data`, chaining `value` as the previous CRC.
+    #[must_use]
+    pub fn run(self, data: &[u8], value: u32) -> u32 {
+        // SAFETY: the kernel is only ever built by `available()`, which checks
+        // the CPU features it needs, and `data` stays alive for the whole call.
+        unsafe { (self.func)(value, data.as_ptr(), data.len()) }
+    }
+}
+
+const fn kernel_entry(name: &'static str, func: Crc32cFn) -> Kernel {
+    Kernel { name, func }
+}
+
+/// Portable table-based kernel, the only one available on every CPU.
+pub const FALLBACK: Kernel = kernel_entry("fallback", fallback_kernel);
+
+/// Every kernel whose required CPU features are present on this machine.
+///
+/// The dispatcher picks a single kernel per CPU model, so measuring only that
+/// one hides how the other implementations behave on the same hardware. The
+/// checks below therefore mirror the `#[target_feature]` of each kernel rather
+/// than the model-based preferences of `SimdIsa::detect`: a kernel is measured
+/// as soon as the runner can execute it, whether or not it is the one the
+/// dispatcher would select.
+///
+/// The detection runs inside the benchmark process, so it sees exactly what
+/// the runner exposes. Under the simulation instrument that is the CPU as
+/// Valgrind emulates it, which is narrower than the bare metal underneath:
+/// kernels the emulation cannot execute are left out instead of being measured
+/// and crashing.
+#[must_use]
+pub fn available() -> Vec<Kernel> {
+    let mut kernels = vec![FALLBACK];
+
+    #[cfg(any(target_arch = "x86_64", target_arch = "x86"))]
+    {
+        if crate::detect_features!(x86, ["sse4.2", "pclmulqdq"]) {
+            kernels.extend_from_slice(&[
+                kernel_entry("sse42_pclmulqdq_v1s3x2", sse42_pclmulqdq_v1s3x2::crc32c),
+                kernel_entry("sse42_pclmulqdq_v1s3x3", sse42_pclmulqdq_v1s3x3::crc32c),
+                kernel_entry("sse42_pclmulqdq_v1s4x2", sse42_pclmulqdq_v1s4x2::crc32c),
+                kernel_entry("sse42_pclmulqdq_v7s3x3", sse42_pclmulqdq_v7s3x3::crc32c),
+                kernel_entry("sse42_pclmulqdq_v8s3x3", sse42_pclmulqdq_v8s3x3::crc32c),
+            ]);
+        }
+        if crate::detect_features!(x86, ["avx512vl", "pclmulqdq"]) {
+            kernels.push(kernel_entry(
+                "avx512vl_pclmulqdq_v9s3x4e",
+                avx512vl_pclmulqdq_v9s3x4e::crc32c,
+            ));
+        }
+        if crate::detect_features!(x86, ["avx512vl", "vpclmulqdq"]) {
+            kernels.extend_from_slice(&[
+                kernel_entry(
+                    "avx512vl_vpclmulqdq_v3s1_s3",
+                    avx512vl_vpclmulqdq_v3s1_s3::crc32c,
+                ),
+                kernel_entry(
+                    "avx512vl_vpclmulqdq_v3s2x4",
+                    avx512vl_vpclmulqdq_v3s2x4::crc32c,
+                ),
+                kernel_entry(
+                    "avx512vl_vpclmulqdq_v4s5x3",
+                    avx512vl_vpclmulqdq_v4s5x3::crc32c,
+                ),
+            ]);
+        }
+    }
+    #[cfg(any(target_arch = "aarch64", target_arch = "arm64ec"))]
+    {
+        if crate::detect_features!(aarch64, ["crc", "aes"]) {
+            kernels.extend_from_slice(&[
+                kernel_entry("aes_crc_v12e_v1", aes_crc_v12e_v1::crc32c),
+                kernel_entry("aes_v3s4x2e_v2", aes_v3s4x2e_v2::crc32c),
+            ]);
+        }
+        if crate::detect_features!(aarch64, ["crc", "aes", "sha3"]) {
+            kernels.push(kernel_entry(
+                "aes_sha3_v9s3x2e_s3",
+                aes_sha3_v9s3x2e_s3::crc32c,
+            ));
+        }
+    }
+
+    kernels
 }
 
 /// Kernel selected for this CPU, mirroring the dispatch of `crc32c_rs.crc32c`.
@@ -82,15 +185,9 @@ pub fn dispatched() -> impl Fn(&[u8], u32) -> u32 + Copy {
     }
 }
 
-/// Portable table-based implementation, used when no SIMD ISA is available.
-#[must_use]
-pub fn fallback(data: &[u8], value: u32) -> u32 {
-    fallback::crc32c(value, data, data.len())
-}
-
 #[cfg(test)]
 mod tests {
-    use crate::{dispatched, fallback};
+    use crate::{FALLBACK, available, dispatched};
 
     /// Check value of CRC32C, as defined by RFC 3720.
     const CHECK: u32 = 0xE306_9283;
@@ -101,7 +198,20 @@ mod tests {
     fn kernels_agree_on_the_check_value() {
         let data = b"123456789";
 
-        assert_eq!(fallback(data, 0), CHECK);
+        assert_eq!(FALLBACK.run(data, 0), CHECK);
         assert_eq!(dispatched()(data, 0), CHECK);
+
+        for kernel in available() {
+            assert_eq!(kernel.run(data, 0), CHECK, "{kernel} is not CRC32C");
+        }
+    }
+
+    /// The fallback is the only kernel every CPU can run, so it stays in the
+    /// comparison whatever the runner turns out to support.
+    #[test]
+    fn available_kernels_always_include_the_fallback() {
+        let kernels = available();
+
+        assert!(kernels.iter().any(|kernel| kernel.name == FALLBACK.name));
     }
 }

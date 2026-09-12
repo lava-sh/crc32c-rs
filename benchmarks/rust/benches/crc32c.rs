@@ -1,11 +1,34 @@
+use core::fmt;
+
 use crc32c_benchmarks::{
-    dispatched, fallback,
+    Kernel, available, dispatched,
     payloads::{KIB, MIB, ONE_MIB, SIZES, SMALLEST, Size, payload},
 };
 use divan::{Bencher, black_box};
 
 fn main() {
     divan::main();
+}
+
+/// One kernel measured on one payload size.
+#[derive(Clone, Copy)]
+struct Case {
+    kernel: Kernel,
+    size: Size,
+}
+
+impl fmt::Display for Case {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}/{}", self.kernel, self.size)
+    }
+}
+
+/// Every kernel this CPU can execute, over the whole payload sweep.
+fn cases() -> Vec<Case> {
+    available()
+        .into_iter()
+        .flat_map(|kernel| SIZES.map(|size| Case { kernel, size }))
+        .collect()
 }
 
 /// Runtime-dispatched implementation, the one behind `crc32c_rs.crc32c`.
@@ -17,12 +40,16 @@ fn crc32c(bencher: Bencher, size: Size) {
     bencher.bench(|| crc32c(black_box(data), black_box(0)));
 }
 
-/// Portable table-based implementation, used when no SIMD ISA is available.
-#[divan::bench(args = SIZES)]
-fn crc32c_fallback(bencher: Bencher, size: Size) {
-    let data = payload(size);
+/// Every kernel available on this machine, not just the dispatched one.
+///
+/// The dispatcher picks a single kernel per CPU model, so this is what shows
+/// whether that choice is still the fastest one on the runner, and how the
+/// other implementations behave on the same hardware.
+#[divan::bench(args = cases())]
+fn crc32c_kernel(bencher: Bencher, case: Case) {
+    let data = payload(case.size);
 
-    bencher.bench(|| fallback(black_box(data), black_box(0)));
+    bencher.bench(|| case.kernel.run(black_box(data), black_box(0)));
 }
 
 /// Streaming usage: feed a 1 MiB payload as 64 KiB chunks.
