@@ -1,5 +1,3 @@
-//! Payloads shared by the benchmarks.
-
 use core::fmt;
 use std::sync::LazyLock;
 
