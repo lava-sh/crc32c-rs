@@ -36,7 +36,7 @@ jobs:
           }
           - {
             # ARM64
-            runner: windows-11-vs2026-arm,
+            runner: windows-11-arm,
             target: aarch64-pc-windows-msvc,
             interpreter: *interpreters_without_pypy,
             maturin-build-args: "--features mimalloc",
