@@ -24,7 +24,10 @@ jobs:
   benchmarks:
     name: "benchmarks"
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    # Every kernel the runner can execute is measured over the whole payload
+    # sweep, and the simulation instrument emulates each one instruction by
+    # instruction, so the suite takes well over half an hour to walk through.
+    timeout-minutes: 60
 
     permissions:
       contents: read
