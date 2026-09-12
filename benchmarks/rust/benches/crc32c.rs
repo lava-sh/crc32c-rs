@@ -31,15 +31,6 @@ fn cases() -> Vec<Case> {
         .collect()
 }
 
-/// Runtime-dispatched implementation, the one behind `crc32c_rs.crc32c`.
-#[divan::bench(args = SIZES)]
-fn crc32c(bencher: Bencher, size: Size) {
-    let crc32c = dispatched();
-    let data = payload(size);
-
-    bencher.bench(|| crc32c(black_box(data), black_box(0)));
-}
-
 /// Every kernel available on this machine, not just the dispatched one.
 ///
 /// The dispatcher picks a single kernel per CPU model, so this is what shows
