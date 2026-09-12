@@ -27,7 +27,7 @@ use crate::arch::{
 };
 use crate::{arch::fallback, simd_dispatch::SimdIsa};
 
-/// Raw shape of every CRC32C kernel: `(value, ptr, len)`.
+//                           value    ptr      len
 pub type Crc32cFn = unsafe fn(u32, *const u8, usize) -> u32;
 
 fn fallback_kernel(value: u32, ptr: *const u8, len: usize) -> u32 {
