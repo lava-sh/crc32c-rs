@@ -9,10 +9,10 @@
 
 #![feature(hint_prefetch)]
 
-#[path = "../../src/arch/mod.rs"]
+#[path = "../../../src/arch/mod.rs"]
 pub mod arch;
 pub mod payloads;
-#[path = "../../src/simd_dispatch.rs"]
+#[path = "../../../src/simd_dispatch.rs"]
 pub mod simd_dispatch;
 
 #[cfg(any(target_arch = "aarch64", target_arch = "arm64ec"))]

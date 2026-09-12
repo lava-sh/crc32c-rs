@@ -76,10 +76,10 @@ pip install . --group bench
 uv pip install . --group bench
 ```
 
-## Run `benchmark/run.py`
+## Run `benchmarks/python/run.py`
 
 ```bash
-python benchmark/run.py
+python benchmarks/python/run.py
 ```
 
 ## Results

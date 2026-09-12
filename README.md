@@ -22,7 +22,7 @@ _High-performance CRC32C implementation compliant with [RFC 3720 (iSCSI)](https:
 
 ## Features
 
-- [x] [High-performance](https://github.com/lava-sh/crc32c-rs/blob/main/benchmark%2FREADME.md#results) CRC32C implementation written in Rust
+- [x] [High-performance](https://github.com/lava-sh/crc32c-rs/blob/main/benchmarks%2Fpython%2FREADME.md#results) CRC32C implementation written in Rust
 
 - [x] Runtime SIMD dispatch with CPU-model-tuned implementations (see [below](#basic-usage))
 
