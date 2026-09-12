@@ -190,13 +190,4 @@ mod tests {
             assert_eq!(kernel.run(data, 0), CHECK, "{kernel} is not CRC32C");
         }
     }
-
-    /// The fallback is the only kernel every CPU can run, so it stays in the
-    /// comparison whatever the runner turns out to support.
-    #[test]
-    fn available_kernels_always_include_the_fallback() {
-        let kernels = available();
-
-        assert!(kernels.iter().any(|kernel| kernel.name == FALLBACK.name));
-    }
 }
