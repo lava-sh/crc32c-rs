@@ -29,11 +29,6 @@ pub const SMALLEST: Size = size("64B", 64);
 /// benchmarks.
 pub const ONE_MIB: Size = size("1MiB", MIB);
 
-/// The sweep deliberately crosses every threshold that changes the shape of
-/// the work: payloads short enough to be dominated by the per-call setup
-/// (64 B, 512 B), sizes that still fit in L2/L3 (512 KiB, 1 MiB) and sizes
-/// large enough that the SIMD kernel is bound by main memory bandwidth
-/// (16 MiB and up).
 pub const SIZES: [Size; 11] = [
     SMALLEST,
     size("512B", 512),
