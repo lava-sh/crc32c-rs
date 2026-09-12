@@ -41,7 +41,6 @@ jobs:
 
       - uses: dtolnay/rust-toolchain@nightly # zizmor: ignore[unpinned-uses]
 
-      # Caches `cargo-codspeed` as well, so it is only compiled once.
       - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
         if: github.event_name == 'pull_request'
         with:
@@ -49,7 +48,9 @@ jobs:
           shared-key: codspeed
 
       - name: "Install cargo-codspeed"
-        run: cargo install cargo-codspeed@5.0.1 --locked
+        uses: taiki-e/install-action@3f74d7c16a4242f1c95561e98edc25d36adb4375 # v2.87.12
+        with:
+          tool: cargo-codspeed@5.0.1
 
       - name: "Build benchmarks"
         run: cargo codspeed build --package crc32c-benchmarks
