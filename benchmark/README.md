@@ -79,7 +79,8 @@ uv pip install . --group bench
 ## Run `benchmark/run.py`
 
 ```bash
-python benchmark/run.py
+cd benchmark
+python run.py -o results.json
 ```
 
 ## Results

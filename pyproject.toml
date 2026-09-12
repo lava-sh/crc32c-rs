@@ -87,9 +87,12 @@ bench = [
     "crc32c == 2.9.post0",
     "fastcrc == 0.3.6",
     "google-crc32c == 1.8.0",
+    "pyperf == 2.10.0",
+    { include-group = "archspec" },
+    # table generator
+    "orjson == 3.12.0",
     "markdown-it-py == 4.2.0",
     "tabulate == 0.10.0",
-    { include-group = "archspec" },
 ]
 
 [tool.uv.dependency-groups]
