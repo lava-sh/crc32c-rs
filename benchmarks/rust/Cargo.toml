@@ -11,8 +11,3 @@ divan = { package = "codspeed-divan-compat", version = "=5.0.1" }
 [[bench]]
 name = "crc32c"
 harness = false
-
-[lints.clippy]
-# The kernels are compiled into this crate as-is, so they keep the allowances
-# granted to them by `crc32c-rs` itself.
-missing_safety_doc = "allow"
