@@ -1,4 +1,5 @@
 use core::fmt;
+use std::env::consts::ARCH;
 
 use crc32c_benchmarks::{
     Kernel, available, dispatched,
@@ -19,7 +20,7 @@ struct Case {
 
 impl fmt::Display for Case {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}/{}", self.kernel, self.size)
+        write!(f, "{ARCH}/{}/{}", self.kernel, self.size)
     }
 }
 
@@ -40,8 +41,8 @@ fn crc32c_kernel(bencher: Bencher, case: Case) {
 }
 
 /// Streaming usage: feed a 1 MiB payload as 64 KiB chunks.
-#[divan::bench]
-fn crc32c_chained(bencher: Bencher) {
+#[divan::bench(args = [ARCH])]
+fn crc32c_chained(bencher: Bencher, _arch: &str) {
     let crc32c = dispatched();
     let chunks: Vec<&[u8]> = payload(ONE_MIB).chunks(64 * KIB).collect();
 
@@ -57,8 +58,8 @@ fn crc32c_chained(bencher: Bencher) {
 }
 
 /// Unaligned input: the kernels have a dedicated head/tail path for it.
-#[divan::bench]
-fn crc32c_unaligned(bencher: Bencher) {
+#[divan::bench(args = [ARCH])]
+fn crc32c_unaligned(bencher: Bencher, _arch: &str) {
     let crc32c = dispatched();
     let data = &payload(ONE_MIB)[1..MIB - 1];
 
@@ -66,8 +67,8 @@ fn crc32c_unaligned(bencher: Bencher) {
 }
 
 /// Per-call overhead, dominated by the dispatch and the length checks.
-#[divan::bench]
-fn crc32c_many_small_calls(bencher: Bencher) {
+#[divan::bench(args = [ARCH])]
+fn crc32c_many_small_calls(bencher: Bencher, _arch: &str) {
     let crc32c = dispatched();
     let data = payload(SMALLEST);
 
@@ -82,8 +83,8 @@ fn crc32c_many_small_calls(bencher: Bencher) {
     });
 }
 
-#[divan::bench]
-fn crc32c_empty(bencher: Bencher) {
+#[divan::bench(args = [ARCH])]
+fn crc32c_empty(bencher: Bencher, _arch: &str) {
     let crc32c = dispatched();
 
     bencher.bench(|| crc32c(black_box(&[]), black_box(0)));
