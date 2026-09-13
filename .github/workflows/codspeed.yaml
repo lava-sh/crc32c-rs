@@ -8,8 +8,6 @@ on:
       "main",
     ]
   pull_request:
-  # `workflow_dispatch` allows CodSpeed to trigger backtest
-  # performance analysis in order to generate initial data.
   workflow_dispatch:
 
 concurrency:
@@ -23,6 +21,8 @@ env:
 jobs:
   x86_64:
     name: "benchmarks / x86_64"
+    # The simulation instrument runs under Valgrind, which CodSpeed only
+    # packages for Ubuntu 22.04 and 24.04.
     runs-on: ubuntu-24.04
     timeout-minutes: 30
 
