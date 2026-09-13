@@ -303,7 +303,7 @@ def main() -> None:
 
     markdown = generate_benchmark_markdown(system_info, all_results)
     update_readme(markdown)
-    print("\nBenchmark results updated in benchmark/README.md")
+    print("\nBenchmark results updated in benchmarks/python/README.md")
 
 
 if __name__ == "__main__":
