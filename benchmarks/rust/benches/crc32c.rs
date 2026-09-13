@@ -3,7 +3,7 @@ use std::env::consts::ARCH;
 
 use crc32c_benchmarks::{
     Kernel, available, dispatched,
-    payloads::{KIB, MIB, ONE_MIB, SIZES, SMALLEST, Size, payload},
+    payloads::{KIB, MIB, ONE_MIB, SIZES, Size, payload},
 };
 use divan::{Bencher, black_box};
 
@@ -59,20 +59,4 @@ fn crc32c_unaligned(bencher: Bencher, _arch: &str) {
     let data = &payload(ONE_MIB)[1..MIB - 1];
 
     bencher.bench(|| crc32c(black_box(data), black_box(0)));
-}
-
-#[divan::bench(args = [ARCH])]
-fn crc32c_many_small_calls(bencher: Bencher, _arch: &str) {
-    let crc32c = dispatched();
-    let data = payload(SMALLEST);
-
-    bencher.bench(|| {
-        let mut value = 0;
-
-        for _ in 0..1000 {
-            value = crc32c(black_box(data), value);
-        }
-
-        value
-    });
 }

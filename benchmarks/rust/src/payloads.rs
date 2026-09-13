@@ -20,12 +20,10 @@ const fn size(name: &'static str, bytes: usize) -> Size {
     Size { name, bytes }
 }
 
-pub const SMALLEST: Size = size("64B", 64);
-
 pub const ONE_MIB: Size = size("1MiB", MIB);
 
 pub const SIZES: [Size; 11] = [
-    SMALLEST,
+    size("64B", 64),
     size("512B", 512),
     size("1KiB", KIB),
     size("64KiB", 64 * KIB),
