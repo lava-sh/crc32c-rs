@@ -22,9 +22,18 @@ env:
 
 jobs:
   benchmarks:
-    name: "benchmarks"
-    runs-on: ubuntu-latest
+    name: "benchmarks / ${{ matrix.os }}"
+    runs-on: ${{ matrix.os }}
     timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        # The simulation instrument runs under Valgrind, which CodSpeed only
+        # ships for Ubuntu 22.04 and 24.04, hence the pinned runner images.
+        os: [
+          "ubuntu-24.04",
+          "ubuntu-24.04-arm",
+        ]
 
     permissions:
       contents: read
@@ -42,7 +51,7 @@ jobs:
         if: github.event_name == 'pull_request'
         with:
           lookup-only: false # zizmor: ignore[cache-poisoning]
-          shared-key: codspeed
+          shared-key: codspeed-${{ matrix.os }}
 
       - name: "Install cargo-codspeed"
         uses: taiki-e/install-action@3f74d7c16a4242f1c95561e98edc25d36adb4375 # v2.87.12
