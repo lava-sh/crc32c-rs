@@ -76,10 +76,3 @@ fn crc32c_many_small_calls(bencher: Bencher, _arch: &str) {
         value
     });
 }
-
-#[divan::bench(args = [ARCH])]
-fn crc32c_empty(bencher: Bencher, _arch: &str) {
-    let crc32c = dispatched();
-
-    bencher.bench(|| crc32c(black_box(&[]), black_box(0)));
-}
