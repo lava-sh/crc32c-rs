@@ -31,11 +31,7 @@ fn cases() -> Vec<Case> {
         .collect()
 }
 
-/// Every kernel available on this machine, not just the dispatched one.
-///
-/// The dispatcher picks a single kernel per CPU model, so this is what shows
-/// whether that choice is still the fastest one on the runner, and how the
-/// other implementations behave on the same hardware.
+/// All kernels whose SIMD instructions are present on this CPU.
 #[divan::bench(args = cases())]
 fn crc32c_kernel(bencher: Bencher, case: Case) {
     let data = payload(case.size);
