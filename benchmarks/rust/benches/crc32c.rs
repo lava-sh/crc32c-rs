@@ -82,7 +82,6 @@ fn crc32c_many_small_calls(bencher: Bencher) {
     });
 }
 
-/// Lower bound of the call overhead.
 #[divan::bench]
 fn crc32c_empty(bencher: Bencher) {
     let crc32c = dispatched();
