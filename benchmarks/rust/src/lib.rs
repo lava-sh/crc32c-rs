@@ -156,10 +156,6 @@ pub fn kernel() -> Fn {
     }
 }
 
-/// Runtime-dispatched implementation, the one behind `crc32c_rs.crc32c`.
-///
-/// The ISA detection is resolved once, before the measured section, just like
-/// the extension module does: the result is cached after the first call.
 pub fn dispatched() -> impl ops::Fn(&[u8], u32) -> u32 + Copy {
     let kernel = kernel();
 
