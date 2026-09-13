@@ -11,7 +11,6 @@ fn main() {
     divan::main();
 }
 
-/// One kernel measured on one payload size.
 #[derive(Clone, Copy)]
 struct Case {
     kernel: Kernel,
@@ -24,7 +23,6 @@ impl fmt::Display for Case {
     }
 }
 
-/// Every kernel this CPU can execute, over the whole payload sweep.
 fn cases() -> Vec<Case> {
     available()
         .into_iter()
@@ -32,7 +30,6 @@ fn cases() -> Vec<Case> {
         .collect()
 }
 
-/// All kernels whose SIMD instructions are present on this CPU.
 #[divan::bench(args = cases())]
 fn crc32c_kernel(bencher: Bencher, case: Case) {
     let data = payload(case.size);
@@ -40,7 +37,6 @@ fn crc32c_kernel(bencher: Bencher, case: Case) {
     bencher.bench(|| case.kernel.run(black_box(data), black_box(0)));
 }
 
-/// Streaming usage: feed a 1 MiB payload as 64 KiB chunks.
 #[divan::bench(args = [ARCH])]
 fn crc32c_chained(bencher: Bencher, _arch: &str) {
     let crc32c = dispatched();
@@ -57,7 +53,6 @@ fn crc32c_chained(bencher: Bencher, _arch: &str) {
     });
 }
 
-/// Unaligned input: the kernels have a dedicated head/tail path for it.
 #[divan::bench(args = [ARCH])]
 fn crc32c_unaligned(bencher: Bencher, _arch: &str) {
     let crc32c = dispatched();
@@ -66,7 +61,6 @@ fn crc32c_unaligned(bencher: Bencher, _arch: &str) {
     bencher.bench(|| crc32c(black_box(data), black_box(0)));
 }
 
-/// Per-call overhead, dominated by the dispatch and the length checks.
 #[divan::bench(args = [ARCH])]
 fn crc32c_many_small_calls(bencher: Bencher, _arch: &str) {
     let crc32c = dispatched();
