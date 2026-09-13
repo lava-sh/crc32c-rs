@@ -121,10 +121,6 @@ pub fn available() -> Vec<Kernel> {
     kernels
 }
 
-/// Kernel selected for this CPU, mirroring the dispatch of `crc32c_rs.crc32c`.
-///
-/// Kept in sync with the match in `src/lib.rs`: a kernel missing from here is
-/// simply not benchmarked, it never changes what the extension module runs.
 #[must_use]
 pub fn kernel() -> Fn {
     match SimdIsa::detected() {
