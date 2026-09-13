@@ -4,7 +4,6 @@ use std::sync::LazyLock;
 pub const KIB: usize = 1024;
 pub const MIB: usize = 1024 * KIB;
 
-/// A payload size, named after the way it is reported by CodSpeed.
 #[derive(Clone, Copy)]
 pub struct Size {
     pub name: &'static str,
