@@ -34,7 +34,6 @@ fn fallback_kernel(value: u32, ptr: *const u8, len: usize) -> u32 {
     unsafe { fallback::crc32c(value, core::slice::from_raw_parts(ptr, len), len) }
 }
 
-/// A CRC32C kernel, named after the module it is implemented in.
 #[derive(Clone, Copy)]
 pub struct Kernel {
     pub name: &'static str,
