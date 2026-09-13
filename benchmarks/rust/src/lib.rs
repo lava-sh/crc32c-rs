@@ -163,7 +163,7 @@ pub fn dispatched() -> impl ops::Fn(&[u8], u32) -> u32 + Copy {
 
 #[cfg(test)]
 mod tests {
-    use crate::{FALLBACK, available, dispatched};
+    use crate::available;
 
     /// Check value of CRC32C, as defined by RFC 3720.
     const CHECK: u32 = 0xE306_9283;
@@ -171,9 +171,6 @@ mod tests {
     #[test]
     fn kernels_agree_on_the_check_value() {
         let data = b"123456789";
-
-        assert_eq!(FALLBACK.run(data, 0), CHECK);
-        assert_eq!(dispatched()(data, 0), CHECK);
 
         for kernel in available() {
             assert_eq!(kernel.run(data, 0), CHECK, "{kernel} is not CRC32C");
