@@ -21,12 +21,8 @@ const fn size(name: &'static str, bytes: usize) -> Size {
     Size { name, bytes }
 }
 
-/// Smallest payload of the sweep, used on its own by the per-call overhead
-/// benchmark.
 pub const SMALLEST: Size = size("64B", 64);
 
-/// Mid-sized payload, used on its own by the chunked and unaligned
-/// benchmarks.
 pub const ONE_MIB: Size = size("1MiB", MIB);
 
 pub const SIZES: [Size; 11] = [
