@@ -5,6 +5,9 @@ edition = "2024"
 license = "Unlicense"
 repository = "https://github.com/lava-sh/crc32c-rs"
 
+[workspace]
+members = ["benchmarks/rust"]
+
 [lib]
 name = "_crc32c_rs"
 crate-type = ["cdylib"]
