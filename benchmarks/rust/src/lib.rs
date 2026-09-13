@@ -168,8 +168,6 @@ mod tests {
     /// Check value of CRC32C, as defined by RFC 3720.
     const CHECK: u32 = 0xE306_9283;
 
-    /// Guards against the harness benchmarking something that is not CRC32C,
-    /// e.g. after the kernels have moved around in `src/`.
     #[test]
     fn kernels_agree_on_the_check_value() {
         let data = b"123456789";
