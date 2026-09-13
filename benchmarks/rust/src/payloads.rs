@@ -20,15 +20,13 @@ const fn size(name: &'static str, bytes: usize) -> Size {
     Size { name, bytes }
 }
 
-pub const ONE_MIB: Size = size("1MiB", MIB);
-
 pub const SIZES: [Size; 11] = [
     size("64B", 64),
     size("512B", 512),
     size("1KiB", KIB),
     size("64KiB", 64 * KIB),
     size("512KiB", 512 * KIB),
-    ONE_MIB,
+    size("1MiB", MIB),
     size("16MiB", 16 * MIB),
     size("32MiB", 32 * MIB),
     size("64MiB", 64 * MIB),
