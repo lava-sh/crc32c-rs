@@ -14,10 +14,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0).
 
 * Correct crc32c fallback implementation on big-endian. (by [@chirizxc][gh-chirizxc])
 
-### Fixes
-
-* Сorrect crc32c fallback implication on big-endian. (by [@chirizxc][gh-chirizxc])
-
 ## [0.0.2] - 09.09.2026
 
 ### Fixes
