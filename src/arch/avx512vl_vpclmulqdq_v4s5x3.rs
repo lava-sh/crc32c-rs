@@ -101,7 +101,7 @@ fn crc_shift(crc: u32, nbytes: usize) -> __m128i {
 #[target_feature(enable = "sse4.2,pclmulqdq")]
 unsafe fn crc32c_small(mut crc0: u32, mut buf: *const u8, mut len: usize) -> u32 {
     unsafe {
-        core::hint::assert_unchecked(len >= 32 && len <= 1024);
+        core::hint::assert_unchecked((32..=1024).contains(&len));
     }
 
     let klen = ((len - 8) / 24) * 8;
@@ -157,7 +157,7 @@ pub unsafe fn crc32c(mut crc0: u32, mut buf: *const u8, mut len: usize) -> u32 {
         buf = unsafe { buf.add(8) };
         len -= 8;
     }
-    if len >= 32 && len <= 1024 {
+    if (32..=1024).contains(&len) {
         return !unsafe { crc32c_small(crc0, buf, len) };
     }
     if len >= 384 {
