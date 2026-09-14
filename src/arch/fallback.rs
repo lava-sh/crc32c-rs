@@ -2,6 +2,8 @@
 // * https://github.com/MuntasirSZN/crc-fast-rust/tree/e3f3c613c3e158b2b82d576347ffc6e5e07ac5ba
 // * https://create.stephan-brumme.com/crc32/#slicing-by-16-overview
 
+use core::hint::{Locality, prefetch_read};
+
 use super::table::CRC32C_TABLE;
 
 #[rustfmt::skip]
@@ -42,6 +44,7 @@ macro_rules! block {
 pub fn crc32c(crc0: u32, buf: &[u8], len: usize) -> u32 {
     const UNROLL: usize = 4;
     const BYTES_AT_ONCE: usize = 16 * UNROLL;
+    const PREFETCH_AHEAD: usize = 256;
 
     let bytes = &buf[..len];
     let mut crc = !crc0;
@@ -49,7 +52,14 @@ pub fn crc32c(crc0: u32, buf: &[u8], len: usize) -> u32 {
     let mut current = bytes.as_ptr().cast::<u32>();
     let mut length = bytes.len();
 
-    while length >= BYTES_AT_ONCE {
+    while length >= BYTES_AT_ONCE + PREFETCH_AHEAD {
+        // SAFETY: length >= 320, so the prefetch address 256 bytes
+        // ahead remains within the input buffer.
+        prefetch_read(
+            unsafe { current.cast::<u8>().add(PREFETCH_AHEAD) },
+            Locality::L1,
+        );
+
         for _ in 0..UNROLL {
             block!(current, crc);
         }
