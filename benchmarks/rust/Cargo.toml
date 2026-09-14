@@ -1,0 +1,16 @@
+[package]
+name = "crc32c-benchmarks"
+version = "0.0.0"
+edition = "2024"
+license = "Unlicense"
+publish = false
+
+[dev-dependencies]
+divan = { package = "codspeed-divan-compat", version = "=5.0.1" }
+
+[[bench]]
+name = "crc32c"
+harness = false
+
+[lints.clippy]
+missing_safety_doc = "allow"
