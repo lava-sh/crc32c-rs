@@ -138,6 +138,11 @@ pub unsafe fn crc32c(mut crc0: u32, mut buf: *const u8, mut len: usize) -> u32 {
         buf2 = unsafe { buf2.add(256) };
         len -= 376;
         buf = unsafe { buf.add(blk * 256) };
+
+        if len <= 1024 {
+            return !unsafe { super::small::crc32_small(crc0, buf, len) };
+        }
+
         // Main loop.
         while len >= 384 {
             let y0 = clmul_lo(x0, k);
