@@ -8,7 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0).
 
 ### Added
 
-* Fastpath for `avx512vl_vpclmulqdq_v4s5x3` on small inputs (32 B - 1 KiB). (by [@chirizxc][gh-chirizxc])
+* Fastpath for `avx512vl_vpclmulqdq_v4s5x3`, `avx512vl_vpclmulqdq_v3s2x4` on small inputs (32 B - 1 KiB). (by [@chirizxc][gh-chirizxc])
 
 ### Fixes
 
