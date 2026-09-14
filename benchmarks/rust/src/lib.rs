@@ -7,8 +7,6 @@
 //! the code that ships in the wheel while keeping the benchmark build free of
 //! any Python toolchain.
 
-#![feature(hint_prefetch)]
-
 use core::fmt;
 
 #[path = "../../../src/arch/mod.rs"]

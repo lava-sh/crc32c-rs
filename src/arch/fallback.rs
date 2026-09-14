@@ -49,7 +49,9 @@ pub fn crc32c(crc0: u32, buf: &[u8], len: usize) -> u32 {
     let mut current = bytes.as_ptr().cast::<u32>();
     let mut length = bytes.len();
 
-    while length >= BYTES_AT_ONCE {
+    // Inputs with a single chunk left take the compact loop below: the unrolled
+    // body costs more in instruction fetches than it saves on one pass.
+    while length >= BYTES_AT_ONCE * 2 {
         for _ in 0..UNROLL {
             block!(current, crc);
         }
