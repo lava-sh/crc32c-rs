@@ -22,9 +22,8 @@ use crate::arch::fallback;
 use crate::arch::{aes_crc_v12e_v1, aes_sha3_v9s3x2e_s3, aes_v3s4x2e_v2};
 #[cfg(any(target_arch = "x86_64", target_arch = "x86"))]
 use crate::arch::{
-    avx512vl_pclmulqdq_v9s3x4e, avx512vl_vpclmulqdq_v3s1_s3, avx512vl_vpclmulqdq_v3s1_s3_hybrid,
-    avx512vl_vpclmulqdq_v3s2x4, avx512vl_vpclmulqdq_v4s5x3, maria_avx512, maria_sse42,
-    sse42_pclmulqdq_v1s3x2, sse42_pclmulqdq_v1s3x2_hybrid, sse42_pclmulqdq_v1s3x3,
+    avx512vl_pclmulqdq_v9s3x4e, avx512vl_vpclmulqdq_v3s1_s3_hybrid, avx512vl_vpclmulqdq_v3s2x4,
+    avx512vl_vpclmulqdq_v4s5x3, sse42_pclmulqdq_v1s3x2_hybrid, sse42_pclmulqdq_v1s3x3,
     sse42_pclmulqdq_v1s4x2, sse42_pclmulqdq_v7s3x3, sse42_pclmulqdq_v8s3x3,
 };
 
@@ -70,20 +69,16 @@ pub fn available() -> Vec<Kernel> {
 
     #[cfg(any(target_arch = "x86_64", target_arch = "x86"))]
     {
+        // The two hybrids keep the ids of the kernels they extend (the same code
+        // with MariaDB's small/mid-size branch spliced in), so CodSpeed reports
+        // them as a diff against the past measurements of those ids instead of as
+        // new benchmarks — and those kernels are benchmarked through their
+        // successor rather than twice.
         if crate::detect_features!(x86, ["sse4.2", "pclmulqdq"]) {
             kernels.extend_from_slice(&[
-                kernel_entry("maria_sse42", maria_sse42::crc32c),
-                // The hybrids take over the historical ids of the kernels they
-                // extend, so CodSpeed keeps comparing them against the previous
-                // measurements of the code they replace; the plain kernels keep
-                // their own id behind a `_base` suffix.
                 kernel_entry(
                     "sse42_pclmulqdq_v1s3x2",
                     sse42_pclmulqdq_v1s3x2_hybrid::crc32c,
-                ),
-                kernel_entry(
-                    "sse42_pclmulqdq_v1s3x2_base",
-                    sse42_pclmulqdq_v1s3x2::crc32c,
                 ),
                 kernel_entry("sse42_pclmulqdq_v1s3x3", sse42_pclmulqdq_v1s3x3::crc32c),
                 kernel_entry("sse42_pclmulqdq_v1s4x2", sse42_pclmulqdq_v1s4x2::crc32c),
@@ -100,10 +95,6 @@ pub fn available() -> Vec<Kernel> {
         if crate::detect_features!(x86, ["avx512vl", "vpclmulqdq"]) {
             kernels.extend_from_slice(&[
                 kernel_entry(
-                    "avx512vl_vpclmulqdq_v3s1_s3_base",
-                    avx512vl_vpclmulqdq_v3s1_s3::crc32c,
-                ),
-                kernel_entry(
                     "avx512vl_vpclmulqdq_v3s2x4",
                     avx512vl_vpclmulqdq_v3s2x4::crc32c,
                 ),
@@ -114,16 +105,10 @@ pub fn available() -> Vec<Kernel> {
             ]);
         }
         if crate::detect_features!(x86, ["avx512bw", "avx512dq", "avx512vl", "vpclmulqdq"]) {
-            // The hybrids take over the historical ids of the kernels they
-            // extend, so CodSpeed keeps comparing them against the previous
-            // measurements of the code they replace.
-            kernels.extend_from_slice(&[
-                kernel_entry(
-                    "avx512vl_vpclmulqdq_v3s1_s3",
-                    avx512vl_vpclmulqdq_v3s1_s3_hybrid::crc32c,
-                ),
-                kernel_entry("maria_avx512", maria_avx512::crc32c),
-            ]);
+            kernels.push(kernel_entry(
+                "avx512vl_vpclmulqdq_v3s1_s3",
+                avx512vl_vpclmulqdq_v3s1_s3_hybrid::crc32c,
+            ));
         }
     }
     #[cfg(any(target_arch = "aarch64", target_arch = "arm64ec"))]
