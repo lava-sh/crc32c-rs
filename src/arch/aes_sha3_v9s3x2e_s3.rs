@@ -79,7 +79,7 @@ fn xnmodp(mut n: u64) -> u32 {
 
         let x = vreinterpret_p8_u64(vmov_n_u64(u64::from(acc)));
         let y = vgetq_lane_u64(vreinterpretq_u64_p16(vmull_p8(x, x)), 0);
-        acc = unsafe { __crc32cd(0, y << low) };
+        acc = __crc32cd(0, y << low);
     }
     acc
 }
