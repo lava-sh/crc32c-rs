@@ -95,55 +95,6 @@ fn crc_shift(crc: u32, nbytes: usize) -> uint64x2_t {
 }
 
 #[inline]
-#[target_feature(enable = "aes")]
-unsafe fn crc32c_small(mut crc0: u32, mut buf: *const u8, mut len: usize) -> u32 {
-    unsafe {
-        core::hint::assert_unchecked((32..=1024).contains(&len));
-    }
-
-    // First vector chunk.
-    let mut x0 = unsafe { vld1q_u64(buf.cast::<u64>()) };
-    let mut x1 = unsafe { vld1q_u64(buf.add(16).cast::<u64>()) };
-    let k_values = [0x3da6_d0cb_u64, 0xba4f_c28e_u64];
-    let k = unsafe { vld1q_u64(k_values.as_ptr()) };
-    x0 = veorq_u64(vsetq_lane_u64(u64::from(crc0), vmovq_n_u64(0), 0), x0);
-    buf = unsafe { buf.add(32) };
-    len -= 32;
-
-    // Main loop.
-    while len >= 32 {
-        let y0 = clmul_lo_e(x0, k, unsafe { vld1q_u64(buf.cast::<u64>()) });
-        x0 = clmul_hi_e(x0, k, y0);
-        let y1 = clmul_lo_e(x1, k, unsafe { vld1q_u64(buf.add(16).cast::<u64>()) });
-        x1 = clmul_hi_e(x1, k, y1);
-        buf = unsafe { buf.add(32) };
-        len -= 32;
-    }
-
-    // Reduce x0..x1 to just x0.
-    let k_values = [0xf20c_0dfe_u64, 0x493c_7d27_u64];
-    let k = unsafe { vld1q_u64(k_values.as_ptr()) };
-    let y0 = clmul_lo_e(x0, k, x1);
-    x0 = clmul_hi_e(x0, k, y0);
-
-    // Reduce 128 bits to 32 bits, and multiply by x^32.
-    crc0 = __crc32cd(0, vgetq_lane_u64(x0, 0));
-    crc0 = __crc32cd(crc0, vgetq_lane_u64(x0, 1));
-
-    while len >= 8 {
-        crc0 = unsafe { __crc32cd(crc0, *(buf.cast::<u64>())) };
-        buf = unsafe { buf.add(8) };
-        len -= 8;
-    }
-    while len != 0 {
-        crc0 = unsafe { __crc32cb(crc0, *buf) };
-        buf = unsafe { buf.add(1) };
-        len -= 1;
-    }
-    crc0
-}
-
-#[inline]
 #[target_feature(enable = "crc,aes")]
 pub unsafe fn crc32c(mut crc0: u32, mut buf: *const u8, mut len: usize) -> u32 {
     crc0 = !crc0;
@@ -157,9 +108,7 @@ pub unsafe fn crc32c(mut crc0: u32, mut buf: *const u8, mut len: usize) -> u32 {
         buf = unsafe { buf.add(8) };
         len -= 8;
     }
-    if (32..=1024).contains(&len) {
-        return !unsafe { crc32c_small(crc0, buf, len) };
-    }
+
     if len >= 112 {
         let end = unsafe { buf.add(len) };
         let blk = len / 112;
