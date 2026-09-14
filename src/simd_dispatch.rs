@@ -116,7 +116,7 @@ impl CpuModel {
                 // Family 0x19 (25): Zen 3 / Zen 3+ / Zen 4
                 0x19 => match model {
                     // Zen 3 / Zen 3+: Milan, Milan-X, Vermeer, Cezanne, Rembrandt
-                    0x00..=0x0F | 0x20..=0x5F | 0x70..=0x7F => Self::Milan,
+                    0x00..=0x0F | 0x20..=0x5F => Self::Milan,
                     // Zen 4 / Zen 4c: Genoa, Genoa-X, Bergamo, Raphael, Phoenix
                     0x10..=0x1F | 0x60..=0xAF => Self::Genoa,
                     _ => Self::Unknown,
