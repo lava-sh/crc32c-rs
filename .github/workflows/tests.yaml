@@ -79,14 +79,13 @@ jobs:
         run: pytest
 
   b:
-    name: "bench / ${{ matrix.os }} / python ${{ matrix.python-version }}"
+    name: "bench / ${{ matrix.os }}"
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
         python-version: [
           "3.14",
-
         ]
         # See: https://docs.github.com/en/actions/reference/runners/github-hosted-runners
         os: [
@@ -130,6 +129,9 @@ jobs:
 
       - name: "Run maturin"
         run: maturin build --release --out wheels --features mimalloc
+
+      - name: "Install built wheel"
+        run: uv pip install crc32c-rs --no-index --find-links wheels --force-reinstall
 
       - name: "Install built wheel"
         run: |
