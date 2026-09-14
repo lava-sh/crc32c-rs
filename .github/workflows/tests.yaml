@@ -79,7 +79,7 @@ jobs:
         run: pytest
 
   b:
-    name: "${{ matrix.os }} / python ${{ matrix.python-version }}"
+    name: "bench / ${{ matrix.os }} / python ${{ matrix.python-version }}"
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -126,7 +126,7 @@ jobs:
           fi
 
       - name: "Install dependencies"
-        run: uv pip install --group ci
+        run: uv pip install --group ci --group bench
 
       - name: "Run maturin"
         run: maturin build --release --out wheels --features mimalloc
