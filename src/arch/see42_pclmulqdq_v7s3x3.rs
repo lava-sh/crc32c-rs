@@ -105,43 +105,6 @@ fn crc_shift(crc: u32, nbytes: usize) -> __m128i {
 
 #[inline]
 #[target_feature(enable = "sse4.2,pclmulqdq")]
-unsafe fn crc32_small(mut crc0: u32, mut buf: *const u8, mut len: usize) -> u32 {
-    if len >= 32 {
-        let klen = ((len - 8) / 24) * 8;
-        let mut crc1 = 0_u32;
-        let mut crc2 = 0_u32;
-        loop {
-            crc0 = crc32_u64(crc0, unsafe { buf.cast::<u64>().read_unaligned() });
-            crc1 = crc32_u64(crc1, unsafe { buf.add(klen).cast::<u64>().read_unaligned() });
-            crc2 = crc32_u64(crc2, unsafe { buf.add(klen * 2).cast::<u64>().read_unaligned() });
-            buf = unsafe { buf.add(8) };
-            len -= 24;
-            if len < 32 { break; }
-        }
-        let vc0 = crc_shift(crc0, klen * 2 + 8);
-        let vc1 = crc_shift(crc1, klen + 8);
-        let vc = extract_u64(_mm_xor_si128(vc0, vc1), 0);
-        buf = unsafe { buf.add(klen * 2) };
-        crc0 = crc2;
-        crc0 = crc32_u64(crc0, unsafe { buf.cast::<u64>().read_unaligned() } ^ vc);
-        buf = unsafe { buf.add(8) };
-        len -= 8;
-    }
-    while len >= 8 {
-        crc0 = crc32_u64(crc0, unsafe { buf.cast::<u64>().read_unaligned() });
-        buf = unsafe { buf.add(8) };
-        len -= 8;
-    }
-    while len != 0 {
-        crc0 = _mm_crc32_u8(crc0, unsafe { *buf });
-        buf = unsafe { buf.add(1) };
-        len -= 1;
-    }
-    crc0
-}
-
-#[inline]
-#[target_feature(enable = "sse4.2,pclmulqdq")]
 pub unsafe fn crc32c(mut crc0: u32, mut buf: *const u8, mut len: usize) -> u32 {
     crc0 = !crc0;
     while len != 0 && (buf as usize & 7) != 0 {
@@ -155,10 +118,6 @@ pub unsafe fn crc32c(mut crc0: u32, mut buf: *const u8, mut len: usize) -> u32 {
         len -= 8;
     }
     if len >= 192 {
-        if len <= 1024 {
-            return !unsafe { crc32_small(crc0, buf, len) };
-        }
-
         let blk = (len - 8) / 184;
         let klen = blk * 24;
         let mut buf2 = buf;
