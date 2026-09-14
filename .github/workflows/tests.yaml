@@ -131,7 +131,7 @@ jobs:
         run: maturin build --release --out wheels --features mimalloc
 
       - name: "Install built wheel"
-        run: uv pip install crc32c-rs --no-index --find-links wheels --force-reinstall
+        run: uv pip install crc32c-rs --no-index --find-links wheels
 
       - name: "Install built wheel"
         run: |
