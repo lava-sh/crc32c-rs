@@ -54,9 +54,15 @@ enum CpuModel {
     CascadeLake,
     IceLake,
     SapphireRapids,
+    Zen1,
     Rome,
+    Matisse,
     Milan,
     Genoa,
+    Zen5,
+    Turin,
+    Zen5APU,
+    Zen6,
 }
 
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
@@ -94,14 +100,38 @@ impl CpuModel {
                 0x8F => Self::SapphireRapids,
                 _ => Self::Unknown,
             },
+            // https://en.wikipedia.org/wiki/List_of_AMD_CPU_microarchitectures
             CpuVendor::Amd => match family {
-                0x17 => Self::Rome,
-                // Family 0x19 covers both Zen 3 and Zen 4
+                // Family 0x17 (23): Zen / Zen+ / Zen 2
+                0x17 => match model {
+                    // Zen 1 / Zen+: Naples, Summit Ridge, Whitehaven, Raven Ridge
+                    0x00..=0x2F => Self::Zen1,
+                    // Zen 2: Rome (EPYC 7002 Server)
+                    0x30..=0x3F => Self::Rome,
+                    // Zen 2: Matisse (Desktop), Renoir / Lucienne (APU), Castle Peak
+                    0x40..=0xAF => Self::Matisse,
+                    _ => Self::Unknown,
+                },
+
+                // Family 0x19 (25): Zen 3 / Zen 3+ / Zen 4
                 0x19 => match model {
-                    // Zen 3: Milan / Milan-X
-                    0x00..=0x0F | 0x20..=0x5F => Self::Milan,
-                    // Zen 4: Genoa / Genoa-X / Raphael / Phoenix / Bergamo
+                    // Zen 3 / Zen 3+: Milan, Milan-X, Vermeer, Cezanne, Rembrandt
+                    0x00..=0x0F | 0x20..=0x5F | 0x70..=0x7F => Self::Milan,
+                    // Zen 4 / Zen 4c: Genoa, Genoa-X, Bergamo, Raphael, Phoenix
                     0x10..=0x1F | 0x60..=0xAF => Self::Genoa,
+                    _ => Self::Unknown,
+                },
+
+                // Family 0x1A (26): Zen 5 / Zen 6
+                0x1A => match model {
+                    // Zen 5 standard client processors (e.g., Granite Ridge, Strix Point)
+                    0x00..=0x0F => Self::Zen5,
+                    // Zen 5c server processors (e.g., Turin, Turin Dense)
+                    0x10..=0x1F => Self::Turin,
+                    // Zen 5/5c high-performance APUs (e.g., Strix Halo, Kraken Point)
+                    0x40..=0x4F | 0x70..=0x7F => Self::Zen5APU,
+                    // Zen 6 (Reserved ranges based on Linux kernel patches)
+                    0x50..=0x5F | 0x80..=0xAF => Self::Zen6,
                     _ => Self::Unknown,
                 },
                 _ => Self::Unknown,
@@ -174,10 +204,22 @@ impl SimdIsa {
                     return Self::Avx512vlVpclmulqdq_v3s1_s3;
                 }
 
-                CpuModel::Genoa if detect_features!(x86, ["avx512vl", "vpclmulqdq"]) => {
+                CpuModel::Genoa
+                | CpuModel::Zen5
+                | CpuModel::Turin
+                | CpuModel::Zen5APU
+                | CpuModel::Zen6
+                    if detect_features!(x86, ["avx512vl", "vpclmulqdq"]) =>
+                {
                     return Self::Avx512vlVpclmulqdq_v3s2x4;
                 }
-                CpuModel::Genoa if detect_features!(x86, ["sse4.2", "pclmulqdq"]) => {
+                CpuModel::Genoa
+                | CpuModel::Zen5
+                | CpuModel::Turin
+                | CpuModel::Zen5APU
+                | CpuModel::Zen6
+                    if detect_features!(x86, ["sse4.2", "pclmulqdq"]) =>
+                {
                     return Self::Sse42Pclmulqdq_v1s3x2;
                 }
 
@@ -201,7 +243,9 @@ impl SimdIsa {
                     return Self::Sse42Pclmulqdq_v1s4x2;
                 }
 
-                CpuModel::Rome if detect_features!(x86, ["sse4.2", "pclmulqdq"]) => {
+                CpuModel::Zen1 | CpuModel::Rome | CpuModel::Matisse
+                    if detect_features!(x86, ["sse4.2", "pclmulqdq"]) =>
+                {
                     return Self::Sse42Pclmulqdq_v1s3x3;
                 }
 
