@@ -141,8 +141,8 @@ jobs:
           else
             source .venv/bin/activate
           fi
-          
           cd benchmarks/python
+          python -m pyperf system tune
           python run.py -o results.json
 
       - name: "Upload wheels"
