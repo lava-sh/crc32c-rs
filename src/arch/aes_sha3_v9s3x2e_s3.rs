@@ -79,7 +79,7 @@ fn xnmodp(mut n: u64) -> u32 {
 
         let x = vreinterpret_p8_u64(vmov_n_u64(u64::from(acc)));
         let y = vgetq_lane_u64(vreinterpretq_u64_p16(vmull_p8(x, x)), 0);
-        acc = __crc32cd(0, y << low);
+        acc = unsafe { __crc32cd(0, y << low) };
     }
     acc
 }
@@ -113,7 +113,7 @@ unsafe fn crc32c_small(mut crc0: u32, mut buf: *const u8, mut len: usize) -> u32
 
     let vc0 = crc_shift(crc0, klen * 2 + 8);
     let vc1 = crc_shift(crc1, klen + 8);
-    let vc = unsafe { vgetq_lane_u64(veorq_u64(vc0, vc1), 0) };
+    let vc = vgetq_lane_u64(veorq_u64(vc0, vc1), 0);
 
     buf = unsafe { buf.add(klen * 2) };
     crc0 = crc2;

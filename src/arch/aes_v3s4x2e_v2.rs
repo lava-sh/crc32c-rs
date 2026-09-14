@@ -127,8 +127,8 @@ unsafe fn crc32c_small(mut crc0: u32, mut buf: *const u8, mut len: usize) -> u32
     x0 = clmul_hi_e(x0, k, y0);
 
     // Reduce 128 bits to 32 bits, and multiply by x^32.
-    crc0 = __crc32cd(0, vgetq_lane_u64(x0, 0));
-    crc0 = __crc32cd(crc0, vgetq_lane_u64(x0, 1));
+    crc0 = unsafe { __crc32cd(0, vgetq_lane_u64(x0, 0)) };
+    crc0 = unsafe { __crc32cd(crc0, vgetq_lane_u64(x0, 1)) };
 
     while len >= 8 {
         crc0 = unsafe { __crc32cd(crc0, *(buf.cast::<u64>())) };
@@ -264,7 +264,7 @@ pub unsafe fn crc32c(mut crc0: u32, mut buf: *const u8, mut len: usize) -> u32 {
 
         // Reduce 128 bits to 32 bits, and multiply by x^32.
         crc0 = __crc32cd(0, vgetq_lane_u64(x0, 0));
-        crc0 = __crc32cd(crc0, vgetq_lane_u64(x0, 1));
+        crc0 = unsafe { __crc32cd(crc0, vgetq_lane_u64(x0, 1)) };
     }
 
     while len >= 8 {
