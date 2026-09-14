@@ -133,8 +133,15 @@ jobs:
       - name: "Install built wheel"
         run: uv pip install crc32c-rs --no-index --find-links wheels
 
-      - name: "Install built wheel"
+      - name: "Run Python benchmark"
+        shell: bash
         run: |
+          if [[ "${{ matrix.os }}" == "windows-latest" ]]; then
+            source .venv/Scripts/activate
+          else
+            source .venv/bin/activate
+          fi
+          
           cd benchmarks/python
           python run.py -o results.json
 
