@@ -76,11 +76,13 @@ pip install . --group bench
 uv pip install . --group bench
 ```
 
-## Run `benchmark/run.py`
+## Run `benchmarks/python/run.py`
 
 ```bash
-cd benchmark
+cd benchmarks/python
 python run.py -o results.json
+# generate markdown tables
+python md_table.py results.json
 ```
 
 ## Results
