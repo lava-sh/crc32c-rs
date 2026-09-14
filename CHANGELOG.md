@@ -6,6 +6,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0).
 
 ## [Unreleased] - ReleaseDate
 
+### Added
+
+* Fastpath for `avx512vl_vpclmulqdq_v4s5x3` on small inputs (32 B - 1 KiB). (by [@chirizxc][gh-chirizxc])
+
+### Fixes
+
+* Correct crc32c fallback implementation on big-endian. (by [@chirizxc][gh-chirizxc])
+
 ### Fixes
 
 * Сorrect crc32c fallback implication on big-endian. (by [@chirizxc][gh-chirizxc])
