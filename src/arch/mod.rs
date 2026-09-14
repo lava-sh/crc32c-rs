@@ -14,8 +14,6 @@ pub mod avx512vl_vpclmulqdq_v3s2x4;
 pub mod avx512vl_vpclmulqdq_v4s5x3;
 pub mod fallback;
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
-mod small;
-#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 pub mod sse42_pclmulqdq_v1s3x2;
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 pub mod sse42_pclmulqdq_v1s3x3;
