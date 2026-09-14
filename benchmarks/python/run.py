@@ -13,6 +13,7 @@ import pyperf
 KiB = 1024
 
 PAYLOADS = {
+    "32 B": 32,
     "512 B": 512,
     "1 KiB": KiB,
     "64 KiB": 64 * KiB,
