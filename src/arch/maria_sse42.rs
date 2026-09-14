@@ -57,6 +57,23 @@ fn read_u64(p: *const u8) -> u64 {
     unsafe { p.cast::<u64>().read_unaligned() }
 }
 
+// `_mm_cvtsi128_si64` is only available on 64-bit x86, so 32-bit builds pull
+// the two halves out with `_mm_cvtsi128_si32` instead.
+#[inline]
+#[target_feature(enable = "sse4.2")]
+fn cvtsi128_si64(value: __m128i) -> u64 {
+    #[cfg(target_arch = "x86")]
+    {
+        u64::from(_mm_cvtsi128_si32(value).cast_unsigned())
+            | (u64::from(_mm_cvtsi128_si32(_mm_srli_si128(value, 4)).cast_unsigned()) << 32)
+    }
+
+    #[cfg(target_arch = "x86_64")]
+    {
+        _mm_cvtsi128_si64(value).cast_unsigned()
+    }
+}
+
 #[inline]
 #[target_feature(enable = "sse4.2")]
 fn crc32_u64(crc: u32, value: u64) -> u32 {
@@ -244,7 +261,7 @@ fn combine_crc(block_size: usize, crc0: u32, crc1: u32, crc2: u32, next2: *const
     let crc1_xmm = _mm_set_epi64x(0, i64::from(crc1));
     let res1 = _mm_clmulepi64_si128::<0x10>(crc1_xmm, multiplier);
     let res = _mm_xor_si128(res0, res1);
-    let crc0 = _mm_cvtsi128_si64(res).cast_unsigned() ^ read_u64(unsafe { next2.byte_sub(8) });
+    let crc0 = cvtsi128_si64(res) ^ read_u64(unsafe { next2.byte_sub(8) });
     crc32_u64(crc2, crc0)
 }
 
