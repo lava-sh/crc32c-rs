@@ -98,6 +98,46 @@ fn crc_shift(crc: u32, nbytes: usize) -> __m128i {
 }
 
 #[inline]
+#[target_feature(enable = "sse4.2,pclmulqdq")]
+unsafe fn crc32c_small(mut crc0: u32, mut buf: *const u8, mut len: usize) -> u32 {
+    unsafe {
+        core::hint::assert_unchecked((32..=1024).contains(&len));
+    }
+
+    let klen = ((len - 8) / 16) * 8;
+    let mut crc1 = 0_u32;
+    loop {
+        crc0 = crc32_u64(crc0, unsafe { buf.cast::<u64>().read_unaligned() });
+        crc1 = crc32_u64(crc1, unsafe {
+            buf.add(klen).cast::<u64>().read_unaligned()
+        });
+        buf = unsafe { buf.add(8) };
+        len -= 16;
+        if len < 24 {
+            break;
+        }
+    }
+    let vc = extract_u64(crc_shift(crc0, klen + 8), 0);
+    buf = unsafe { buf.add(klen) };
+    crc0 = crc1;
+    crc0 = crc32_u64(crc0, unsafe { buf.cast::<u64>().read_unaligned() } ^ vc);
+    buf = unsafe { buf.add(8) };
+    len -= 8;
+
+    while len >= 8 {
+        crc0 = crc32_u64(crc0, unsafe { buf.cast::<u64>().read_unaligned() });
+        buf = unsafe { buf.add(8) };
+        len -= 8;
+    }
+    while len != 0 {
+        crc0 = _mm_crc32_u8(crc0, unsafe { *buf });
+        buf = unsafe { buf.add(1) };
+        len -= 1;
+    }
+    crc0
+}
+
+#[inline]
 #[target_feature(enable = "avx512vl,vpclmulqdq")]
 pub unsafe fn crc32c(mut crc0: u32, mut buf: *const u8, mut len: usize) -> u32 {
     crc0 = !crc0;
@@ -110,6 +150,9 @@ pub unsafe fn crc32c(mut crc0: u32, mut buf: *const u8, mut len: usize) -> u32 {
         crc0 = crc32_u64(crc0, unsafe { buf.cast::<u64>().read_unaligned() });
         buf = unsafe { buf.add(8) };
         len -= 8;
+    }
+    if (32..=1024).contains(&len) {
+        return !unsafe { crc32c_small(crc0, buf, len) };
     }
     if len >= 256 {
         let blk = len / 256;
