@@ -9,12 +9,20 @@ pub mod avx512vl_pclmulqdq_v9s3x4e;
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 pub mod avx512vl_vpclmulqdq_v3s1_s3;
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+pub mod avx512vl_vpclmulqdq_v3s1_s3_hybrid;
+#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 pub mod avx512vl_vpclmulqdq_v3s2x4;
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 pub mod avx512vl_vpclmulqdq_v4s5x3;
 pub mod fallback;
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+pub mod maria_avx512;
+#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+pub mod maria_sse42;
+#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 pub mod sse42_pclmulqdq_v1s3x2;
+#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+pub mod sse42_pclmulqdq_v1s3x2_hybrid;
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 pub mod sse42_pclmulqdq_v1s3x3;
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]

@@ -39,6 +39,12 @@ def _crc32c_avx512vl_vpclmulqdq_v3s1_s3(
     /,
 ) -> builtins.int: ...
 
+def _crc32c_avx512vl_vpclmulqdq_v3s1_s3_hybrid(
+    data: ReadableBuffer,
+    value: builtins.int = 0,
+    /,
+) -> builtins.int: ...
+
 def _crc32c_avx512vl_vpclmulqdq_v3s2x4(
     data: ReadableBuffer,
     value: builtins.int = 0,
@@ -51,7 +57,25 @@ def _crc32c_avx512vl_vpclmulqdq_v4s5x3(
     /,
 ) -> builtins.int: ...
 
+def _crc32c_maria_avx512(
+    data: ReadableBuffer,
+    value: builtins.int = 0,
+    /,
+) -> builtins.int: ...
+
+def _crc32c_maria_sse42(
+    data: ReadableBuffer,
+    value: builtins.int = 0,
+    /,
+) -> builtins.int: ...
+
 def _crc32c_sse42_pclmulqdq_v1s3x2(
+    data: ReadableBuffer,
+    value: builtins.int = 0,
+    /,
+) -> builtins.int: ...
+
+def _crc32c_sse42_pclmulqdq_v1s3x2_hybrid(
     data: ReadableBuffer,
     value: builtins.int = 0,
     /,

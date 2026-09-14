@@ -37,10 +37,19 @@ def crc_impl() -> list[tuple[str, Callable[..., int]]]:
 
     requirements = {
         "crc32c_avx512vl_vpclmulqdq_v3s1_s3": {"avx512f", "avx512vl", "vpclmulqdq"},
+        "crc32c_avx512vl_vpclmulqdq_v3s1_s3_hybrid": {
+            "avx512bw",
+            "avx512dq",
+            "avx512vl",
+            "vpclmulqdq",
+        },
         "crc32c_avx512vl_vpclmulqdq_v3s2x4": {"avx512f", "avx512vl", "vpclmulqdq"},
         "crc32c_avx512vl_vpclmulqdq_v4s5x3": {"avx512f", "avx512vl", "vpclmulqdq"},
         "crc32c_avx512vl_pclmulqdq_v9s3x4e": {"avx512vl", "pclmulqdq"},
+        "crc32c_maria_avx512": {"avx512bw", "avx512dq", "avx512vl", "vpclmulqdq"},
+        "crc32c_maria_sse42": {"sse4_2", "pclmulqdq"},
         "crc32c_sse42_pclmulqdq_v1s3x2": {"sse4_2", "pclmulqdq"},
+        "crc32c_sse42_pclmulqdq_v1s3x2_hybrid": {"sse4_2", "pclmulqdq"},
         "crc32c_sse42_pclmulqdq_v1s3x3": {"sse4_2", "pclmulqdq"},
         "crc32c_sse42_pclmulqdq_v1s4x2": {"sse4_2", "pclmulqdq"},
         "crc32c_sse42_pclmulqdq_v7s3x3": {"sse4_2", "pclmulqdq"},

@@ -47,7 +47,9 @@ def get_available_implementations() -> list[tuple[str, Callable]]:
 
     configs = [
         ({"sse4_2", "pclmulqdq"}, [
+            "crc32c_maria_sse42",
             "crc32c_sse42_pclmulqdq_v1s3x2",
+            "crc32c_sse42_pclmulqdq_v1s3x2_hybrid",
             "crc32c_sse42_pclmulqdq_v1s3x3",
             "crc32c_sse42_pclmulqdq_v1s4x2",
             "crc32c_sse42_pclmulqdq_v7s3x3",
@@ -55,8 +57,10 @@ def get_available_implementations() -> list[tuple[str, Callable]]:
         ]),
         ({"avx512f", "avx512vl", "vpclmulqdq"}, [
             "crc32c_avx512vl_vpclmulqdq_v3s1_s3",
+            "crc32c_avx512vl_vpclmulqdq_v3s1_s3_hybrid",
             "crc32c_avx512vl_vpclmulqdq_v3s2x4",
             "crc32c_avx512vl_vpclmulqdq_v4s5x3",
+            "crc32c_maria_avx512",
         ]),
         ({"avx512vl", "pclmulqdq"}, [
             "crc32c_avx512vl_pclmulqdq_v9s3x4e",

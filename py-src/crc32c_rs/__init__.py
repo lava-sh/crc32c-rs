@@ -17,9 +17,13 @@ try:  # noqa: RUF067
     from ._crc32c_rs import (
         _crc32c_avx512vl_pclmulqdq_v9s3x4e as crc32c_avx512vl_pclmulqdq_v9s3x4e,
         _crc32c_avx512vl_vpclmulqdq_v3s1_s3 as crc32c_avx512vl_vpclmulqdq_v3s1_s3,
+        _crc32c_avx512vl_vpclmulqdq_v3s1_s3_hybrid as crc32c_avx512vl_vpclmulqdq_v3s1_s3_hybrid,  # noqa: E501
         _crc32c_avx512vl_vpclmulqdq_v3s2x4 as crc32c_avx512vl_vpclmulqdq_v3s2x4,
         _crc32c_avx512vl_vpclmulqdq_v4s5x3 as crc32c_avx512vl_vpclmulqdq_v4s5x3,
+        _crc32c_maria_avx512 as crc32c_maria_avx512,
+        _crc32c_maria_sse42 as crc32c_maria_sse42,
         _crc32c_sse42_pclmulqdq_v1s3x2 as crc32c_sse42_pclmulqdq_v1s3x2,
+        _crc32c_sse42_pclmulqdq_v1s3x2_hybrid as crc32c_sse42_pclmulqdq_v1s3x2_hybrid,
         _crc32c_sse42_pclmulqdq_v1s3x3 as crc32c_sse42_pclmulqdq_v1s3x3,
         _crc32c_sse42_pclmulqdq_v1s4x2 as crc32c_sse42_pclmulqdq_v1s4x2,
         _crc32c_sse42_pclmulqdq_v7s3x3 as crc32c_sse42_pclmulqdq_v7s3x3,
@@ -31,9 +35,13 @@ else:
     __all__ += (  # type: ignore[assignment]
         "crc32c_avx512vl_pclmulqdq_v9s3x4e",
         "crc32c_avx512vl_vpclmulqdq_v3s1_s3",
+        "crc32c_avx512vl_vpclmulqdq_v3s1_s3_hybrid",
         "crc32c_avx512vl_vpclmulqdq_v3s2x4",
         "crc32c_avx512vl_vpclmulqdq_v4s5x3",
+        "crc32c_maria_avx512",
+        "crc32c_maria_sse42",
         "crc32c_sse42_pclmulqdq_v1s3x2",
+        "crc32c_sse42_pclmulqdq_v1s3x2_hybrid",
         "crc32c_sse42_pclmulqdq_v1s3x3",
         "crc32c_sse42_pclmulqdq_v1s4x2",
         "crc32c_sse42_pclmulqdq_v7s3x3",

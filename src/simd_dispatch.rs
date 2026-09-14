@@ -122,11 +122,14 @@ pub enum SimdIsa {
     // Ice Lake (1)
     Avx512vlVpclmulqdq_v4s5x3,
     #[cfg(any(target_arch = "x86_64", target_arch = "x86"))]
-    // Genoa (1)
+    // Genoa (2)
     Avx512vlVpclmulqdq_v3s2x4,
     #[cfg(any(target_arch = "x86_64", target_arch = "x86"))]
     // Sapphire Rapids (1)
     Avx512vlVpclmulqdq_v3s1_s3,
+    #[cfg(any(target_arch = "x86_64", target_arch = "x86"))]
+    // Genoa (1)
+    Avx512vlVpclmulqdq_v3s1_s3_hybrid,
     #[cfg(any(target_arch = "x86_64", target_arch = "x86"))]
     // Cascade Lake (1)
     Avx512vlPclmulqdq_v9s3x4e,
@@ -141,10 +144,14 @@ pub enum SimdIsa {
     // Milan (1)
     Sse42Pclmulqdq_v1s4x2,
     #[cfg(any(target_arch = "x86_64", target_arch = "x86"))]
+    // Genoa (3)
+    Sse42Pclmulqdq_v1s3x2_hybrid,
+    #[cfg(any(target_arch = "x86_64", target_arch = "x86"))]
     // Rome (1)
     Sse42Pclmulqdq_v1s3x3,
+    #[allow(dead_code)]
     #[cfg(any(target_arch = "x86_64", target_arch = "x86"))]
-    // Genoa (3)
+    // Genoa (4), kept as a benchmark alternative
     Sse42Pclmulqdq_v1s3x2,
 
     #[cfg(any(target_arch = "aarch64", target_arch = "arm64ec"))]
@@ -174,11 +181,19 @@ impl SimdIsa {
                     return Self::Avx512vlVpclmulqdq_v3s1_s3;
                 }
 
+                CpuModel::Genoa
+                    if detect_features!(
+                        x86,
+                        ["avx512bw", "avx512dq", "avx512vl", "vpclmulqdq"]
+                    ) =>
+                {
+                    return Self::Avx512vlVpclmulqdq_v3s1_s3_hybrid;
+                }
                 CpuModel::Genoa if detect_features!(x86, ["avx512vl", "vpclmulqdq"]) => {
                     return Self::Avx512vlVpclmulqdq_v3s2x4;
                 }
                 CpuModel::Genoa if detect_features!(x86, ["sse4.2", "pclmulqdq"]) => {
-                    return Self::Sse42Pclmulqdq_v1s3x2;
+                    return Self::Sse42Pclmulqdq_v1s3x2_hybrid;
                 }
 
                 CpuModel::IceLake if detect_features!(x86, ["avx512vl", "vpclmulqdq"]) => {
