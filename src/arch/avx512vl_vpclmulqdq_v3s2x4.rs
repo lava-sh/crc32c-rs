@@ -113,7 +113,7 @@ unsafe fn crc32c_small(mut crc0: u32, mut buf: *const u8, mut len: usize) -> u32
         });
         buf = unsafe { buf.add(8) };
         len -= 16;
-        if len < 16 {
+        if len < 24 {
             break;
         }
     }
