@@ -173,15 +173,14 @@ pub enum SimdIsa {
     #[cfg(any(target_arch = "x86_64", target_arch = "x86"))]
     Sse42Pclmulqdq_v1s3x2, // Genoa (3)
 
-    #[expect(dead_code)]
+    #[allow(dead_code)]
     #[cfg(any(target_arch = "aarch64", target_arch = "arm64ec"))]
     AesSha3_v9s3x2e_s3, // Apple M1 (1)
-    #[expect(dead_code)]
+    #[allow(dead_code)]
     #[cfg(any(target_arch = "aarch64", target_arch = "arm64ec"))]
     AesCrc_v3s4x2e_v2, // Ampere Altra (1)
-    #[expect(dead_code)]
     #[cfg(any(target_arch = "aarch64", target_arch = "arm64ec"))]
-    AesCrc_v12e_v1, // Apple M1 (2)
+    AesCrc_v12e_v1, // Apple M1 (2), Ampere Altra (2)
 }
 
 impl SimdIsa {
