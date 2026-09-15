@@ -76,7 +76,6 @@ pub fn available() -> Vec<Kernel> {
                 kernel_entry("sse42_pclmulqdq_v1s4x2", sse42_pclmulqdq_v1s4x2::crc32c),
                 kernel_entry("sse42_pclmulqdq_v7s3x3", sse42_pclmulqdq_v7s3x3::crc32c),
                 kernel_entry("sse42_pclmulqdq_v8s3x3", sse42_pclmulqdq_v8s3x3::crc32c),
-                // SSE4.2-only (no PCLMULQDQ):
                 kernel_entry("sse42", sse42::crc32c),
             ]);
         }
