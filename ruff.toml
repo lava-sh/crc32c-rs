@@ -57,9 +57,6 @@ ignore = [
     "S101",    # Check for uses of the `assert` keyword
     "PLR2004", # Check for the use of unnamed numerical constants ("magic") values in comparisons
 ]
-"benchmarks/python/md_table.py" = [
-    "RUF001",  # String contains ambiguous `µ` (MICRO SIGN).
-]
 
 [lint.flake8-tidy-imports.banned-api]
 "contextlib.suppress"    = { msg = "Use `try-except-pass` instead" }
