@@ -41,7 +41,7 @@ mod crc32c_rs {
     #[pymodule_export]
     use crate::exceptions::UnsupportedCPUFeatureError;
 
-    #[inline]
+    #[inline(always)]
     fn crc32c_dispatch(
         py: Python<'_>,
         buffer: &PyBuffer,
@@ -64,7 +64,7 @@ mod crc32c_rs {
         }
     }
 
-    #[inline]
+    #[inline(always)]
     fn fallback(value: u32, ptr: *const u8, len: usize) -> u32 {
         unsafe { fallback::crc32c(value, core::slice::from_raw_parts(ptr, len), len) }
     }
