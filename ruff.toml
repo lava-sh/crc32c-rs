@@ -12,6 +12,7 @@ include = [
     "scripts/table.py",
     ".godbolt/godbolt_links.py",
     "benchmarks/python/run.py",
+    "benchmarks/python/md_table.py",
 ]
 
 [lint.isort]
