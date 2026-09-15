@@ -42,7 +42,7 @@ fn clmul_hi_e(a: uint64x2_t, b: uint64x2_t, c: uint64x2_t) -> uint64x2_t {
 #[target_feature(enable = "aes,crc")]
 unsafe fn crc32c_small(mut crc0: u32, mut buf: *const u8, mut len: usize) -> u32 {
     unsafe {
-        core::hint::assert_unchecked((32..=1024).contains(&len));
+        core::hint::assert_unchecked((128..=1024).contains(&len));
     }
 
     let mut x0 = unsafe { vld1q_u64(buf.cast::<u64>()) };
