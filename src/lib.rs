@@ -92,6 +92,8 @@ mod crc32c_rs {
             SimdIsa::Sse42Pclmulqdq_v1s3x3 => sse42_pclmulqdq_v1s3x3::crc32c,
             #[cfg(any(target_arch = "x86_64", target_arch = "x86"))]
             SimdIsa::Sse42Pclmulqdq_v1s4x2 => sse42_pclmulqdq_v1s4x2::crc32c,
+            #[cfg(any(target_arch = "x86_64", target_arch = "x86"))]
+            SimdIsa::Sse42 => sse42::crc32c,
             #[cfg(any(target_arch = "aarch64", target_arch = "arm64ec"))]
             SimdIsa::AesSha3_v9s3x2e_s3 => aes_sha3_v9s3x2e_s3::crc32c,
             #[cfg(any(target_arch = "aarch64", target_arch = "arm64ec"))]
