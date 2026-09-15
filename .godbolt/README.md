@@ -26,24 +26,25 @@ I have not found a clear way to run Rust NEON checks on Godbolt yet.
 
 ### AMD x86-64
 
-- [avx512vl_vpclmulqdq-v3s2x4](https://godbolt.org/z/x67jsb3sb)
-- [sse42_pclmulqdq-v1s3x2](https://godbolt.org/z/6ns61djba)
-- [sse42_pclmulqdq-v1s3x3](https://godbolt.org/z/q5hhTxhzE)
-- [sse42_pclmulqdq-v1s4x2](https://godbolt.org/z/4qboaz5eG)
+- [avx512vl_vpclmulqdq-v3s2x4](https://godbolt.org/z/754Y7MKEs)
+- [sse42_pclmulqdq-v1s3x2](https://godbolt.org/z/bs5xTjYY1)
+- [sse42_pclmulqdq-v1s3x3](https://godbolt.org/z/KoEPzc1zx)
+- [sse42_pclmulqdq-v1s4x2](https://godbolt.org/z/d4xr33qMY)
 
 ### ARM
 
-- [aes_crc-v12e_v1](https://godbolt.org/z/6zb7vso3o)
-- [aes_crc-v3s4x2e_v2](https://godbolt.org/z/Tx7TG3Wq3)
-- [aes_crc_sha3-v9s3x2e_s3](https://godbolt.org/z/YGTM5z65v)
+- [aes_crc-v12e_v1](https://godbolt.org/z/x37hzc6Yj)
+- [aes_crc-v3s4x2e_v2](https://godbolt.org/z/hbEv76WdP)
+- [aes_crc_sha3-v9s3x2e_s3](https://godbolt.org/z/cobvMxnWj)
 
 ### Intel x86-64
 
-- [avx512vl_pclmulqdq-v9s3x4e](https://godbolt.org/z/n88MTPqob)
-- [avx512vl_vpclmulqdq-v3s1_s3](https://godbolt.org/z/Wc3cnscne)
-- [avx512vl_vpclmulqdq-v4s5x3](https://godbolt.org/z/58evh8TPz)
-- [sse42_pclmulqdq-v7s3x3](https://godbolt.org/z/cfb6G8hff)
-- [sse42_pclmulqdq-v8s3x3](https://godbolt.org/z/aj3vejv9a)
+- [avx512vl_pclmulqdq-v9s3x4e](https://godbolt.org/z/67YMGo46b)
+- [avx512vl_vpclmulqdq-v3s1_s3](https://godbolt.org/z/a658qEP64)
+- [avx512vl_vpclmulqdq-v4s5x3](https://godbolt.org/z/nYE6GbYK4)
+- [sse42](https://godbolt.org/z/xs78Esfqa)
+- [sse42_pclmulqdq-v7s3x3](https://godbolt.org/z/494Ye7EM6)
+- [sse42_pclmulqdq-v8s3x3](https://godbolt.org/z/7MG9P7zWs)
 
 If the short links stop working, regenerate them:
 

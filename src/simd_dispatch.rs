@@ -51,9 +51,11 @@ impl CpuVendor {
 #[repr(u8)]
 enum CpuModel {
     Unknown = 0,
+    // Intel
     CascadeLake,
     IceLake,
     SapphireRapids,
+    // Amd
     Zen1,
     Rome,
     Matisse,
@@ -149,45 +151,36 @@ pub enum SimdIsa {
     Fallback = 0,
 
     #[cfg(any(target_arch = "x86_64", target_arch = "x86"))]
-    // Ice Lake (1)
-    Avx512vlVpclmulqdq_v4s5x3,
+    Avx512vlVpclmulqdq_v4s5x3, // Ice Lake (1)
     #[cfg(any(target_arch = "x86_64", target_arch = "x86"))]
-    // Genoa (1)
-    Avx512vlVpclmulqdq_v3s2x4,
+    Avx512vlVpclmulqdq_v3s2x4, // Genoa (1)
     #[cfg(any(target_arch = "x86_64", target_arch = "x86"))]
-    // Sapphire Rapids (1)
-    Avx512vlVpclmulqdq_v3s1_s3,
+    Avx512vlVpclmulqdq_v3s1_s3, // Sapphire Rapids (1)
     #[cfg(any(target_arch = "x86_64", target_arch = "x86"))]
-    // Cascade Lake (1)
-    Avx512vlPclmulqdq_v9s3x4e,
+    Avx512vlPclmulqdq_v9s3x4e, // Cascade Lake (1)
 
     #[cfg(any(target_arch = "x86_64", target_arch = "x86"))]
-    // Cascade Lake (2), Sapphire Rapids (3)
-    Sse42Pclmulqdq_v8s3x3,
-    #[cfg(any(target_arch = "x86_64", target_arch = "x86"))]
-    // Ice Lake (3)
-    Sse42Pclmulqdq_v7s3x3,
-    #[cfg(any(target_arch = "x86_64", target_arch = "x86"))]
-    // Milan (1)
-    Sse42Pclmulqdq_v1s4x2,
-    #[cfg(any(target_arch = "x86_64", target_arch = "x86"))]
-    // Rome (1)
-    Sse42Pclmulqdq_v1s3x3,
-    #[cfg(any(target_arch = "x86_64", target_arch = "x86"))]
-    // Genoa (3)
-    Sse42Pclmulqdq_v1s3x2,
+    Sse42,
 
-    #[cfg(any(target_arch = "aarch64", target_arch = "arm64ec"))]
-    // Apple M1 (1)
-    AesSha3_v9s3x2e_s3,
+    #[cfg(any(target_arch = "x86_64", target_arch = "x86"))]
+    Sse42Pclmulqdq_v8s3x3, // Cascade Lake (2), Sapphire Rapids (3)
+    #[cfg(any(target_arch = "x86_64", target_arch = "x86"))]
+    Sse42Pclmulqdq_v7s3x3, // Ice Lake (3)
+    #[cfg(any(target_arch = "x86_64", target_arch = "x86"))]
+    Sse42Pclmulqdq_v1s4x2, // Milan (1)
+    #[cfg(any(target_arch = "x86_64", target_arch = "x86"))]
+    Sse42Pclmulqdq_v1s3x3, // Rome (1)
+    #[cfg(any(target_arch = "x86_64", target_arch = "x86"))]
+    Sse42Pclmulqdq_v1s3x2, // Genoa (3)
+
     #[allow(dead_code)]
     #[cfg(any(target_arch = "aarch64", target_arch = "arm64ec"))]
-    // Ampere Altra (1)
-    AesCrc_v3s4x2e_v2,
+    AesSha3_v9s3x2e_s3, // Apple M1 (1)
     #[allow(dead_code)]
     #[cfg(any(target_arch = "aarch64", target_arch = "arm64ec"))]
-    // Apple M1 (2)
-    AesCrc_v12e_v1,
+    AesCrc_v3s4x2e_v2, // Ampere Altra (1)
+    #[cfg(any(target_arch = "aarch64", target_arch = "arm64ec"))]
+    AesCrc_v12e_v1, // Apple M1 (2), Ampere Altra (2)
 }
 
 impl SimdIsa {
@@ -261,17 +254,26 @@ impl SimdIsa {
             if detect_features!(x86, ["sse4.2", "pclmulqdq"]) {
                 return Self::Sse42Pclmulqdq_v8s3x3;
             }
+            if detect_features!(x86, ["sse4.2"]) {
+                return Self::Sse42;
+            }
         }
         #[cfg(any(target_arch = "aarch64", target_arch = "arm64ec"))]
         {
-            if detect_features!(aarch64, ["crc", "aes", "sha3"]) {
-                return Self::AesSha3_v9s3x2e_s3;
+            cfg_select! {
+                target_vendor = "apple" => {
+                    if detect_features!(aarch64, ["crc", "aes", "sha3"]) {
+                        return Self::AesSha3_v9s3x2e_s3;
+                    }
+                }
+                _ => {
+                    if detect_features!(aarch64, ["crc", "aes"]) {
+                        return Self::AesCrc_v3s4x2e_v2;
+                    }
+                }
             }
             if detect_features!(aarch64, ["crc", "aes"]) {
-                cfg_select! {
-                    target_vendor = "apple" => return Self::AesCrc_v12e_v1,
-                    _ => return Self::AesCrc_v3s4x2e_v2,
-                }
+                return Self::AesCrc_v12e_v1;
             }
         }
         Self::Fallback
