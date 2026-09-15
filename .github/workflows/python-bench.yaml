@@ -71,10 +71,10 @@ jobs:
           fi
           
           cd benchmarks/python
-          python run.py -o results.json
+          python run.py -o ${{ matrix.os }}.json
 
       - name: "Upload wheels"
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: bench-${{ matrix.os }}-${{ matrix.python-version }}
-          path: benchmarks/python/results.json
+          path: benchmarks/python/${{ matrix.os }}.json
