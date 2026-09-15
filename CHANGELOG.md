@@ -6,11 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0).
 
 ## [Unreleased] - ReleaseDate
 
+## [0.0.3] - 15.09.2026
+
 ### Added
 
-* Fastpath for `avx512vl_vpclmulqdq_v4s5x3`, `avx512vl_vpclmulqdq_v3s2x4` on small inputs (32 B - 1 KiB). (by [@chirizxc][gh-chirizxc])
-* New `sse42` kernel: SSE4.2-only CRC32C for x86 CPUs without PCLMULQDQ, exposed as `crc32c_sse42`. (by [@chirizxc][gh-chirizxc])
-* Fastpath for `aes_crc_v12e_v1`, `aes_sha3_v9s3x2e_s3`, `aes_v3s4x2e_v2` on small inputs (32 B - 1 KiB). (by [@chirizxc][gh-chirizxc])
+* Fast paths for `avx512vl_vpclmulqdq_v4s5x3`, `avx512vl_vpclmulqdq_v3s2x4`, `aes_crc_v12e_v1`, `aes_sha3_v9s3x2e_s3`, and `aes_v3s4x2e_v2` for small inputs (32B - 1KiB). (by [@chirizxc][gh-chirizxc])
+* New `sse42` implementation: SSE4.2-only, without PCLMULQDQ, exposed as `crc32c_sse42`. (by [@chirizxc][gh-chirizxc])
 
 ### Fixes
 
@@ -31,7 +32,8 @@ First release.
 
 [gh-chirizxc]: https://github.com/chirizxc
 
-[Unreleased]: https://github.com/lava-sh/crc32c-rs/compare/0.0.2...HEAD
+[Unreleased]: https://github.com/lava-sh/crc32c-rs/compare/0.0.3...HEAD
 
+[0.0.3]: https://github.com/lava-sh/crc32c-rs/compare/0.0.2...0.0.3
 [0.0.2]: https://github.com/lava-sh/crc32c-rs/compare/0.0.1...0.0.2
 [0.0.1]: https://github.com/lava-sh/crc32c-rs/compare/1771e0a03a38848d12afa15ab09ae1a05a6325b0...0.0.1
