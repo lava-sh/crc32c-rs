@@ -39,6 +39,42 @@ fn clmul_hi_e(a: uint64x2_t, b: uint64x2_t, c: uint64x2_t) -> uint64x2_t {
 }
 
 #[inline]
+#[target_feature(enable = "aes,crc")]
+unsafe fn crc32c_small(mut crc0: u32, mut buf: *const u8, mut len: usize) -> u32 {
+    unsafe {
+        core::hint::assert_unchecked((32..=1024).contains(&len));
+    }
+
+    let mut x0 = unsafe { vld1q_u64(buf.cast::<u64>()) };
+    let k = unsafe { vld1q_u64([0xf20c_0dfe_u64, 0x493c_7d27_u64].as_ptr()) };
+    x0 = veorq_u64(vsetq_lane_u64(u64::from(crc0), vmovq_n_u64(0), 0), x0);
+    buf = unsafe { buf.add(16) };
+    len -= 16;
+
+    while len >= 16 {
+        let y0 = clmul_lo_e(x0, k, unsafe { vld1q_u64(buf.cast::<u64>()) });
+        x0 = clmul_hi_e(x0, k, y0);
+        buf = unsafe { buf.add(16) };
+        len -= 16;
+    }
+
+    crc0 = __crc32cd(0, vgetq_lane_u64(x0, 0));
+    crc0 = __crc32cd(crc0, vgetq_lane_u64(x0, 1));
+
+    while len >= 8 {
+        crc0 = __crc32cd(crc0, unsafe { buf.cast::<u64>().read_unaligned() });
+        buf = unsafe { buf.add(8) };
+        len -= 8;
+    }
+    while len != 0 {
+        crc0 = __crc32cb(crc0, unsafe { *buf });
+        buf = unsafe { buf.add(1) };
+        len -= 1;
+    }
+    crc0
+}
+
+#[inline]
 #[target_feature(enable = "crc,aes")]
 pub unsafe fn crc32c(mut crc0: u32, mut buf: *const u8, mut len: usize) -> u32 {
     crc0 = !crc0;
@@ -51,6 +87,9 @@ pub unsafe fn crc32c(mut crc0: u32, mut buf: *const u8, mut len: usize) -> u32 {
         crc0 = __crc32cd(crc0, unsafe { buf.cast::<u64>().read_unaligned() });
         buf = unsafe { buf.add(8) };
         len -= 8;
+    }
+    if (32..=1024).contains(&len) {
+        return !unsafe { crc32c_small(crc0, buf, len) };
     }
     if len >= 192 {
         let end = unsafe { buf.add(len) };
