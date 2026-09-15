@@ -77,3 +77,76 @@ jobs:
 
       - name: "Run pytest"
         run: pytest
+
+  b:
+    name: "bench / ${{ matrix.os }}"
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: [
+          "3.14",
+        ]
+        # See: https://docs.github.com/en/actions/reference/runners/github-hosted-runners
+        os: [
+          "ubuntu-latest",
+          "ubuntu-26.04-arm",
+          "windows-latest",
+          "macos-latest",
+        ]
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: "Install uv"
+        uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
+        with:
+          enable-cache: false
+
+      - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
+        if: github.event_name == 'pull_request' && github.run_attempt == 1
+        with:
+          lookup-only: false # zizmor: ignore[cache-poisoning]
+          shared-key: ${{ matrix.os }}-${{ matrix.python-version }}
+
+      - name: "Create and activate .venv"
+        shell: bash
+        run: |
+          uv venv .venv --python ${{ matrix.python-version }}
+          if [[ "${{ matrix.os }}" == "windows-latest" ]]; then
+            echo ".venv/Scripts" >> "$GITHUB_PATH"
+            echo "PYO3_PYTHON=.venv/Scripts/python" >> "$GITHUB_ENV"
+            echo "UV_LINK_MODE=copy" >> "$GITHUB_ENV"
+          else
+            echo ".venv/bin" >> "$GITHUB_PATH"
+            echo "PYO3_PYTHON=.venv/bin/python3" >> "$GITHUB_ENV"
+          fi
+
+      - name: "Install dependencies"
+        run: uv pip install --group ci --group bench
+
+      - name: "Run maturin"
+        run: maturin build --release --out wheels --features mimalloc
+
+      - name: "Install built wheel"
+        run: uv pip install crc32c-rs --no-index --find-links wheels
+
+      - name: "Run Python benchmark"
+        shell: bash
+        run: |
+          if [[ "${{ matrix.os }}" == "windows-latest" ]]; then
+            source .venv/Scripts/activate
+          else
+            source .venv/bin/activate
+          fi
+          
+          cd benchmarks/python
+          python run.py -o results.json
+
+      - name: "Upload wheels"
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: bench-${{ matrix.os }}-${{ matrix.python-version }}
+          path: benchmarks/python/results.json
