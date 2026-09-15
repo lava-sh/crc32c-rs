@@ -128,8 +128,7 @@ fn crc32_u64(crc: u32, value: u64) -> u32 {
 #[target_feature(enable = "sse4.2")]
 pub unsafe fn crc32c(crc: u32, buf: *const u8, mut len: usize) -> u32 {
     // pre-process the crc
-    let crc = !crc;
-    let mut crc0: u32 = crc; // 64-bits for crc32q instruction
+    let mut crc0: u32 = !crc;
     let mut next = buf;
     // compute the crc for up to seven leading bytes to bring the data pointer
     // to an eight-byte boundary
