@@ -88,7 +88,7 @@ def test_crc32c_small_range(crc_impl: CrcImpl, size: int) -> None:
 @pytest.mark.parametrize("offset", [1, 3, 7, 8, 15])
 def test_crc32c_small_range_unaligned(
     crc_impl: CrcImpl,
-    size: int, 
+    size: int,
     offset: int,
 ) -> None:
     raw = os.urandom(size + offset)
