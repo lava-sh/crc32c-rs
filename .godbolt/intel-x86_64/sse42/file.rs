@@ -1,9 +1,8 @@
 // rustc nightly
 // -C opt-level=3 -C target-feature=+sse4.2
 
-// Line-by-line Rust port of the SIMD-only excerpt of
-// https://github.com/madler/brotli/blob/master/crc32c.c (Mark Adler,
-// Version 1.5, zlib licensed).
+// Line-by-line Rust port of the SIMD-only excerpt of https://github.com/madler/brotli/blob/master/crc32c.c
+// (Mark Adler, Version 1.5, zlib licensed).
 #![no_main]
 
 #[cfg(target_arch = "x86")]
