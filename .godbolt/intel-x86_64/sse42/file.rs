@@ -3,10 +3,8 @@
 
 // Line-by-line Rust port of the SIMD-only excerpt of
 // https://github.com/madler/brotli/blob/master/crc32c.c (Mark Adler,
-// Version 1.5, zlib licensed): the same code as src/arch/sse42.rs in the
-// crate, minus the crate-specific module attributes.
+// Version 1.5, zlib licensed).
 #![no_main]
-#![allow(clippy::wildcard_imports)]
 
 #[cfg(target_arch = "x86")]
 use core::arch::x86::*;
@@ -137,7 +135,7 @@ fn crc32_u64(crc: u32, value: u64) -> u32 {
 // Compute CRC-32C using the Intel hardware instruction.
 #[unsafe(no_mangle)]
 #[target_feature(enable = "sse4.2")]
-pub unsafe extern "C" fn crc32c_hw(crc: u32, buf: *const u8, mut len: usize) -> u32 {
+pub unsafe fn crc32c_hw(crc: u32, buf: *const u8, mut len: usize) -> u32 {
     // pre-process the crc
     let mut crc0: u32 = !crc;
     let mut next = buf;
