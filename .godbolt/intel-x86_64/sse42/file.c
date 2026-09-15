@@ -125,7 +125,7 @@ uint32_t crc32c_hw(uint32_t crc, void const *buf, size_t len) {
 
     /* compute the crc for up to seven leading bytes to bring the data pointer
        to an eight-byte boundary */
-    unsigned char const *next = buf;
+    unsigned char const *next = (unsigned char const *)buf;
     while (len && ((uintptr_t)next & 7) != 0) {
         __asm__("crc32b\t%1, %0"
                 : "+r"(crc0)
