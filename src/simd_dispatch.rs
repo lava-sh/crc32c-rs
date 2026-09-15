@@ -162,7 +162,6 @@ pub enum SimdIsa {
     Avx512vlPclmulqdq_v9s3x4e,
 
     #[cfg(any(target_arch = "x86_64", target_arch = "x86"))]
-    // Without PCLMULQDQ
     Sse42,
 
     #[cfg(any(target_arch = "x86_64", target_arch = "x86"))]
