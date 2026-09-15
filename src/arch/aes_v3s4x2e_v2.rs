@@ -147,6 +147,11 @@ unsafe fn crc32c_small(mut crc0: u32, mut buf: *const u8, mut len: usize) -> u32
 #[target_feature(enable = "crc,aes")]
 pub unsafe fn crc32c(mut crc0: u32, mut buf: *const u8, mut len: usize) -> u32 {
     crc0 = !crc0;
+
+    if (32..=1024).contains(&len) {
+        return !unsafe { crc32c_small(crc0, buf, len) };
+    }
+
     while len != 0 && (buf as usize & 7) != 0 {
         crc0 = unsafe { __crc32cb(crc0, *buf) };
         buf = unsafe { buf.add(1) };
@@ -156,9 +161,6 @@ pub unsafe fn crc32c(mut crc0: u32, mut buf: *const u8, mut len: usize) -> u32 {
         crc0 = unsafe { __crc32cd(crc0, *(buf.cast::<u64>())) };
         buf = unsafe { buf.add(8) };
         len -= 8;
-    }
-    if (32..=1024).contains(&len) {
-        return !unsafe { crc32c_small(crc0, buf, len) };
     }
     if len >= 112 {
         let end = unsafe { buf.add(len) };

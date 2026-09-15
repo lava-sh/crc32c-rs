@@ -141,6 +141,11 @@ unsafe fn crc32c_small(mut crc0: u32, mut buf: *const u8, mut len: usize) -> u32
 #[target_feature(enable = "avx512vl,vpclmulqdq")]
 pub unsafe fn crc32c(mut crc0: u32, mut buf: *const u8, mut len: usize) -> u32 {
     crc0 = !crc0;
+
+    if (32..=1024).contains(&len) {
+        return !unsafe { crc32c_small(crc0, buf, len) };
+    }
+
     while len != 0 && (buf as usize & 7) != 0 {
         crc0 = _mm_crc32_u8(crc0, unsafe { *buf });
         buf = unsafe { buf.add(1) };
@@ -150,9 +155,6 @@ pub unsafe fn crc32c(mut crc0: u32, mut buf: *const u8, mut len: usize) -> u32 {
         crc0 = crc32_u64(crc0, unsafe { buf.cast::<u64>().read_unaligned() });
         buf = unsafe { buf.add(8) };
         len -= 8;
-    }
-    if (32..=1024).contains(&len) {
-        return !unsafe { crc32c_small(crc0, buf, len) };
     }
     if len >= 256 {
         let blk = len / 256;
