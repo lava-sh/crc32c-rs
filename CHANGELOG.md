@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0).
 
 ## [Unreleased] - ReleaseDate
 
+### Changed
+
+* Only take the `crc32c_small` fast path from the length where it is faster than the 8-byte walk, and decide that before the alignment prologue shortens the input. (by [@chirizxc][gh-chirizxc])
+
 ## [0.0.3] - 15.09.2026
 
 ### Added
