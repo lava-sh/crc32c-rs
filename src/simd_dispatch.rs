@@ -272,23 +272,20 @@ impl SimdIsa {
         }
         #[cfg(any(target_arch = "aarch64", target_arch = "arm64ec"))]
         {
-            #[cfg(target_vendor = "apple")]
-            {
-                if detect_features!(aarch64, ["crc", "aes", "sha3"]) {
-                    return Self::AesSha3_v9s3x2e_s3;
+            cfg_select! {
+                target_vendor = "apple" => {
+                    if detect_features!(aarch64, ["crc", "aes", "sha3"]) {
+                        return Self::AesSha3_v9s3x2e_s3;
+                    }
                 }
-                if detect_features!(aarch64, ["crc", "aes"]) {
-                    return Self::AesCrc_v12e_v1;
+                _ => {
+                    if detect_features!(aarch64, ["crc", "aes"]) {
+                        return Self::AesCrc_v3s4x2e_v2;
+                    }
                 }
             }
-            #[cfg(not(target_vendor = "apple"))]
-            {
-                if detect_features!(aarch64, ["crc", "aes"]) {
-                    return Self::AesCrc_v3s4x2e_v2;
-                }
-                if detect_features!(aarch64, ["crc", "aes"]) {
-                    return Self::AesCrc_v12e_v1;
-                }
+            if detect_features!(aarch64, ["crc", "aes"]) {
+                return Self::AesCrc_v12e_v1;
             }
         }
         Self::Fallback
