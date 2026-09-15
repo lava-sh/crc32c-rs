@@ -69,6 +69,11 @@ pub fn available() -> Vec<Kernel> {
 
     #[cfg(any(target_arch = "x86_64", target_arch = "x86"))]
     {
+        if crate::detect_features!(x86, ["sse4.2"]) {
+            kernels.extend_from_slice(&[
+                kernel_entry("sse42", sse42::crc32c),
+            ]);
+        }
         if crate::detect_features!(x86, ["sse4.2", "pclmulqdq"]) {
             kernels.extend_from_slice(&[
                 kernel_entry("sse42_pclmulqdq_v1s3x2", sse42_pclmulqdq_v1s3x2::crc32c),
@@ -76,7 +81,6 @@ pub fn available() -> Vec<Kernel> {
                 kernel_entry("sse42_pclmulqdq_v1s4x2", sse42_pclmulqdq_v1s4x2::crc32c),
                 kernel_entry("sse42_pclmulqdq_v7s3x3", sse42_pclmulqdq_v7s3x3::crc32c),
                 kernel_entry("sse42_pclmulqdq_v8s3x3", sse42_pclmulqdq_v8s3x3::crc32c),
-                kernel_entry("sse42", sse42::crc32c),
             ]);
         }
         if crate::detect_features!(x86, ["avx512vl", "pclmulqdq"]) {
