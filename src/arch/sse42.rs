@@ -5,74 +5,10 @@ use core::arch::x86::*;
 #[cfg(target_arch = "x86_64")]
 use core::arch::x86_64::*;
 
-const POLY: u64 = 0x82f6_3b78;
+use super::table::{LONG_TABLE, SHORT_TABLE};
+
 const LONG: usize = 8192;
 const SHORT: usize = 256;
-
-const fn gf2_matrix_times(mat: &[u32; 32], vec: u64) -> u64 {
-    let mut sum: u64 = 0;
-    let mut v = vec;
-    let mut i = 0;
-    while i < 32 {
-        if v & 1 != 0 {
-            sum ^= mat[i] as u64;
-        }
-        v >>= 1;
-        i += 1;
-    }
-    sum
-}
-
-const fn gf2_matrix_square(mat: &[u32; 32]) -> [u32; 32] {
-    let mut out = [0_u32; 32];
-    let mut n = 0;
-    while n < 32 {
-        out[n] = gf2_matrix_times(mat, mat[n] as u64) as u32;
-        n += 1;
-    }
-    out
-}
-
-const fn crc32c_zeros(mut len: u64) -> [[u32; 256]; 4] {
-    let mut odd = [0_u32; 32];
-    odd[0] = POLY as u32;
-    let mut row: u32 = 1;
-    let mut n = 1;
-    while n < 32 {
-        odd[n] = row;
-        row <<= 1;
-        n += 1;
-    }
-    let mut even = gf2_matrix_square(&odd);
-    odd = gf2_matrix_square(&even);
-    loop {
-        even = gf2_matrix_square(&odd);
-        len >>= 1;
-        if len == 0 {
-            break;
-        }
-        odd = gf2_matrix_square(&even);
-        len >>= 1;
-        if len == 0 {
-            even = odd;
-            break;
-        }
-    }
-    let mut zeros = [[0_u32; 256]; 4];
-    let mut i = 0;
-    while i < 256 {
-        let v = i as u64;
-        zeros[0][i] = gf2_matrix_times(&even, v) as u32;
-        zeros[1][i] = gf2_matrix_times(&even, v << 8) as u32;
-        zeros[2][i] = gf2_matrix_times(&even, v << 16) as u32;
-        zeros[3][i] = gf2_matrix_times(&even, v << 24) as u32;
-        i += 1;
-    }
-    zeros
-}
-
-static LONG_TABLE: [[u32; 256]; 4] = crc32c_zeros(LONG as u64);
-static SHORT_TABLE: [[u32; 256]; 4] = crc32c_zeros(SHORT as u64);
 
 #[inline]
 const fn crc32c_shift(zeros: &[[u32; 256]; 4], crc: u32) -> u32 {
