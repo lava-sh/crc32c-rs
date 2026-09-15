@@ -23,9 +23,8 @@ use crate::arch::{aes_crc_v12e_v1, aes_sha3_v9s3x2e_s3, aes_v3s4x2e_v2};
 #[cfg(any(target_arch = "x86_64", target_arch = "x86"))]
 use crate::arch::{
     avx512vl_pclmulqdq_v9s3x4e, avx512vl_vpclmulqdq_v3s1_s3, avx512vl_vpclmulqdq_v3s2x4,
-    avx512vl_vpclmulqdq_v4s5x3, sse42_pclmulqdq_v1s3x2, sse42_pclmulqdq_v1s3x3,
+    avx512vl_vpclmulqdq_v4s5x3, sse42, sse42_pclmulqdq_v1s3x2, sse42_pclmulqdq_v1s3x3,
     sse42_pclmulqdq_v1s4x2, sse42_pclmulqdq_v7s3x3, sse42_pclmulqdq_v8s3x3,
-    sse42_single, sse42_adler3way, sse42_pipelined3way,
 };
 
 pub type Fn = unsafe fn(u32, *const u8, usize) -> u32;
@@ -78,9 +77,7 @@ pub fn available() -> Vec<Kernel> {
                 kernel_entry("sse42_pclmulqdq_v7s3x3", sse42_pclmulqdq_v7s3x3::crc32c),
                 kernel_entry("sse42_pclmulqdq_v8s3x3", sse42_pclmulqdq_v8s3x3::crc32c),
                 // SSE4.2-only (no PCLMULQDQ):
-                kernel_entry("sse42_single", sse42_single::crc32c),
-                kernel_entry("sse42_adler3way", sse42_adler3way::crc32c),
-                kernel_entry("sse42_pipelined3way", sse42_pipelined3way::crc32c),
+                kernel_entry("sse42", sse42::crc32c),
             ]);
         }
         if crate::detect_features!(x86, ["avx512vl", "pclmulqdq"]) {
