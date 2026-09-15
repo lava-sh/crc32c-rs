@@ -72,7 +72,7 @@ Original by [@awesomized][gh-awesomized], maintained fork by [@MuntasirSZN][gh-M
 - License: zlib
 - Source: [https://github.com/madler/brotli/crc32c.c][gh-madler-crc32c]
 - Ported algorithms:
-  - SSE4.2 only (`s3`, three-way `crc32q` + GF(2) shift tables) -> `src/arch/sse42.rs`
+  - SSE4.2 only -> `src/arch/sse42.rs`
 
 ##### How to update?
 
