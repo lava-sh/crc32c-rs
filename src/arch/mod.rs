@@ -13,7 +13,6 @@ pub mod avx512vl_vpclmulqdq_v3s2x4;
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 pub mod avx512vl_vpclmulqdq_v4s5x3;
 pub mod fallback;
-#[allow(dead_code)]
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 pub mod sse42;
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]

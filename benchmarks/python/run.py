@@ -46,6 +46,9 @@ def get_available_implementations() -> list[tuple[str, Callable]]:
     ]
 
     configs = [
+        ({"sse4_2"}, [
+            "crc32c_sse42",
+        ]),
         ({"sse4_2", "pclmulqdq"}, [
             "crc32c_sse42_pclmulqdq_v1s3x2",
             "crc32c_sse42_pclmulqdq_v1s3x3",
