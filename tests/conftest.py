@@ -40,6 +40,7 @@ def crc_impl() -> list[tuple[str, Callable[..., int]]]:
         "crc32c_avx512vl_vpclmulqdq_v3s2x4": {"avx512f", "avx512vl", "vpclmulqdq"},
         "crc32c_avx512vl_vpclmulqdq_v4s5x3": {"avx512f", "avx512vl", "vpclmulqdq"},
         "crc32c_avx512vl_pclmulqdq_v9s3x4e": {"avx512vl", "pclmulqdq"},
+        "crc32c_sse42": {"sse4_2"},
         "crc32c_sse42_pclmulqdq_v1s3x2": {"sse4_2", "pclmulqdq"},
         "crc32c_sse42_pclmulqdq_v1s3x3": {"sse4_2", "pclmulqdq"},
         "crc32c_sse42_pclmulqdq_v1s4x2": {"sse4_2", "pclmulqdq"},
