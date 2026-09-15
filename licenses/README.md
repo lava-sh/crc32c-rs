@@ -67,9 +67,22 @@ Original by [@awesomized][gh-awesomized], maintained fork by [@MuntasirSZN][gh-M
 - Ported algorithms:
   - Scalar (Fallback) -> `src/arch/fallback.rs`
 
+#### [madler/brotli][gh-madler-crc32c] - original C implementation by [@madler][gh-madler]
+
+- License: zlib
+- Source: [https://github.com/madler/brotli/crc32c.c][gh-madler-crc32c]
+- Ported algorithms:
+  - SSE4.2 only (`s3`, three-way `crc32q` + GF(2) shift tables) -> `src/arch/sse42.rs`
+
+##### How to update?
+
+Download `crc32c.c` from [upstream][gh-madler-crc32c] and port it line by line.
+
 [gh-corsix]: https://github.com/corsix
 [gh-awesomized]: https://github.com/awesomized
 [gh-MuntasirSZN]: https://github.com/MuntasirSZN
+[gh-madler]: https://github.com/madler
 
 [gh-fast-crc32]: https://github.com/corsix/fast-crc32/tree/13f5289ceb6065d014f9e1e64f161ea7a926c3b7
 [gh-crc-fast-rust]: https://github.com/MuntasirSZN/crc-fast-rust/tree/e3f3c613c3e158b2b82d576347ffc6e5e07ac5ba
+[gh-madler-crc32c]: https://github.com/madler/brotli/blob/1d428d3a9baade233ebc3ac108293256bcb813d1/crc32c.c
