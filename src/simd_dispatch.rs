@@ -162,6 +162,9 @@ pub enum SimdIsa {
     Avx512vlPclmulqdq_v9s3x4e,
 
     #[cfg(any(target_arch = "x86_64", target_arch = "x86"))]
+    Sse42,
+
+    #[cfg(any(target_arch = "x86_64", target_arch = "x86"))]
     // Cascade Lake (2), Sapphire Rapids (3)
     Sse42Pclmulqdq_v8s3x3,
     #[cfg(any(target_arch = "x86_64", target_arch = "x86"))]
@@ -260,6 +263,9 @@ impl SimdIsa {
             }
             if detect_features!(x86, ["sse4.2", "pclmulqdq"]) {
                 return Self::Sse42Pclmulqdq_v8s3x3;
+            }
+            if detect_features!(x86, ["sse4.2"]) {
+                return Self::Sse42;
             }
         }
         #[cfg(any(target_arch = "aarch64", target_arch = "arm64ec"))]
