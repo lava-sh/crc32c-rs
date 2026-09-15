@@ -20,6 +20,7 @@ license-files = [
     "licenses/crc-fast-rust-LICENSE-MIT",
     "licenses/crc-fast-rust-LICENSE-Zlib",
     "licenses/crc-fast-rust-LICENSE-Apache",
+    "licenses/madler-crc32c-LICENSE.zlib.md",
 ]
 authors = [
     { name = "chirizxc", email = "chirizxc@proton.me" }

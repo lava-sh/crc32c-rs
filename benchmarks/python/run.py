@@ -11,6 +11,7 @@ import google_crc32c
 import pyperf
 
 KiB = 1024
+MiB = KiB * 1024
 
 PAYLOADS = {
     "32 B": 32,
@@ -18,12 +19,12 @@ PAYLOADS = {
     "1 KiB": KiB,
     "64 KiB": 64 * KiB,
     "512 KiB": 512 * KiB,
-    "1 MiB": KiB * KiB,
-    "16 MiB": 16 * KiB * KiB,
-    "32 MiB": 32 * KiB * KiB,
-    "64 MiB": 64 * KiB * KiB,
-    "128 MiB": 128 * KiB * KiB,
-    "256 MiB": 256 * KiB * KiB,
+    "1 MiB": MiB,
+    "16 MiB": 16 * MiB,
+    "32 MiB": 32 * MiB,
+    "64 MiB": 64 * MiB,
+    "128 MiB": 128 * MiB,
+    "256 MiB": 256 * MiB,
 }
 
 
@@ -39,6 +40,9 @@ def get_impls() -> list[tuple[str, Callable]]:
     ]
 
     configs = [
+        ({"sse4_2"}, [
+            "crc32c_sse42",
+        ]),
         ({"sse4_2", "pclmulqdq"}, [
             "crc32c_sse42_pclmulqdq_v1s3x2",
             "crc32c_sse42_pclmulqdq_v1s3x3",

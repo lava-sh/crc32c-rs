@@ -40,7 +40,7 @@ class Result:
 
     @property
     def elapsed(self) -> str:
-        return f"{self.time * 1e6:.4f} µs" if self.time else "n/a"
+        return f"{self.time * 1e6:.4f} µs" if self.time else "n/a"  # noqa: RUF001
 
     @property
     def speed(self) -> str:

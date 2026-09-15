@@ -51,6 +51,12 @@ def _crc32c_avx512vl_vpclmulqdq_v4s5x3(
     /,
 ) -> builtins.int: ...
 
+def _crc32c_sse42(
+    data: ReadableBuffer,
+    value: builtins.int = 0,
+    /,
+) -> builtins.int: ...
+
 def _crc32c_sse42_pclmulqdq_v1s3x2(
     data: ReadableBuffer,
     value: builtins.int = 0,
