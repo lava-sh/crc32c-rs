@@ -1,4 +1,4 @@
-name: "tests"
+name: "Python Benchmark"
 
 on:
   workflow_call:
@@ -8,27 +8,19 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  tests:
-    name: "${{ matrix.os }} / python ${{ matrix.python-version }}"
+  bench:
+    name: "bench / ${{ matrix.os }}"
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        python-version: [
-          "3.11",
-          "3.12",
-          "3.13",
-          "3.14", "3.14t",
-          "3.15", "3.15t",
-          "pypy3.11",
-        ]
+        python-version: ["3.14"]
         # See: https://docs.github.com/en/actions/reference/runners/github-hosted-runners
         os: [
           "ubuntu-latest",
           "ubuntu-26.04-arm",
           "windows-latest",
           "macos-latest",
-          "macos-26-intel",
         ]
 
     steps:
@@ -61,19 +53,28 @@ jobs:
           fi
 
       - name: "Install dependencies"
-        run: uv pip install --group ci
+        run: uv pip install --group ci --group bench
 
       - name: "Run maturin"
-        run: maturin build --out wheels --features mimalloc
+        run: maturin build --release --out wheels --features mimalloc
 
       - name: "Install built wheel"
-        run: uv pip install crc32c-rs --no-index --find-links wheels --force-reinstall
+        run: uv pip install crc32c-rs --no-index --find-links wheels
 
-      - name: "Run ruff"
-        run: ruff check
+      - name: "Run Python benchmark"
+        shell: bash
+        run: |
+          if [[ "${{ matrix.os }}" == "windows-latest" ]]; then
+            source .venv/Scripts/activate
+          else
+            source .venv/bin/activate
+          fi
+          
+          cd benchmarks/python
+          python run.py -o results.json
 
-      - name: "Run ty"
-        run: ty check
-
-      - name: "Run pytest"
-        run: pytest
+      - name: "Upload wheels"
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: bench-${{ matrix.os }}-${{ matrix.python-version }}
+          path: benchmarks/python/results.json
