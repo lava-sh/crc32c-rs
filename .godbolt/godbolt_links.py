@@ -17,7 +17,7 @@ COMPILERS_PATH = "/api/compilers/{language}"
 ROOT = Path(__file__).resolve().parent
 LANGUAGES = {
     ".rs": "rust",
-    ".c": "c++",
+    ".c": "c",
     ".cc": "c++",
     ".cpp": "c++",
     ".cxx": "c++",
@@ -27,6 +27,15 @@ MIN_HEADER_LINES = 2
 
 FILTERS_BY_LANGUAGE = {
     "rust": {
+        "labels": True,
+        "libraryCode": True,
+        "directives": True,
+        "commentOnly": True,
+        "trim": False,
+        "debugCalls": False,
+        "intel": True,
+    },
+    "c": {
         "labels": True,
         "libraryCode": True,
         "directives": True,
