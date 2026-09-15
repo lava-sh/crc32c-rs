@@ -101,9 +101,9 @@ unsafe fn crc32c_small(mut crc0: u32, mut buf: *const u8, mut len: usize) -> u32
     let mut crc1 = 0_u32;
     let mut crc2 = 0_u32;
     loop {
-        crc0 = unsafe { __crc32cd(crc0, *(buf.cast::<u64>())) };
-        crc1 = unsafe { __crc32cd(crc1, *(buf.add(klen).cast::<u64>())) };
-        crc2 = unsafe { __crc32cd(crc2, *(buf.add(klen * 2).cast::<u64>())) };
+        crc0 = unsafe { __crc32cd(crc0, buf.cast::<u64>().read_unaligned()) };
+        crc1 = unsafe { __crc32cd(crc1, buf.add(klen).cast::<u64>().read_unaligned()) };
+        crc2 = unsafe { __crc32cd(crc2, buf.add(klen * 2).cast::<u64>().read_unaligned()) };
         buf = unsafe { buf.add(8) };
         len -= 24;
         if len < 32 {
@@ -117,12 +117,12 @@ unsafe fn crc32c_small(mut crc0: u32, mut buf: *const u8, mut len: usize) -> u32
 
     buf = unsafe { buf.add(klen * 2) };
     crc0 = crc2;
-    crc0 = unsafe { __crc32cd(crc0, *(buf.cast::<u64>()) ^ vc) };
+    crc0 = unsafe { __crc32cd(crc0, buf.cast::<u64>().read_unaligned() ^ vc) };
     buf = unsafe { buf.add(8) };
     len -= 8;
 
     while len >= 8 {
-        crc0 = unsafe { __crc32cd(crc0, *(buf.cast::<u64>())) };
+        crc0 = unsafe { __crc32cd(crc0, buf.cast::<u64>().read_unaligned()) };
         buf = unsafe { buf.add(8) };
         len -= 8;
     }

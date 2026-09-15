@@ -131,7 +131,7 @@ unsafe fn crc32c_small(mut crc0: u32, mut buf: *const u8, mut len: usize) -> u32
     crc0 = unsafe { __crc32cd(crc0, vgetq_lane_u64(x0, 1)) };
 
     while len >= 8 {
-        crc0 = unsafe { __crc32cd(crc0, *(buf.cast::<u64>())) };
+        crc0 = unsafe { __crc32cd(crc0, buf.cast::<u64>().read_unaligned()) };
         buf = unsafe { buf.add(8) };
         len -= 8;
     }
