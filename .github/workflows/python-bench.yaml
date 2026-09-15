@@ -9,7 +9,7 @@ env:
 
 jobs:
   bench:
-    name: "/ ${{ matrix.os }}"
+    name: "${{ matrix.os }}"
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
