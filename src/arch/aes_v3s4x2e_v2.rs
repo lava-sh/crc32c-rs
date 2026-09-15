@@ -98,7 +98,7 @@ fn crc_shift(crc: u32, nbytes: usize) -> uint64x2_t {
 #[target_feature(enable = "aes")]
 unsafe fn crc32c_small(mut crc0: u32, mut buf: *const u8, mut len: usize) -> u32 {
     unsafe {
-        core::hint::assert_unchecked((32..=1024).contains(&len));
+        core::hint::assert_unchecked((128..=1024).contains(&len));
     }
 
     // First vector chunk.
