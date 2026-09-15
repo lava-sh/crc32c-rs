@@ -9,10 +9,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0).
 ### Added
 
 * Fastpath for `avx512vl_vpclmulqdq_v4s5x3`, `avx512vl_vpclmulqdq_v3s2x4` on small inputs (32 B - 1 KiB). (by [@chirizxc][gh-chirizxc])
+* New `sse42` kernel: SSE4.2-only CRC32C for x86 CPUs without PCLMULQDQ, exposed as `crc32c_sse42`. (by [@chirizxc][gh-chirizxc])
+* Fastpath for `aes_crc_v12e_v1`, `aes_sha3_v9s3x2e_s3`, `aes_v3s4x2e_v2` on small inputs (32 B - 1 KiB). (by [@chirizxc][gh-chirizxc])
 
 ### Fixes
 
 * Correct crc32c fallback implementation on big-endian. (by [@chirizxc][gh-chirizxc])
+* Prefer `aes_sha3_v9s3x2e_s3` only on Apple CPUs; other vendors use `aes_crc_v3s4x2e_v2` when CRC+AES are available. (by [@chirizxc][gh-chirizxc])
 
 ## [0.0.2] - 09.09.2026
 
