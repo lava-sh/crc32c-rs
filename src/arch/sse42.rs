@@ -4,6 +4,7 @@
 use core::arch::x86::*;
 #[cfg(target_arch = "x86_64")]
 use core::arch::x86_64::*;
+
 const POLY: u64 = 0x82f6_3b78;
 const LONG: usize = 8192;
 const SHORT: usize = 256;
