@@ -159,11 +159,6 @@ checksum = crc32c_avx512vl_vpclmulqdq_v3s1_s3(b"Hello world!")
 print(checksum)  # 2073618257
 ```
 
-## Credits
-
-Several implementations are line-by-line Rust ports of third-party projects. See
-[`licenses/`](licenses/README.md) for the full list and the original license texts.
-
 <div align="center">
 
 ## Contributors
