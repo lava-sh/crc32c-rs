@@ -1,5 +1,5 @@
-import os
 import array
+import os
 
 import pytest
 import pytest_check
@@ -87,7 +87,7 @@ def test_crc32c_small_range(crc_impl: CrcImpl, size: int) -> None:
 @pytest.mark.parametrize("size", [32, 64, 512, 1024])
 @pytest.mark.parametrize("offset", [1, 3, 7, 8, 15])
 def test_crc32c_small_range_unaligned(
-    crc_impl: CrcImpl, size: int, offset: int
+    crc_impl: CrcImpl, size: int, offset: int,
 ) -> None:
     raw = os.urandom(size + offset)
     mv = memoryview(raw)[offset:]
