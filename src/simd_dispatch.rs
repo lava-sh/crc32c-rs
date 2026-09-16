@@ -115,7 +115,7 @@ impl CpuModel {
                     _ => Self::Unknown,
                 },
                 0x1A => match model {
-                    0x00..=0x2F | 0x40..=0x4F | 0x70..=0x7F => Self::Zen5,
+                    0x00..=0x2F | 0x40..=0x4F | 0x60..=0x7F => Self::Zen5,
                     0x50..=0x5F | 0x80..=0xAF | 0xC0..=0xCF => Self::Zen6,
                     _ => Self::Unknown,
                 },
