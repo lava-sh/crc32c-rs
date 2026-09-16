@@ -74,8 +74,14 @@ jobs:
           python run.py -o results.json 
           python md_table.py results.json
 
-      - name: "Upload results"
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+      - name: "Extract benchmark section"
+        shell: bash
+        run: |
+          sed -i '1,/<!-- BEGIN BENCHMARK -->/d' benchmarks/python/README.md
+
+      - name: "Sticky PR comment"
+        if: github.event_name == 'pull_request'
+        uses: marocchino/sticky-pull-request-comment@v3
         with:
-          name: bench-${{ matrix.os }}-${{ matrix.python-version }}
-          path: benchmarks/python/${{ matrix.os }}.json
+          header: "bench-${{ matrix.os }}"
+          path: benchmarks/python/README.md
