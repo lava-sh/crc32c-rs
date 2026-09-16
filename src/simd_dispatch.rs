@@ -67,17 +67,21 @@ enum CpuModel {
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 impl CpuModel {
     /// Decodes `(family, model)` from CPUID leaf 1 EAX register.
+    ///
+    /// See: https://www.thomas-krenn.com/en/wiki/CPUID#Processor_Signature
     const fn decode_family_model(eax1: u32) -> (u32, u32) {
         let base_family = (eax1 >> 8) & 0xF;
         let base_model = (eax1 >> 4) & 0xF;
+        let ext_family = (eax1 >> 20) & 0xFF;
+        let ext_model = (eax1 >> 16) & 0xF;
 
         let family = if base_family == 0xF {
-            base_family + ((eax1 >> 20) & 0xFF)
+            base_family + ext_family
         } else {
             base_family
         };
         let model = if base_family == 0xF || base_family == 0x6 {
-            (((eax1 >> 16) & 0xF) << 4) | base_model
+            (ext_model << 4) | base_model
         } else {
             base_model
         };
