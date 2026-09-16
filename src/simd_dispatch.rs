@@ -34,9 +34,9 @@ enum CpuVendor {
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 impl CpuVendor {
     fn detect() -> Self {
-        let leaf0 = arch::__cpuid(0);
+        let arch::CpuidResult { ebx, edx, ecx, .. } = arch::__cpuid(0);
 
-        match (leaf0.ebx, leaf0.edx, leaf0.ecx) {
+        match (ebx, edx, ecx) {
             // Genu       ineI         ntel
             (0x756e_6547, 0x4965_6e69, 0x6c65_746e) => Self::Intel,
             // Auth       enti         cAMD
@@ -56,20 +56,20 @@ enum CpuModel {
     IceLake,
     SapphireRapids,
     // Amd
-    Zen1,
-    Rome,
-    Matisse,
-    Milan,
-    Genoa,
-    Zen5,
-    Turin,
-    Zen5APU,
-    Zen6,
+    Zen1, // Naples, Summit Ridge, Whitehaven, Raven Ridge
+    Zen2, // Rome, Matisse, Renoir, Lucienne, Castle Peak
+    Zen3, // Milan, Milan-X, Vermeer, Cezanne, Rembrandt
+    Zen4, // Genoa, Genoa-X, Bergamo, Raphael, Phoenix
+    Zen5, // Turin, Turin Dense, Granite Ridge, Strix Point, Strix Halo, Krackan Point
+    Zen6, // Future architectures (reserved model ranges)
 }
 
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 impl CpuModel {
-    const fn detect(vendor: CpuVendor, eax1: u32) -> Self {
+    /// Decodes `(family, model)` from CPUID leaf 1 EAX register.
+    ///
+    /// See: <https://www.thomas-krenn.com/en/wiki/CPUID#Processor_Signature>
+    const fn decode_family_model(eax1: u32) -> (u32, u32) {
         let base_family = (eax1 >> 8) & 0xF;
         let base_model = (eax1 >> 4) & 0xF;
         let ext_family = (eax1 >> 20) & 0xFF;
@@ -86,54 +86,37 @@ impl CpuModel {
             base_model
         };
 
+        (family, model)
+    }
+
+    const fn detect(vendor: CpuVendor, eax1: u32) -> Self {
+        let (family, model) = Self::decode_family_model(eax1);
+
         match vendor {
+            // See: https://codebrowser.dev/linux/linux/arch/x86/include/asm/intel-family.h.html
             CpuVendor::Intel if family == 0x6 => match model {
-                // `Skylake-SP`, `Cascade Lake` and `Cooper Lake` all share the
-                // same base CPUID Model identifier, 0x55 (Family 6, Model 85).
-                //
-                // No stepping check needed here since all of them natively
-                // support both `AVX-512 VL` and `PCLMULQDQ`.
-                //
-                // https://github.com/torvalds/linux/blob/5acbae5f/arch/x86/include/asm/intel-family.h#L96
+                // `Skylake-SP`, `Cascade Lake` and `Cooper Lake` all of
+                // them natively support both `AVX-512 VL` and `PCLMULQDQ`.
                 0x55 => Self::CascadeLake,
-                // https://github.com/torvalds/linux/blob/5acbae5f/arch/x86/include/asm/intel-family.h#L112-L116
                 0x6A | 0x6C | 0x7D | 0x7E | 0x9D => Self::IceLake,
-                // https://github.com/torvalds/linux/blob/5acbae5f/arch/x86/include/asm/intel-family.h#L123
                 0x8F => Self::SapphireRapids,
                 _ => Self::Unknown,
             },
-            // https://en.wikipedia.org/wiki/List_of_AMD_CPU_microarchitectures
+            // See: https://codebrowser.dev/linux/linux/arch/x86/kernel/cpu/amd.c.html
             CpuVendor::Amd => match family {
-                // Family 0x17 (23): Zen / Zen+ / Zen 2
                 0x17 => match model {
-                    // Zen 1 / Zen+: Naples, Summit Ridge, Whitehaven, Raven Ridge
-                    0x00..=0x2F => Self::Zen1,
-                    // Zen 2: Rome (EPYC 7002 Server)
-                    0x30..=0x3F => Self::Rome,
-                    // Zen 2: Matisse (Desktop), Renoir / Lucienne (APU), Castle Peak
-                    0x40..=0xAF => Self::Matisse,
+                    0x00..=0x2F | 0x50..=0x5F => Self::Zen1,
+                    0x30..=0x4F | 0x60..=0x7F | 0x90..=0x91 | 0xA0..=0xAF => Self::Zen2,
                     _ => Self::Unknown,
                 },
-
-                // Family 0x19 (25): Zen 3 / Zen 3+ / Zen 4
                 0x19 => match model {
-                    // Zen 3 / Zen 3+: Milan, Milan-X, Vermeer, Cezanne, Rembrandt
-                    0x00..=0x0F | 0x20..=0x5F => Self::Milan,
-                    // Zen 4 / Zen 4c: Genoa, Genoa-X, Bergamo, Raphael, Phoenix
-                    0x10..=0x1F | 0x60..=0xAF => Self::Genoa,
+                    0x00..=0x0F | 0x20..=0x5F => Self::Zen3,
+                    0x10..=0x1F | 0x60..=0xAF => Self::Zen4,
                     _ => Self::Unknown,
                 },
-
-                // Family 0x1A (26): Zen 5 / Zen 6
                 0x1A => match model {
-                    // Zen 5 standard client processors (e.g., Granite Ridge, Strix Point)
-                    0x00..=0x0F => Self::Zen5,
-                    // Zen 5c server processors (e.g., Turin, Turin Dense)
-                    0x10..=0x1F => Self::Turin,
-                    // Zen 5/5c high-performance APUs (e.g., Strix Halo, Kraken Point)
-                    0x40..=0x4F | 0x70..=0x7F => Self::Zen5APU,
-                    // Zen 6 (Reserved ranges based on Linux kernel patches)
-                    0x50..=0x5F | 0x80..=0xAF => Self::Zen6,
+                    0x00..=0x2F | 0x40..=0x4F | 0x60..=0x7F => Self::Zen5,
+                    0x50..=0x5F | 0x80..=0xAF | 0xC0..=0xCF => Self::Zen6,
                     _ => Self::Unknown,
                 },
                 _ => Self::Unknown,
@@ -197,30 +180,22 @@ impl SimdIsa {
                     return Self::Avx512vlVpclmulqdq_v3s1_s3;
                 }
 
-                CpuModel::Genoa
-                | CpuModel::Zen5
-                | CpuModel::Turin
-                | CpuModel::Zen5APU
-                | CpuModel::Zen6
-                    if detect_features!(x86, ["avx512vl", "vpclmulqdq"]) =>
-                {
-                    return Self::Avx512vlVpclmulqdq_v3s2x4;
-                }
-                CpuModel::Genoa
-                | CpuModel::Zen5
-                | CpuModel::Turin
-                | CpuModel::Zen5APU
-                | CpuModel::Zen6
-                    if detect_features!(x86, ["sse4.2", "pclmulqdq"]) =>
-                {
-                    return Self::Sse42Pclmulqdq_v1s3x2;
+                CpuModel::Zen4 | CpuModel::Zen5 | CpuModel::Zen6 => {
+                    if detect_features!(x86, ["avx512vl", "vpclmulqdq"]) {
+                        return Self::Avx512vlVpclmulqdq_v3s2x4;
+                    }
+                    if detect_features!(x86, ["sse4.2", "pclmulqdq"]) {
+                        return Self::Sse42Pclmulqdq_v1s3x2;
+                    }
                 }
 
-                CpuModel::IceLake if detect_features!(x86, ["avx512vl", "vpclmulqdq"]) => {
-                    return Self::Avx512vlVpclmulqdq_v4s5x3;
-                }
-                CpuModel::IceLake if detect_features!(x86, ["sse4.2", "pclmulqdq"]) => {
-                    return Self::Sse42Pclmulqdq_v7s3x3;
+                CpuModel::IceLake => {
+                    if detect_features!(x86, ["avx512vl", "vpclmulqdq"]) {
+                        return Self::Avx512vlVpclmulqdq_v4s5x3;
+                    }
+                    if detect_features!(x86, ["sse4.2", "pclmulqdq"]) {
+                        return Self::Sse42Pclmulqdq_v7s3x3;
+                    }
                 }
 
                 CpuModel::CascadeLake if detect_features!(x86, ["avx512vl", "pclmulqdq"]) => {
@@ -232,11 +207,11 @@ impl SimdIsa {
                     return Self::Sse42Pclmulqdq_v8s3x3;
                 }
 
-                CpuModel::Milan if detect_features!(x86, ["sse4.2", "pclmulqdq"]) => {
+                CpuModel::Zen3 if detect_features!(x86, ["sse4.2", "pclmulqdq"]) => {
                     return Self::Sse42Pclmulqdq_v1s4x2;
                 }
 
-                CpuModel::Zen1 | CpuModel::Rome | CpuModel::Matisse
+                CpuModel::Zen1 | CpuModel::Zen2
                     if detect_features!(x86, ["sse4.2", "pclmulqdq"]) =>
                 {
                     return Self::Sse42Pclmulqdq_v1s3x3;
