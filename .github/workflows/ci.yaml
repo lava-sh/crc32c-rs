@@ -156,6 +156,9 @@ jobs:
   python-bench:
     if: ${{ contains(github.event.pull_request.labels.*.name, 'ci-python-bench') }}
 
+    permissions:
+      contents: read
+      pull-requests: write
     uses: $/.github/workflows/python-bench.yaml
 
   build-sdist:
