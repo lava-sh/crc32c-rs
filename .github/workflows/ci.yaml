@@ -4,11 +4,10 @@ permissions: { }
 
 on:
   push:
-    branches: [
-      "main",
-    ]
+    branches: ["main"]
     tags: ["*"]
   pull_request:
+    types: ["opened", "synchronize", "reopened", "labeled"]
   workflow_dispatch:
 
 concurrency:
@@ -153,6 +152,14 @@ jobs:
 
     needs: [ tests, tests-alpine, cargo-fmt, cargo-clippy, tools ]
     uses: $/.github/workflows/wasm.yaml
+
+  python-bench:
+    if: ${{ contains(github.event.pull_request.labels.*.name, 'ci-python-bench') }}
+
+    permissions:
+      contents: read
+      pull-requests: write
+    uses: $/.github/workflows/python-bench.yaml
 
   build-sdist:
     name: "build sdist"
