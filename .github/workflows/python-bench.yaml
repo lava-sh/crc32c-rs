@@ -11,6 +11,7 @@ jobs:
   bench:
     name: "${{ matrix.os }}"
     runs-on: ${{ matrix.os }}
+    if: github.event_name == 'pull_request'
     strategy:
       fail-fast: false
       matrix:
@@ -80,7 +81,6 @@ jobs:
           awk '/<!-- BEGIN BENCHMARK -->/{f=1;next} f' benchmarks/python/README.md > "${{ runner.temp }}/bench.md"
 
       - name: "Sticky PR comment"
-        if: github.event_name == 'pull_request'
         uses: marocchino/sticky-pull-request-comment@5770ad5eb8f42dd2c4f34da00c94c5381e49af88 # v3.0.5
         with:
           header: "bench-${{ matrix.os }}"
