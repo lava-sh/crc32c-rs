@@ -6,9 +6,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0).
 
 ## [Unreleased] - ReleaseDate
 
+## [0.0.4] - 17.09.2026
+
 ### Changed
 
 * Only take the `crc32c_small` fast path from the length where it is faster than the 8-byte walk, and decide that before the alignment prologue shortens the input. (by [@chirizxc][gh-chirizxc])
+
+* Import `ReadableBuffer` from `_typeshed` in `_crc32c_rs.pyi`. (by [@chirizxc][gh-chirizxc])
+
+* Improve CPU detection for AMD processors. (by [@chirizxc][gh-chirizxc])
 
 ## [0.0.3] - 15.09.2026
 
@@ -36,8 +42,9 @@ First release.
 
 [gh-chirizxc]: https://github.com/chirizxc
 
-[Unreleased]: https://github.com/lava-sh/crc32c-rs/compare/0.0.3...HEAD
+[Unreleased]: https://github.com/lava-sh/crc32c-rs/compare/0.0.4...HEAD
 
+[0.0.4]: https://github.com/lava-sh/crc32c-rs/compare/0.0.3...0.0.4
 [0.0.3]: https://github.com/lava-sh/crc32c-rs/compare/0.0.2...0.0.3
 [0.0.2]: https://github.com/lava-sh/crc32c-rs/compare/0.0.1...0.0.2
 [0.0.1]: https://github.com/lava-sh/crc32c-rs/compare/1771e0a03a38848d12afa15ab09ae1a05a6325b0...0.0.1
