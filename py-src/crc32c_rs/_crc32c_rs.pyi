@@ -2,7 +2,12 @@ import builtins
 import sys
 from typing import TypeAlias
 
-from _typeshed import ReadableBuffer
+if sys.version_info >= (3, 12):
+    from collections.abc import Buffer
+else:
+    from typing_extensions import Buffer
+
+ReadableBuffer: TypeAlias = Buffer
 
 __version__: str
 
