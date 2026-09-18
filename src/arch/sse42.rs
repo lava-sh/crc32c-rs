@@ -74,9 +74,13 @@ const fn crc32c_zeros(len: u64) -> [[u32; 256]; 4] {
 
 const LONG: usize = 8192;
 const SHORT: usize = 256;
+const SHORT2: usize = 128;
+const SHORT3: usize = 64;
 
 static CRC32C_LONG: [[u32; 256]; 4] = crc32c_zeros(LONG as u64);
 static CRC32C_SHORT: [[u32; 256]; 4] = crc32c_zeros(SHORT as u64);
+static CRC32C_SHORT2: [[u32; 256]; 4] = crc32c_zeros(SHORT2 as u64);
+static CRC32C_SHORT3: [[u32; 256]; 4] = crc32c_zeros(SHORT3 as u64);
 
 #[inline]
 const fn crc32c_shift(zeros: &[[u32; 256]; 4], crc: u32) -> u32 {
@@ -99,6 +103,31 @@ fn crc32_u64(crc: u32, value: u64) -> u32 {
     }
 }
 
+macro_rules! round3 {
+    ($next:ident, $len:ident, $crc0:ident, $chunk:expr, $zeros:expr) => {{
+        let mut crc1: u32 = 0;
+        let mut crc2: u32 = 0;
+        let end = unsafe { $next.add($chunk) };
+        loop {
+            $crc0 = crc32_u64($crc0, unsafe { $next.cast::<u64>().read_unaligned() });
+            crc1 = crc32_u64(crc1, unsafe {
+                $next.add($chunk).cast::<u64>().read_unaligned()
+            });
+            crc2 = crc32_u64(crc2, unsafe {
+                $next.add($chunk * 2).cast::<u64>().read_unaligned()
+            });
+            $next = unsafe { $next.add(8) };
+            if $next >= end {
+                break;
+            }
+        }
+        $crc0 = crc32c_shift($zeros, $crc0) ^ crc1;
+        $crc0 = crc32c_shift($zeros, $crc0) ^ crc2;
+        $next = unsafe { $next.add($chunk * 2) };
+        $len -= $chunk * 3;
+    }};
+}
+
 #[target_feature(enable = "sse4.2")]
 pub unsafe fn crc32c(crc: u32, buf: *const u8, mut len: usize) -> u32 {
     let mut crc0: u32 = !crc;
@@ -109,48 +138,16 @@ pub unsafe fn crc32c(crc: u32, buf: *const u8, mut len: usize) -> u32 {
         len -= 1;
     }
     while len >= LONG * 3 {
-        let mut crc1: u32 = 0;
-        let mut crc2: u32 = 0;
-        let end = unsafe { next.add(LONG) };
-        loop {
-            crc0 = crc32_u64(crc0, unsafe { next.cast::<u64>().read_unaligned() });
-            crc1 = crc32_u64(crc1, unsafe {
-                next.add(LONG).cast::<u64>().read_unaligned()
-            });
-            crc2 = crc32_u64(crc2, unsafe {
-                next.add(LONG * 2).cast::<u64>().read_unaligned()
-            });
-            next = unsafe { next.add(8) };
-            if next >= end {
-                break;
-            }
-        }
-        crc0 = crc32c_shift(&CRC32C_LONG, crc0) ^ crc1;
-        crc0 = crc32c_shift(&CRC32C_LONG, crc0) ^ crc2;
-        next = unsafe { next.add(LONG * 2) };
-        len -= LONG * 3;
+        round3!(next, len, crc0, LONG, &CRC32C_LONG);
     }
     while len >= SHORT * 3 {
-        let mut crc1: u32 = 0;
-        let mut crc2: u32 = 0;
-        let end = unsafe { next.add(SHORT) };
-        loop {
-            crc0 = crc32_u64(crc0, unsafe { next.cast::<u64>().read_unaligned() });
-            crc1 = crc32_u64(crc1, unsafe {
-                next.add(SHORT).cast::<u64>().read_unaligned()
-            });
-            crc2 = crc32_u64(crc2, unsafe {
-                next.add(SHORT * 2).cast::<u64>().read_unaligned()
-            });
-            next = unsafe { next.add(8) };
-            if next >= end {
-                break;
-            }
-        }
-        crc0 = crc32c_shift(&CRC32C_SHORT, crc0) ^ crc1;
-        crc0 = crc32c_shift(&CRC32C_SHORT, crc0) ^ crc2;
-        next = unsafe { next.add(SHORT * 2) };
-        len -= SHORT * 3;
+        round3!(next, len, crc0, SHORT, &CRC32C_SHORT);
+    }
+    while len >= SHORT2 * 3 {
+        round3!(next, len, crc0, SHORT2, &CRC32C_SHORT2);
+    }
+    while len >= SHORT3 * 3 {
+        round3!(next, len, crc0, SHORT3, &CRC32C_SHORT3);
     }
     {
         let end = unsafe { next.add(len - (len & 7)) };
