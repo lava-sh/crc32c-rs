@@ -18,8 +18,8 @@ _activate_venv := '.\.venv\Scripts\Activate.ps1'
 [doc("Build Python wheel with mimalloc")]
 [script("pwsh.exe", "-NoLogo", "-NoProfile", "-Command")]
 [windows]
-[arg("mimalloc", long, short="m", value="true")]
-install mimalloc="false":
+[arg("default-alloc", long, value="true")]
+install default-alloc="false":
     $ErrorActionPreference = "Stop"
 
     if (Test-Path {{ WHEEL_DIR }}) {
@@ -28,7 +28,7 @@ install mimalloc="false":
 
     {{ _activate_venv }}
 
-    maturin build --out {{ WHEEL_DIR }} --release {{ if mimalloc == "true" { "--features mimalloc" } else { "" } }}
+    maturin build --out {{ WHEEL_DIR }} --release {{ if default-alloc == "true" { "" } else { "--features mimalloc" } }}
 
     if (Get-Command uv -ErrorAction SilentlyContinue) {
         Write-Host "uv found, using uv"

@@ -91,9 +91,58 @@ fn crc_shift(crc: u32, nbytes: usize) -> uint64x2_t {
 }
 
 #[inline]
+#[target_feature(enable = "crc,aes")]
+unsafe fn crc32c_small(mut crc0: u32, mut buf: *const u8, mut len: usize) -> u32 {
+    unsafe {
+        core::hint::assert_unchecked((128..=1024).contains(&len));
+    }
+
+    let klen = ((len - 8) / 24) * 8;
+    let mut crc1 = 0_u32;
+    let mut crc2 = 0_u32;
+    loop {
+        crc0 = unsafe { __crc32cd(crc0, buf.cast::<u64>().read_unaligned()) };
+        crc1 = unsafe { __crc32cd(crc1, buf.add(klen).cast::<u64>().read_unaligned()) };
+        crc2 = unsafe { __crc32cd(crc2, buf.add(klen * 2).cast::<u64>().read_unaligned()) };
+        buf = unsafe { buf.add(8) };
+        len -= 24;
+        if len < 32 {
+            break;
+        }
+    }
+
+    let vc0 = crc_shift(crc0, klen * 2 + 8);
+    let vc1 = crc_shift(crc1, klen + 8);
+    let vc = vgetq_lane_u64(veorq_u64(vc0, vc1), 0);
+
+    buf = unsafe { buf.add(klen * 2) };
+    crc0 = crc2;
+    crc0 = unsafe { __crc32cd(crc0, buf.cast::<u64>().read_unaligned() ^ vc) };
+    buf = unsafe { buf.add(8) };
+    len -= 8;
+
+    while len >= 8 {
+        crc0 = unsafe { __crc32cd(crc0, buf.cast::<u64>().read_unaligned()) };
+        buf = unsafe { buf.add(8) };
+        len -= 8;
+    }
+    while len != 0 {
+        crc0 = unsafe { __crc32cb(crc0, *buf) };
+        buf = unsafe { buf.add(1) };
+        len -= 1;
+    }
+    crc0
+}
+
+#[inline]
 #[target_feature(enable = "crc,aes,sha3")]
 pub unsafe fn crc32c(mut crc0: u32, mut buf: *const u8, mut len: usize) -> u32 {
     crc0 = !crc0;
+
+    if (128..=1024).contains(&len) {
+        return !unsafe { crc32c_small(crc0, buf, len) };
+    }
+
     while len != 0 && (buf as usize & 7) != 0 {
         crc0 = unsafe { __crc32cb(crc0, *buf) };
         buf = unsafe { buf.add(1) };
@@ -104,7 +153,6 @@ pub unsafe fn crc32c(mut crc0: u32, mut buf: *const u8, mut len: usize) -> u32 {
         buf = unsafe { buf.add(8) };
         len -= 8;
     }
-
     if len >= 192 {
         let end = unsafe { buf.add(len) };
         let blk = len / 192;
