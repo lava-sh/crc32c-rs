@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0).
 
 ## [Unreleased] - ReleaseDate
 
+### Added
+
+* New `sve2_eor3_v9s3x2e_s3` implementation: the `aes_sha3_v9s3x2e_s3` schedule written with SVE2 intrinsics (`svpmullb_pair_u64` / `svpmullt_pair_u64`, `sveor3_u64`) instead of inline assembly, exposed as `crc32c_sve2_eor3_v9s3x2e_s3`. It needs the SVE2-AES extension (`sveaes` + `svepmull`), which is stricter than plain SVE2, so it is not part of the default dispatch.
+
 ## [0.0.4] - 17.09.2026
 
 ### Changed

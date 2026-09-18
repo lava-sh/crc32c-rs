@@ -2,6 +2,7 @@ import argparse
 import os
 import sys
 from collections.abc import Callable
+from pathlib import Path
 
 import archspec.cpu
 import crc32c
@@ -12,6 +13,25 @@ import pyperf
 
 KiB = 1024
 MiB = KiB * 1024
+
+# archspec has no vocabulary for the SVE2 crypto extensions, so a kernel that
+# needs them is gated on the kernel's own feature list instead.
+HWCAP_REQUIREMENTS = {
+    "crc32c_sve2_eor3_v9s3x2e_s3": {"sveaes", "svepmull"},
+}
+
+
+def _hwcaps() -> set[str]:
+    try:
+        cpuinfo = Path("/proc/cpuinfo").read_text(encoding="utf-8")
+    except OSError:
+        return set()
+
+    for line in cpuinfo.splitlines():
+        if line.startswith("Features"):
+            return set(line.partition(":")[2].split())
+    return set()
+
 
 PAYLOADS = {
     "32 B": 32,
@@ -65,7 +85,12 @@ def get_impls() -> list[tuple[str, Callable]]:
         ({"aes", "crc32", "sha3"}, [
             "crc32c_aes_sha3_v9s3x2e_s3",
         ]),
+        ({"aes", "crc32", "sve2"}, [
+            "crc32c_sve2_eor3_v9s3x2e_s3",
+        ]),
     ]  # fmt: skip
+
+    hwcaps = _hwcaps()
 
     for required, attrs in configs:
         if required.issubset(features):
@@ -73,6 +98,7 @@ def get_impls() -> list[tuple[str, Callable]]:
                (attr, getattr(crc32c_rs, attr))
                for attr in attrs
                if hasattr(crc32c_rs, attr)
+               and not HWCAP_REQUIREMENTS.get(attr, set()) - hwcaps
            )
 
     return impls

@@ -8,6 +8,11 @@
 //! any Python toolchain.
 
 #![feature(hint_prefetch)]
+// SVE/SVE2 intrinsics are still unstable, and only exist on aarch64 targets.
+#![cfg_attr(
+    any(target_arch = "aarch64", target_arch = "arm64ec"),
+    feature(stdarch_aarch64_sve)
+)]
 
 use core::fmt;
 
@@ -19,7 +24,7 @@ pub mod simd_dispatch;
 
 use crate::arch::fallback;
 #[cfg(any(target_arch = "aarch64", target_arch = "arm64ec"))]
-use crate::arch::{aes_crc_v12e_v1, aes_sha3_v9s3x2e_s3, aes_v3s4x2e_v2};
+use crate::arch::{aes_crc_v12e_v1, aes_sha3_v9s3x2e_s3, aes_v3s4x2e_v2, sve2_eor3_v9s3x2e_s3};
 #[cfg(any(target_arch = "x86_64", target_arch = "x86"))]
 use crate::arch::{
     avx512vl_pclmulqdq_v9s3x4e, avx512vl_vpclmulqdq_v3s1_s3, avx512vl_vpclmulqdq_v3s2x4,
@@ -117,6 +122,14 @@ pub fn available() -> Vec<Kernel> {
             kernels.push(kernel_entry(
                 "aes_sha3_v9s3x2e_s3",
                 aes_sha3_v9s3x2e_s3::crc32c,
+            ));
+        }
+        // `sve2-aes` is the SVE2 crypto extension (FEAT_SVE_AES +
+        // FEAT_SVE_PMULL128), not plain SVE2: without it there is no PMULLB.
+        if crate::detect_features!(aarch64, ["crc", "sve", "sve2", "sve2-aes"]) {
+            kernels.push(kernel_entry(
+                "sve2_eor3_v9s3x2e_s3",
+                sve2_eor3_v9s3x2e_s3::crc32c,
             ));
         }
     }

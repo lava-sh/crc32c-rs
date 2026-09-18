@@ -25,4 +25,6 @@ pub mod sse42_pclmulqdq_v1s4x2;
 pub mod sse42_pclmulqdq_v7s3x3;
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 pub mod sse42_pclmulqdq_v8s3x3;
+#[cfg(any(target_arch = "aarch64", target_arch = "arm64ec"))]
+pub mod sve2_eor3_v9s3x2e_s3;
 pub mod table;

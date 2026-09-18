@@ -147,6 +147,12 @@ at runtime, but you can also call a specific implementation directly:
 | `crc32c_aes_crc_v12e_v1`             |             `CRC + AES`             |
 | `crc32c_aes_v3s4x2e_v2`              |             `CRC + AES`             |
 | `crc32c_aes_sha3_v9s3x2e_s3`         |         `CRC + AES + SHA3`          |
+| `crc32c_sve2_eor3_v9s3x2e_s3`        |  `CRC + SVE2 + SVE2 AES/PMULL`  |
+
+`crc32c_sve2_eor3_v9s3x2e_s3` is the SVE2 spelling of `v9s3x2e_s3` and is not
+part of the default dispatch: it is a mechanical translation, so it does the
+same work per byte as the NEON kernel while the SVE2-AES extension is a
+stricter requirement than plain SVE2.
 
 Architecture-specific implementations are available only on compatible builds.
 If the current processor does not support the required features, calling one of

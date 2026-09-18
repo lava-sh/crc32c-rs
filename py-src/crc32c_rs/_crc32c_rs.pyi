@@ -97,3 +97,9 @@ def _crc32c_aes_sha3_v9s3x2e_s3(
     value: builtins.int = 0,
     /,
 ) -> builtins.int: ...
+
+def _crc32c_sve2_eor3_v9s3x2e_s3(
+    data: ReadableBuffer,
+    value: builtins.int = 0,
+    /,
+) -> builtins.int: ...

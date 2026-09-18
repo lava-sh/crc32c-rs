@@ -47,6 +47,7 @@ try:  # noqa: RUF067
         _crc32c_aes_crc_v12e_v1 as crc32c_aes_crc_v12e_v1,
         _crc32c_aes_sha3_v9s3x2e_s3 as crc32c_aes_sha3_v9s3x2e_s3,
         _crc32c_aes_v3s4x2e_v2 as crc32c_aes_v3s4x2e_v2,
+        _crc32c_sve2_eor3_v9s3x2e_s3 as crc32c_sve2_eor3_v9s3x2e_s3,
     )
 except ImportError:
     pass
@@ -55,4 +56,5 @@ else:
         "crc32c_aes_crc_v12e_v1",
         "crc32c_aes_sha3_v9s3x2e_s3",
         "crc32c_aes_v3s4x2e_v2",
+        "crc32c_sve2_eor3_v9s3x2e_s3",
     )
