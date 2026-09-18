@@ -76,6 +76,10 @@ pub fn crc32c(crc0: u32, buf: &[u8], len: usize) -> u32 {
     let mut current_char = current.cast::<u8>();
 
     while length != 0 {
+        if length >= 8 {
+            return !tail(crc, current_char, length);
+        }
+
         crc =
             (crc >> 8) ^ CRC32C_TABLE[0][((crc & 0xFF) as u8 ^ unsafe { *current_char }) as usize];
 
@@ -84,4 +88,23 @@ pub fn crc32c(crc0: u32, buf: &[u8], len: usize) -> u32 {
     }
 
     !crc
+}
+
+#[inline(always)]
+fn tail(crc: u32, ptr: *const u8, len: usize) -> u32 {
+    // SAFETY: `len >= 8`, so the 8 bytes at `ptr` are inside the buffer.
+    let word = u64::from_le(unsafe { ptr.cast::<u64>().read_unaligned() }) ^ u64::from(crc);
+    let bytes = word.to_le_bytes();
+    let mut crc = 0;
+
+    for k in 0..8 {
+        crc ^= CRC32C_TABLE[len - 1 - k][bytes[k] as usize];
+    }
+
+    for i in 8..len {
+        // SAFETY: `i < len`, so the byte is inside the buffer.
+        crc ^= CRC32C_TABLE[len - 1 - i][unsafe { *ptr.add(i) } as usize];
+    }
+
+    crc
 }
