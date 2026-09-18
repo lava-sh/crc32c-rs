@@ -93,7 +93,7 @@ pub fn crc32c(crc0: u32, buf: &[u8], len: usize) -> u32 {
 #[inline(always)]
 fn tail(crc: u32, ptr: *const u8, len: usize) -> u32 {
     // SAFETY: `len >= 8`, so the 8 bytes at `ptr` are inside the buffer.
-    let word = unsafe { ptr.cast::<u64>().read_unaligned() } ^ u64::from(crc);
+    let word = u64::from_le(unsafe { ptr.cast::<u64>().read_unaligned() }) ^ u64::from(crc);
     let bytes = word.to_le_bytes();
     let mut crc = 0;
 
