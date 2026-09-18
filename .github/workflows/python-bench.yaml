@@ -72,7 +72,7 @@ jobs:
           fi
           
           cd benchmarks/python
-          python run.py -o results.json 
+          python run.py -o results.json --quiet
           python md_table.py results.json
 
       - name: "Extract benchmark section"
