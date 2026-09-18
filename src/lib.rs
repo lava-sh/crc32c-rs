@@ -1,5 +1,4 @@
 #![feature(hint_prefetch)]
-// SVE/SVE2 intrinsics are still unstable, and only exist on aarch64 targets.
 #![cfg_attr(
     any(target_arch = "aarch64", target_arch = "arm64ec"),
     feature(stdarch_aarch64_sve)
