@@ -17,10 +17,10 @@ impl PyBuffer {
         let mut buffer = MaybeUninit::<ffi::Py_buffer>::uninit();
         // SAFETY: on success, `Py_buffer` is fully initialized;
         // released once via `PyBuffer_Release`.
-        let get_buffer = unsafe {
+        let py_buffer = unsafe {
             ffi::PyObject_GetBuffer(object.as_ptr(), buffer.as_mut_ptr(), ffi::PyBUF_SIMPLE)
         };
-        if get_buffer != 0 {
+        if py_buffer != 0 {
             return Err(PyErr::fetch(py));
         }
         // SAFETY: `PyObject_GetBuffer` returned success, so
