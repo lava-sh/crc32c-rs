@@ -6,8 +6,16 @@ on:
   push:
     branches: ["main"]
     tags: ["*"]
+    paths-ignore: [
+      "CHANGELOG.md",
+      "justfile",
+    ]
   pull_request:
     types: ["opened", "synchronize", "reopened", "labeled"]
+    paths-ignore: [
+      "CHANGELOG.md",
+      "justfile",
+    ]
   workflow_dispatch:
 
 concurrency:
