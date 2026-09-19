@@ -5,7 +5,15 @@ permissions: { }
 on:
   push:
     branches: ["main"]
+    paths-ignore: [
+      "CHANGELOG.md",
+      "justfile",
+    ]
   pull_request:
+    paths-ignore: [
+      "CHANGELOG.md",
+      "justfile",
+    ]
   workflow_dispatch:
 
 concurrency:
