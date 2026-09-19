@@ -26,7 +26,11 @@ preview = true
 select = ["ALL"]
 ignore = [
     "ARG",     # Unused method argument
-    "D",       # Docstring's
+    ########
+    "D104",    # Check for undocumented public package definitions
+    "D203",    # Check for docstrings on class definitions that are not preceded by a blank line
+    "D212",    # Check for docstring summary lines that are not positioned on the first physical line of the docstring
+    "D413",    # Check for missing blank lines after the last section of a multiline docstring
     ########
     "CPY001",  # Check copyright notices within Python files
     "S311",    # Force `random` -> `secrets`
@@ -47,12 +51,13 @@ ignore = [
 "{scripts/*.py,.godbolt/*.py,benchmarks/python/*.py}" = [
     "INP001", # Check for packages that are missing an `__init__.py` file
     "T201",   # Check for `print` statements
+    "D",      # Docstring's
 ]
 "py-src/**/*.pyi" = [
     "PYI021", # Check for the presence of docstrings in stub files
 ]
 "tests/*.py" = [
-    "DOC",     # Docstring's
+    "D",       # Docstring's
     ######
     "S101",    # Check for uses of the `assert` keyword
     "PLR2004", # Check for the use of unnamed numerical constants ("magic") values in comparisons
