@@ -164,7 +164,7 @@ def _crc32c_sse42(
     Compute the CRC32C checksum of ``data``.
 
     Requires:
-        The SSE4.2 instruction set extension, without PCLMULQDQ.
+        The SSE4.2 instruction set extension.
 
     Algorithm:
         Three interleaved streams advance 8 bytes per instruction each and are
