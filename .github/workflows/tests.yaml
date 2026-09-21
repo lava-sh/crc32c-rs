@@ -9,8 +9,8 @@ env:
 
 jobs:
   tests:
-    name: "${{ matrix.os }} / python ${{ matrix.python-version }}"
-    runs-on: ${{ matrix.os }}
+    name: "${{ matrix.runner }} / python ${{ matrix.python-version }}"
+    runs-on: ${{ matrix.runner }}
     strategy:
       fail-fast: false
       matrix:
@@ -23,7 +23,7 @@ jobs:
           "pypy3.11",
         ]
         # See: https://docs.github.com/en/actions/reference/runners/github-hosted-runners
-        os: [
+        runner: [
           "ubuntu-latest",
           "ubuntu-26.04-arm",
           "windows-latest",
@@ -45,13 +45,13 @@ jobs:
         if: github.event_name == 'pull_request' && github.run_attempt == 1
         with:
           lookup-only: false # zizmor: ignore[cache-poisoning]
-          shared-key: ${{ matrix.os }}-${{ matrix.python-version }}
+          shared-key: ${{ matrix.runner }}-${{ matrix.python-version }}
 
       - name: "Create and activate .venv"
         shell: bash
         run: |
           uv venv .venv --python ${{ matrix.python-version }}
-          if [[ "${{ matrix.os }}" == "windows-latest" ]]; then
+          if [[ "${{ matrix.runner }}" == "windows-latest" ]]; then
             echo ".venv/Scripts" >> "$GITHUB_PATH"
             echo "PYO3_PYTHON=.venv/Scripts/python" >> "$GITHUB_ENV"
             echo "UV_LINK_MODE=copy" >> "$GITHUB_ENV"
