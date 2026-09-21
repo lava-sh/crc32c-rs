@@ -23,7 +23,7 @@ jobs:
           "pypy3.11",
         ]
         # See: https://docs.github.com/en/actions/reference/runners/github-hosted-runners
-        os: [
+        runner: [
           "ubuntu-latest",
           "ubuntu-26.04-arm",
           "windows-latest",
