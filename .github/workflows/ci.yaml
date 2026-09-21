@@ -218,7 +218,7 @@ jobs:
         run: uv publish 'wheels-*/*' --dry-run
 
       - name: "Generate PyPI publish attestations"
-        if: github.ref_type == 'tag'
+        if: ${{ github.ref_type == 'tag' && (github.event.created || github.event_name != 'push') }}
         uses: astral-sh/attest-action@f589a42a7efb6fe400b4f400de60b4bc90390027 # v0.0.6
         with:
           paths: |
@@ -226,11 +226,11 @@ jobs:
             wheels-*/*.tar.gz
 
       - name: "Publish to PyPI"
-        if: github.ref_type == 'tag'
+        if: ${{ github.ref_type == 'tag' && (github.event.created || github.event_name != 'push') }}
         run: uv publish --trusted-publishing=always 'wheels-*/*'
 
   release-github:
-    if: ${{ github.ref_type == 'tag' && always() && !failure() && !cancelled() }}
+    if: ${{ github.ref_type == 'tag' && (github.event.created || github.event_name != 'push') && always() && !failure() && !cancelled() }}
 
     name: "Publish to GitHub Release"
     runs-on: ubuntu-latest
