@@ -5,37 +5,36 @@ use core::arch::{aarch64::*, asm};
 #[inline]
 #[target_feature(enable = "aes")]
 fn clmul_lo_e(a: uint64x2_t, b: uint64x2_t, c: uint64x2_t) -> uint64x2_t {
-    let r;
+    let clmul;
     unsafe {
         asm!(
-            "pmull {r:v}.1q, {a:v}.1d, {b:v}.1d",
-            "eor {r:v}.16b, {r:v}.16b, {c:v}.16b",
-            r = out(vreg) r,
+            "pmull {clmul:v}.1q, {a:v}.1d, {b:v}.1d",
+            "eor {clmul:v}.16b, {clmul:v}.16b, {c:v}.16b",
+            clmul = out(vreg) clmul,
             a = in(vreg) a,
             b = in(vreg) b,
             c = in(vreg) c,
-            options(pure, nomem, nostack),
+            options(pure, nomem, nostack, preserves_flags),
         );
     }
-    r
+    clmul
 }
 
 #[inline]
 #[target_feature(enable = "aes")]
 fn clmul_hi_e(a: uint64x2_t, b: uint64x2_t, c: uint64x2_t) -> uint64x2_t {
-    let r;
+    let mut clmul = a;
     unsafe {
         asm!(
-            "pmull2 {r:v}.1q, {a:v}.2d, {b:v}.2d",
-            "eor {r:v}.16b, {r:v}.16b, {c:v}.16b",
-            r = out(vreg) r,
-            a = in(vreg) a,
+            "pmull2 {clmul:v}.1q, {clmul:v}.2d, {b:v}.2d",
+            "eor {clmul:v}.16b, {clmul:v}.16b, {c:v}.16b",
+            clmul = inout(vreg) clmul,
             b = in(vreg) b,
             c = in(vreg) c,
-            options(pure, nomem, nostack),
+            options(pure, nomem, nostack, preserves_flags),
         );
     }
-    r
+    clmul
 }
 
 #[inline]
@@ -83,7 +82,9 @@ pub unsafe fn crc32c(mut crc0: u32, mut buf: *const u8, mut len: usize) -> u32 {
         return !unsafe { crc32c_small(crc0, buf, len) };
     }
 
-    while len != 0 && (buf as usize & 7) != 0 {
+    let align_offset = buf as usize & 7;
+    let bytes_to_align = ((8 - align_offset) & 7).min(len);
+    for _ in 0..bytes_to_align {
         crc0 = __crc32cb(crc0, unsafe { *buf });
         buf = unsafe { buf.add(1) };
         len -= 1;
