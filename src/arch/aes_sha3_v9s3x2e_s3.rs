@@ -163,16 +163,10 @@ pub unsafe fn crc32c(mut crc0: u32, mut buf: *const u8, mut len: usize) -> u32 {
         let mut crc2 = 0_u32;
 
         // First vector chunk.
-        let mut x0 = unsafe { vld1q_u64(buf2.cast::<u64>()) };
-        let mut x1 = unsafe { vld1q_u64(buf2.add(16).cast::<u64>()) };
-        let mut x2 = unsafe { vld1q_u64(buf2.add(32).cast::<u64>()) };
-        let mut x3 = unsafe { vld1q_u64(buf2.add(48).cast::<u64>()) };
-        let mut x4 = unsafe { vld1q_u64(buf2.add(64).cast::<u64>()) };
-        let mut x5 = unsafe { vld1q_u64(buf2.add(80).cast::<u64>()) };
-        let mut x6 = unsafe { vld1q_u64(buf2.add(96).cast::<u64>()) };
-        let mut x7 = unsafe { vld1q_u64(buf2.add(112).cast::<u64>()) };
-        let mut x8 = unsafe { vld1q_u64(buf2.add(128).cast::<u64>()) };
-
+        let (mut x0, mut x1, mut x2, mut x3) = unsafe { vld1q_u64_x4(buf2.cast::<u64>()) };
+        let (mut x4, mut x5, mut x6, mut x7) = unsafe { vld1q_u64_x4(buf2.add(64).cast::<u64>()) };
+        let mut x8 = unsafe { vld1q_u64(buf2.add(128).cast::<u64>()) }
+                
         let k_values = [0x7e90_8048_u64, 0xc96c_fdc0_u64];
         let mut k = unsafe { vld1q_u64(k_values.as_ptr()) };
         buf2 = unsafe { buf2.add(144) };
@@ -198,16 +192,20 @@ pub unsafe fn crc32c(mut crc0: u32, mut buf: *const u8, mut len: usize) -> u32 {
             let y8 = clmul_lo(x8, k);
             x8 = clmul_hi(x8, k);
 
-            x0 = veor3q_u64(x0, y0, unsafe { vld1q_u64(buf2.cast::<u64>()) });
-            x1 = veor3q_u64(x1, y1, unsafe { vld1q_u64(buf2.add(16).cast::<u64>()) });
-            x2 = veor3q_u64(x2, y2, unsafe { vld1q_u64(buf2.add(32).cast::<u64>()) });
-            x3 = veor3q_u64(x3, y3, unsafe { vld1q_u64(buf2.add(48).cast::<u64>()) });
-            x4 = veor3q_u64(x4, y4, unsafe { vld1q_u64(buf2.add(64).cast::<u64>()) });
-            x5 = veor3q_u64(x5, y5, unsafe { vld1q_u64(buf2.add(80).cast::<u64>()) });
-            x6 = veor3q_u64(x6, y6, unsafe { vld1q_u64(buf2.add(96).cast::<u64>()) });
-            x7 = veor3q_u64(x7, y7, unsafe { vld1q_u64(buf2.add(112).cast::<u64>()) });
-            x8 = veor3q_u64(x8, y8, unsafe { vld1q_u64(buf2.add(128).cast::<u64>()) });
-
+            let (d0, d1, d2, d3) = unsafe { vld1q_u64_x4(buf2.cast::<u64>()) };
+            let (d4, d5, d6, d7) = unsafe { vld1q_u64_x4(buf2.add(64).cast::<u64>()) };
+            let d8 = unsafe { vld1q_u64(buf2.add(128).cast::<u64>()) };
+            
+            x0 = veor3q_u64(x0, y0, d0);
+            x1 = veor3q_u64(x1, y1, d1);
+            x2 = veor3q_u64(x2, y2, d2);
+            x3 = veor3q_u64(x3, y3, d3);
+            x4 = veor3q_u64(x4, y4, d4);
+            x5 = veor3q_u64(x5, y5, d5);
+            x6 = veor3q_u64(x6, y6, d6);
+            x7 = veor3q_u64(x7, y7, d7);
+            x8 = veor3q_u64(x8, y8, d8);
+            
             unsafe {
                 crc0 = __crc32cd(crc0, *(buf.cast::<u64>()));
                 crc1 = __crc32cd(crc1, *(buf.add(klen).cast::<u64>()));
