@@ -4,30 +4,28 @@ import sys
 from dataclasses import dataclass
 from pathlib import Path
 
+import cpuinfo
 import orjson
 from tabulate import tabulate
 
 BENCHMARK_START = "<!-- BEGIN BENCHMARK -->"
 BENCHMARK_END = "<!-- END BENCHMARK -->"
 
-SIZE_MULTIPLIERS = {
-    "B": 1,
-    "KB": 1000,
-    "KIB": 1024,
-    "MB": 1000**2,
-    "MIB": 1024**2,
-    "GB": 1000**3,
-    "GIB": 1024**3,
-}
+TO_GB = 1024
 
 NAME_RE = re.compile(r"^(.*?)\s*\[(.*?)]\s*$")
-SIZE_RE = re.compile(
-    r"(\d+(?:\.\d+)?)\s*(B|KiB|MiB|GiB|KB|MB|GB)?",
-    re.IGNORECASE,
-)
+SIZE_RE = re.compile(r"(\d+(?:\.\d+)?)\s*([BKMGT]?)i?B", re.IGNORECASE)
+SIZE_LABEL_RE = re.compile(r"([KMGT])iB", re.IGNORECASE)
 BLOCK_RE = re.compile(
     rf"{re.escape(BENCHMARK_START)}.*?{re.escape(BENCHMARK_END)}",
     re.DOTALL,
+)
+
+DEFAULT_IMPLS = (
+    "fastcrc.crc32.iscsi",
+    "google_crc32c.value",
+    "crc32c.crc32c",
+    "crc32c_rs.crc32c",
 )
 
 
@@ -44,7 +42,9 @@ class Result:
 
     @property
     def speed(self) -> str:
-        return f"{self.throughput:.1f} MB/s"
+        if self.throughput < TO_GB:
+            return f"{self.throughput:.1f} MB/s"
+        return f"{self.throughput / TO_GB:.1f} GB/s"
 
     def row(self, fastest: "Result") -> list[str]:
         name = f"`{self.name}`"
@@ -53,7 +53,7 @@ class Result:
         relative = f"{self.throughput / (fastest.throughput or 1.0):.2f}x"
 
         if self is fastest:
-            name = f"**{name} ⭐**"
+            name = f"**{name} 🥇**"
             elapsed = f"**{elapsed}**"
             speed = f"**{speed}**"
             relative = f"**{relative}**"
@@ -61,28 +61,42 @@ class Result:
         return [name, elapsed, speed, relative]
 
 
+@dataclass
+class Table:
+    title: str
+    headers: list[str]
+    rows: list[list[str]]
+
+    def render(self) -> list[str]:
+        table = tabulate(
+            self.rows,
+            headers=self.headers,
+            tablefmt="github",
+            colalign=("left",) * len(self.headers),
+            disable_numparse=True,
+        )
+        return [f"### {self.title}\n", table, ""]
+
+
 def parse_size_to_bytes(size: str) -> int:
-    match = SIZE_RE.match(size)
+    match = SIZE_RE.fullmatch(size.strip())
+
     if not match:
         return 0
-    value = float(match.group(1))
-    unit = (match.group(2) or "B").upper()
-    return int(value * SIZE_MULTIPLIERS.get(unit, 1))
+
+    power = "BKMGT".index(match.group(2).upper())
+    return int(float(match.group(1)) * 1024**power)
 
 
-def merged_meta(*layers: dict) -> dict:
-    out: dict = {}
-    for layer in layers:
-        if layer:
-            out.update(layer)
-    return out
+def display_size(size: str) -> str:
+    return SIZE_LABEL_RE.sub(lambda m: f"{m.group(1).upper()}B", size)
 
 
 def build_system_info(meta: dict) -> dict[str, str]:
     return {
-        "OS": meta.get("platform") or platform.platform(),
-        "CPU": meta.get("cpu_model_name") or platform.processor() or platform.machine(),
-        "Python": meta.get("python_version") or sys.version.split()[0],
+        "OS": platform.platform(),
+        "CPU": cpuinfo.get_cpu_info().get("brand_raw") or platform.processor(),
+        "Python": sys.version.split()[0],
         "Timer": meta.get("timer") or "unknown",
     }
 
@@ -90,7 +104,7 @@ def build_system_info(meta: dict) -> dict[str, str]:
 def build_results(benchmarks: list[dict], root_meta: dict) -> list[Result]:
     results = []
     for bench in benchmarks:
-        meta = merged_meta(root_meta, bench.get("metadata", {}))
+        meta = (root_meta or {}) | (bench.get("metadata") or {})
         match = NAME_RE.match(meta.get("name", "unknown"))
         name, size = (
             (match.group(1).strip(), match.group(2).strip())
@@ -98,51 +112,62 @@ def build_results(benchmarks: list[dict], root_meta: dict) -> list[Result]:
             else (meta.get("name", "unknown"), "unknown")
         )
 
+        samples = [
+            value for run in bench.get("runs", []) for value in run.get("values", [])
+        ]
         size_bytes = parse_size_to_bytes(size)
-        samples: list[float] = []
-        for run in bench.get("runs", []):
-            samples.extend(run.get("values", []))
 
         if not samples or not size_bytes:
             continue
 
         avg_time = sum(samples) / len(samples)
-        throughput = size_bytes / avg_time / 1024 / 1024
+        throughput = size_bytes / avg_time / 1024**2
 
         results.append(Result(size=size, name=name, time=avg_time, throughput=throughput))
+
     return results
 
 
-def render_system_info(info: dict[str, str]) -> list[str]:
+def render_system_info(info: dict[str, str]) -> Table:
     rows = [[f"**{key}**", value] for key, value in info.items()]
-    table = tabulate(
-        rows,
-        headers=["Property", "Value"],
-        tablefmt="github",
-        colalign=("left", "left"),
-        disable_numparse=True,
-    )
-    return ["### System Information\n", table, ""]
+    return Table("System Information", ["Property", "Value"], rows)
 
 
-def render_size(size: str, results: list[Result]) -> list[str]:
+def render_size(size: str, results: list[Result]) -> Table:
     rows = sorted(results, key=lambda r: r.throughput, reverse=True)
-    fastest = rows[0]
-    table = tabulate(
-        [r.row(fastest) for r in rows],
-        headers=["Library", "Time", "Throughput", "Relative"],
-        tablefmt="github",
-        colalign=("left", "left", "left", "left"),
-        disable_numparse=True,
-    )
-    return [f"### {size}\n", table, ""]
+    headers = ["Library", "Time", "Throughput", "Relative"]
+    return Table(display_size(size), headers, [r.row(rows[0]) for r in rows])
+
+
+def render_sizes(results: list[Result]) -> list[str]:
+    sizes = sorted({r.size for r in results}, key=lambda s: (parse_size_to_bytes(s), s))
+    lines: list[str] = []
+
+    for size in sizes:
+        lines.extend(render_size(size, [r for r in results if r.size == size]).render())
+
+    return lines
+
+
+def render_details(title: str, body: list[str], *, opened: bool) -> list[str]:
+    return [
+        f"<details{' open' if opened else ''}>",
+        f"<summary>{title}</summary>",
+        "",
+        *body,
+        "",
+        "</details>",
+        "",
+    ]
 
 
 def generate_markdown(system_info: dict[str, str], results: list[Result]) -> str:
-    sizes = sorted({r.size for r in results}, key=lambda s: (parse_size_to_bytes(s), s))
-    lines = render_system_info(system_info)
-    for size in sizes:
-        lines.extend(render_size(size, [r for r in results if r.size == size]))
+    default = [r for r in results if r.name in DEFAULT_IMPLS]
+    lines = [
+        *render_system_info(system_info).render(),
+        *render_details("Default benchmark", render_sizes(default), opened=True),
+        *render_details("Detailed benchmark", render_sizes(results), opened=False),
+    ]
     return "\n".join(lines)
 
 
