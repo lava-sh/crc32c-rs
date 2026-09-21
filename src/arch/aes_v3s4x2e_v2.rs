@@ -1,6 +1,6 @@
 #![allow(clippy::wildcard_imports, clippy::cast_ptr_alignment)]
 
-use core::arch::{aarch64::*, asm};
+use core::arch::aarch64::*;
 
 #[inline]
 #[target_feature(enable = "aes")]
