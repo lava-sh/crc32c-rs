@@ -78,7 +78,11 @@ jobs:
       - name: "Extract benchmark section"
         shell: bash
         run: |
-          awk '/<!-- BEGIN BENCHMARK -->/{f=1;next} f' benchmarks/python/README.md > "${{ runner.temp }}/bench.md"
+          {
+            printf '<details open>\n<summary>%s</summary>\n\n' "Open benchmark (${{ matrix.runner }})"
+            awk '/<!-- BEGIN BENCHMARK -->/{f=1;next} /<!-- END BENCHMARK -->/{f=0} f' benchmarks/python/README.md
+            printf '\n</details>\n'
+          } > "${{ runner.temp }}/bench.md"
 
       - name: "Sticky PR comment"
         uses: marocchino/sticky-pull-request-comment@5770ad5eb8f42dd2c4f34da00c94c5381e49af88 # v3.0.5
