@@ -5,33 +5,33 @@ use core::arch::{aarch64::*, asm};
 #[inline]
 #[target_feature(enable = "aes")]
 fn clmul_lo(a: uint64x2_t, b: uint64x2_t) -> uint64x2_t {
-    let r;
+    let clmul;
     unsafe {
         asm!(
-            "pmull {r:v}.1q, {a:v}.1d, {b:v}.1d",
-            r = out(vreg) r,
+            "pmull {clmul:v}.1q, {a:v}.1d, {b:v}.1d",
+            clmul = out(vreg) clmul,
             a = in(vreg) a,
             b = in(vreg) b,
-            options(pure, nomem, nostack),
+            options(pure, nomem, nostack, preserves_flags),
         );
     }
-    r
+    clmul
 }
 
 #[inline]
 #[target_feature(enable = "aes")]
 fn clmul_hi(a: uint64x2_t, b: uint64x2_t) -> uint64x2_t {
-    let r;
+    let clmul;
     unsafe {
         asm!(
-            "pmull2 {r:v}.1q, {a:v}.2d, {b:v}.2d",
-            r = out(vreg) r,
+            "pmull2 {clmul:v}.1q, {a:v}.2d, {b:v}.2d",
+            clmul = out(vreg) clmul,
             a = in(vreg) a,
             b = in(vreg) b,
-            options(pure, nomem, nostack),
+            options(pure, nomem, nostack, preserves_flags),
         );
     }
-    r
+    clmul
 }
 
 #[inline]
@@ -39,17 +39,17 @@ fn clmul_hi(a: uint64x2_t, b: uint64x2_t) -> uint64x2_t {
 fn clmul_scalar(a: u32, b: u32) -> uint64x2_t {
     let a = vmovq_n_u64(u64::from(a));
     let b = vmovq_n_u64(u64::from(b));
-    let r;
+    let clmul;
     unsafe {
         asm!(
-            "pmull {r:v}.1q, {a:v}.1d, {b:v}.1d",
-            r = out(vreg) r,
+            "pmull {clmul:v}.1q, {a:v}.1d, {b:v}.1d",
+            clmul = out(vreg) clmul,
             a = in(vreg) a,
             b = in(vreg) b,
-            options(pure, nomem, nostack),
+            options(pure, nomem, nostack, preserves_flags),
         );
     }
-    r
+    clmul
 }
 
 // x^n mod P, in log(n) time
@@ -143,7 +143,14 @@ pub unsafe fn crc32c(mut crc0: u32, mut buf: *const u8, mut len: usize) -> u32 {
         return !unsafe { crc32c_small(crc0, buf, len) };
     }
 
-    while len != 0 && (buf as usize & 7) != 0 {
+    let align_offset = buf as usize & 7;
+    let bytes_to_align = if align_offset == 0 {
+        0
+    } else {
+        8 - align_offset
+    };
+    let bytes_to_align = bytes_to_align.min(len);
+    for _ in 0..bytes_to_align {
         crc0 = unsafe { __crc32cb(crc0, *buf) };
         buf = unsafe { buf.add(1) };
         len -= 1;
