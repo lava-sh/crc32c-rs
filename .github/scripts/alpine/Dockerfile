@@ -1,9 +1,9 @@
 FROM docker.io/library/python:3.14-alpine
 
-RUN apk add --no-cache curl build-base
+RUN apk add --no-cache build-base
 
-RUN curl --proto "=https" --tlsv1.2 -sSf https://sh.rustup.rs | \
-    sh -s -- -y --profile minimal --default-toolchain nightly
+COPY --from=rustlang/rust:nightly-alpine /usr/local/cargo /root/.cargo
+COPY --from=rustlang/rust:nightly-alpine /usr/local/rustup /root/.rustup
 
 ENV PATH="/root/.cargo/bin:${PATH}"
 
