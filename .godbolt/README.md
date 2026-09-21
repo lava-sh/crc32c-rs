@@ -20,8 +20,6 @@ Examples:
 // -C opt-level=3 -C target-feature=+sse4.2,+pclmulqdq
 ```
 
-I have not found a clear way to run Rust NEON checks on Godbolt yet.
-
 ## Generated links
 
 ### AMD x86-64
@@ -33,9 +31,9 @@ I have not found a clear way to run Rust NEON checks on Godbolt yet.
 
 ### ARM
 
-- [aes_crc-v12e_v1](https://godbolt.org/z/x37hzc6Yj)
-- [aes_crc-v3s4x2e_v2](https://godbolt.org/z/hbEv76WdP)
-- [aes_crc_sha3-v9s3x2e_s3](https://godbolt.org/z/cobvMxnWj)
+- [aes_crc-v12e_v1](https://godbolt.org/z/9o9rnrKrx)
+- [aes_crc-v3s4x2e_v2](https://godbolt.org/z/3r9sMd3ne)
+- [aes_crc_sha3-v9s3x2e_s3](https://godbolt.org/z/6qqrdjMKG)
 
 ### Intel x86-64
 
