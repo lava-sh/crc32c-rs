@@ -1,6 +1,6 @@
 FROM docker.io/library/python:3.14-alpine
 
-RUN apk add --no-cache curl build-base
+RUN apk add --no-cache build-base
 
 COPY --from=rustlang/rust:nightly-alpine /usr/local/cargo /usr/local/cargo
 COPY --from=rustlang/rust:nightly-alpine /usr/local/rustup /usr/local/rustup
