@@ -37,12 +37,9 @@ jobs:
           # The simulation instrument runs under Valgrind, which CodSpeed only
           # packages for Ubuntu 22.04 and 24.04, and which does not run on macOS
           # at all, so that runner measures walltime instead.
-          - runner: "ubuntu-24.04"
-            mode: "simulation"
-          - runner: "ubuntu-24.04-arm"
-            mode: "simulation"
-          - runner: "macos-latest"
-            mode: "walltime"
+          - { runner: ubuntu-24.04,     mode: simulation }
+          - { runner: ubuntu-24.04-arm, mode: simulation }
+          - { runner: macos-latest,     mode: walltime }
 
     permissions:
       contents: read
