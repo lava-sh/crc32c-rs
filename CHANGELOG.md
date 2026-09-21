@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0).
 
 ### Changed
 
+* Add docstrings to the `_crc32c_rs` stubs. (by [@chirizxc][gh-chirizxc])
 * Speed up `crc32c_sse42` on medium inputs. (by [@chirizxc][gh-chirizxc])
 * Speed up the fallback implementation on inputs with 8 or more remaining bytes. (by [@chirizxc][gh-chirizxc])
 
