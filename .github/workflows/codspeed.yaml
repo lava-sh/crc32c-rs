@@ -33,13 +33,16 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # The simulation instrument runs under Valgrind, which CodSpeed only
-        # packages for Ubuntu 22.04 and 24.04.
-        runner: [
-          "ubuntu-24.04",
-          "ubuntu-24.04-arm",
-          "macos-latest",
-        ]
+        include:
+          # The simulation instrument runs under Valgrind, which CodSpeed only
+          # packages for Ubuntu 22.04 and 24.04, and which does not run on macOS
+          # at all, so that runner measures walltime instead.
+          - runner: "ubuntu-24.04"
+            mode: "simulation"
+          - runner: "ubuntu-24.04-arm"
+            mode: "simulation"
+          - runner: "macos-latest"
+            mode: "walltime"
 
     permissions:
       contents: read
@@ -70,5 +73,5 @@ jobs:
       - name: "Run benchmarks"
         uses: CodSpeedHQ/action@373d6868929f444bc08d901fd0eb0ad52a8875ea # v5.2.1
         with:
-          mode: simulation
+          mode: ${{ matrix.mode }}
           run: cargo codspeed run --package crc32c-benchmarks
