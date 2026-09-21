@@ -2,6 +2,7 @@ import logging
 from collections.abc import Callable
 
 import archspec.cpu
+import cpuinfo
 import pytest
 from crc32c_rs import crc32c_fallback
 
@@ -27,7 +28,7 @@ def crc_impl() -> list[tuple[str, Callable[..., int]]]:
     host = archspec.cpu.host()
     features = set(host.features)
 
-    logger.info("CPU: %s", host.name)
+    logger.info("CPU: %s", cpuinfo.get_cpu_info().get("brand_raw") or host.name)
     logger.info("Vendor: %s", host.vendor)
     logger.info("Family: %s", host.family)
     logger.info("Features: %s", " ".join(sorted(features)))
