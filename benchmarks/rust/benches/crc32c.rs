@@ -1,5 +1,5 @@
 use core::fmt;
-use std::env::consts::ARCH;
+use std::env::consts::{ARCH, OS};
 
 use crc32c_benchmarks::{
     Kernel, available,
@@ -19,7 +19,7 @@ struct Case {
 
 impl fmt::Display for Case {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{ARCH}/{}/{}", self.kernel, self.size)
+        write!(f, "{OS}/{ARCH}/{}/{}", self.kernel, self.size)
     }
 }
 

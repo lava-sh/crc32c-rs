@@ -25,12 +25,21 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  x86_64:
-    name: "benchmarks / x86_64"
-    # The simulation instrument runs under Valgrind, which CodSpeed only
-    # packages for Ubuntu 22.04 and 24.04.
-    runs-on: ubuntu-24.04
+  benchmarks:
+    name: "benchmarks / ${{ matrix.runner }}"
+    runs-on: ${{ matrix.runner }}
     timeout-minutes: 30
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # The simulation instrument runs under Valgrind, which CodSpeed only
+          # packages for Ubuntu 22.04 and 24.04, and which does not run on macOS
+          # at all, so that runner measures walltime instead.
+          - { runner: ubuntu-24.04,     mode: simulation }
+          - { runner: ubuntu-24.04-arm, mode: simulation }
+          - { runner: macos-latest,     mode: walltime }
 
     permissions:
       contents: read
@@ -48,57 +57,18 @@ jobs:
         if: github.event_name == 'pull_request'
         with:
           lookup-only: false # zizmor: ignore[cache-poisoning]
-          shared-key: codspeed-x86_64
+          shared-key: codspeed-${{ matrix.runner }}
 
       - name: "Install cargo-codspeed"
-        uses: taiki-e/install-action@3f74d7c16a4242f1c95561e98edc25d36adb4375 # v2.87.12
+        uses: taiki-e/install-action@main # zizmor: ignore[unpinned-uses]
         with:
-          tool: cargo-codspeed@5.0.1
+          tool: cargo-codspeed@latest
 
       - name: "Build benchmarks"
-        run: cargo codspeed build --package crc32c-benchmarks
+        run: cargo codspeed build --measurement-mode ${{ matrix.mode }} --package crc32c-benchmarks
 
       - name: "Run benchmarks"
         uses: CodSpeedHQ/action@373d6868929f444bc08d901fd0eb0ad52a8875ea # v5.2.1
         with:
-          mode: simulation
-          run: cargo codspeed run --package crc32c-benchmarks
-
-  aarch64:
-    name: "benchmarks / aarch64"
-    # The simulation instrument runs under Valgrind, which CodSpeed only
-    # packages for Ubuntu 22.04 and 24.04.
-    runs-on: ubuntu-24.04-arm
-    timeout-minutes: 30
-
-    permissions:
-      contents: read
-      # Used to authenticate with CodSpeed through OpenID Connect
-      id-token: write
-
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-
-      - uses: dtolnay/rust-toolchain@nightly # zizmor: ignore[unpinned-uses]
-
-      - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
-        if: github.event_name == 'pull_request'
-        with:
-          lookup-only: false # zizmor: ignore[cache-poisoning]
-          shared-key: codspeed-aarch64
-
-      - name: "Install cargo-codspeed"
-        uses: taiki-e/install-action@3f74d7c16a4242f1c95561e98edc25d36adb4375 # v2.87.12
-        with:
-          tool: cargo-codspeed@5.0.1
-
-      - name: "Build benchmarks"
-        run: cargo codspeed build --package crc32c-benchmarks
-
-      - name: "Run benchmarks"
-        uses: CodSpeedHQ/action@373d6868929f444bc08d901fd0eb0ad52a8875ea # v5.2.1
-        with:
-          mode: simulation
+          mode: ${{ matrix.mode }}
           run: cargo codspeed run --package crc32c-benchmarks
