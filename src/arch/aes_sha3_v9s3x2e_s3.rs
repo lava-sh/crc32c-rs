@@ -144,12 +144,7 @@ pub unsafe fn crc32c(mut crc0: u32, mut buf: *const u8, mut len: usize) -> u32 {
     }
 
     let align_offset = buf as usize & 7;
-    let bytes_to_align = if align_offset == 0 {
-        0
-    } else {
-        8 - align_offset
-    };
-    let bytes_to_align = bytes_to_align.min(len);
+    let bytes_to_align = ((8 - align_offset) & 7).min(len);
     for _ in 0..bytes_to_align {
         crc0 = unsafe { __crc32cb(crc0, *buf) };
         buf = unsafe { buf.add(1) };
