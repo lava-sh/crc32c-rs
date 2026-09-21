@@ -9,15 +9,15 @@ env:
 
 jobs:
   bench:
-    name: "${{ matrix.os }}"
-    runs-on: ${{ matrix.os }}
+    name: "${{ matrix.runner }}"
+    runs-on: ${{ matrix.runner }}
     if: github.event_name == 'pull_request'
     strategy:
       fail-fast: false
       matrix:
         python-version: ["3.14"]
         # See: https://docs.github.com/en/actions/reference/runners/github-hosted-runners
-        os: [
+        runner: [
           "ubuntu-latest",
           "ubuntu-26.04-arm",
           "windows-latest",
@@ -38,13 +38,13 @@ jobs:
         if: github.event_name == 'pull_request' && github.run_attempt == 1
         with:
           lookup-only: false # zizmor: ignore[cache-poisoning]
-          shared-key: ${{ matrix.os }}-${{ matrix.python-version }}
+          shared-key: ${{ matrix.runner }}-${{ matrix.python-version }}
 
       - name: "Create and activate .venv"
         shell: bash
         run: |
           uv venv .venv --python ${{ matrix.python-version }}
-          if [[ "${{ matrix.os }}" == "windows-latest" ]]; then
+          if [[ "${{ matrix.runner }}" == "windows-latest" ]]; then
             echo ".venv/Scripts" >> "$GITHUB_PATH"
             echo "PYO3_PYTHON=.venv/Scripts/python" >> "$GITHUB_ENV"
             echo "UV_LINK_MODE=copy" >> "$GITHUB_ENV"
@@ -65,7 +65,7 @@ jobs:
       - name: "Run Python benchmark"
         shell: bash
         run: |
-          if [[ "${{ matrix.os }}" == "windows-latest" ]]; then
+          if [[ "${{ matrix.runner }}" == "windows-latest" ]]; then
             source .venv/Scripts/activate
           else
             source .venv/bin/activate
@@ -83,5 +83,5 @@ jobs:
       - name: "Sticky PR comment"
         uses: marocchino/sticky-pull-request-comment@5770ad5eb8f42dd2c4f34da00c94c5381e49af88 # v3.0.5
         with:
-          header: "bench-${{ matrix.os }}"
+          header: "bench-${{ matrix.runner }}"
           path: ${{ runner.temp }}/bench.md
