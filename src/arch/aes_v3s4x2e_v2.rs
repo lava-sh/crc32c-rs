@@ -5,37 +5,19 @@ use core::arch::{aarch64::*, asm};
 #[inline]
 #[target_feature(enable = "aes")]
 fn clmul_lo_e(a: uint64x2_t, b: uint64x2_t, c: uint64x2_t) -> uint64x2_t {
-    let r;
-    unsafe {
-        asm!(
-            "pmull {r:v}.1q, {a:v}.1d, {b:v}.1d",
-            "eor {r:v}.16b, {r:v}.16b, {c:v}.16b",
-            r = out(vreg) r,
-            a = in(vreg) a,
-            b = in(vreg) b,
-            c = in(vreg) c,
-            options(pure, nomem, nostack),
-        );
-    }
-    r
+    let clmul: uint64x2_t =
+        vreinterpretq_u64_p128(vmull_p64(vgetq_lane_u64(a, 0), vgetq_lane_u64(b, 0)));
+    veorq_u64(clmul, c)
 }
 
 #[inline]
 #[target_feature(enable = "aes")]
 fn clmul_hi_e(a: uint64x2_t, b: uint64x2_t, c: uint64x2_t) -> uint64x2_t {
-    let r;
-    unsafe {
-        asm!(
-            "pmull2 {r:v}.1q, {a:v}.2d, {b:v}.2d",
-            "eor {r:v}.16b, {r:v}.16b, {c:v}.16b",
-            r = out(vreg) r,
-            a = in(vreg) a,
-            b = in(vreg) b,
-            c = in(vreg) c,
-            options(pure, nomem, nostack),
-        );
-    }
-    r
+    let clmul: uint64x2_t = vreinterpretq_u64_p128(vmull_high_p64(
+        vreinterpretq_p64_u64(a),
+        vreinterpretq_p64_u64(b),
+    ));
+    veorq_u64(clmul, c)
 }
 
 #[inline]
@@ -43,17 +25,7 @@ fn clmul_hi_e(a: uint64x2_t, b: uint64x2_t, c: uint64x2_t) -> uint64x2_t {
 fn clmul_scalar(a: u32, b: u32) -> uint64x2_t {
     let a = vmovq_n_u64(u64::from(a));
     let b = vmovq_n_u64(u64::from(b));
-    let r;
-    unsafe {
-        asm!(
-            "pmull {r:v}.1q, {a:v}.1d, {b:v}.1d",
-            r = out(vreg) r,
-            a = in(vreg) a,
-            b = in(vreg) b,
-            options(pure, nomem, nostack),
-        );
-    }
-    r
+    vreinterpretq_u64_p128(vmull_p64(vgetq_lane_u64(a, 0), vgetq_lane_u64(b, 0)))
 }
 
 // x^n mod P, in log(n) time
