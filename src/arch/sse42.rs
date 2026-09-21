@@ -132,7 +132,9 @@ macro_rules! round3 {
 pub unsafe fn crc32c(crc: u32, buf: *const u8, mut len: usize) -> u32 {
     let mut crc0: u32 = !crc;
     let mut next = buf;
-    while len != 0 && (next as usize & 7) != 0 {
+    let align_offset = next as usize & 7;
+    let bytes_to_align = ((8 - align_offset) & 7).min(len);
+    for _ in 0..bytes_to_align {
         crc0 = _mm_crc32_u8(crc0, unsafe { *next });
         next = unsafe { next.add(1) };
         len -= 1;
