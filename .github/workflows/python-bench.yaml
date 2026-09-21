@@ -72,7 +72,7 @@ jobs:
           fi
           
           cd benchmarks/python
-          python run.py -o results.json --quiet
+          python run.py -o results.json --quiet --size "1 MiB"
           python md_table.py results.json
 
       - name: "Extract benchmark section"
