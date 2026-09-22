@@ -139,20 +139,24 @@ pub unsafe fn crc32c(mut crc0: u32, mut buf: *const u8, mut len: usize) -> u32 {
         return !unsafe { crc32c_small(crc0, buf, len) };
     }
 
-    let align_offset = buf as usize & 7;
-    if align_offset != 0 {
-        let bytes_to_align = (8 - align_offset).min(len);
-        for _ in 0..bytes_to_align {
+    let align = buf as usize & 7;
+    if align != 0 {
+        let n = (8 - align).min(len);
+        for _ in 0..n {
             crc0 = _mm_crc32_u8(crc0, unsafe { *buf });
             buf = unsafe { buf.add(1) };
-            len -= 1;
         }
+        len -= n;
     }
-    let steps_to_align64 = ((64 - (buf as usize & 63)) & 63).min(len) / 8;
-    for _ in 0..steps_to_align64 {
-        crc0 = mm_crc32_u64(crc0, unsafe { buf.cast::<u64>().read_unaligned() });
-        buf = unsafe { buf.add(8) };
-        len -= 8;
+
+    let align64 = buf as usize & 63;
+    if align64 != 0 {
+        let n = ((64 - align64) & 63).min(len) / 8;
+        for _ in 0..n {
+            crc0 = mm_crc32_u64(crc0, unsafe { buf.cast::<u64>().read_unaligned() });
+            buf = unsafe { buf.add(8) };
+        }
+        len -= n * 8;
     }
     if len >= 256 {
         let blk = len / 256;
