@@ -39,40 +39,30 @@ fn clmul_scalar(a: u32, b: u32) -> __m128i {
 
 #[inline]
 #[target_feature(enable = "sse4.2")]
-fn crc32_u64(crc: u32, value: u64) -> u32 {
+fn mm_crc32_u64(crc: u32, v: u64) -> u32 {
     #[cfg(target_arch = "x86")]
     {
-        let crc = _mm_crc32_u32(crc, value as u32);
-        _mm_crc32_u32(crc, (value >> 32) as u32)
+        let lo = _mm_crc32_u32(crc, v as u32);
+        _mm_crc32_u32(lo, (v >> 32) as u32)
     }
-
     #[cfg(target_arch = "x86_64")]
     {
-        _mm_crc32_u64(u64::from(crc), value) as u32
+        _mm_crc32_u64(u64::from(crc), v) as u32
     }
 }
 
 #[inline]
 #[target_feature(enable = "sse4.2")]
-fn extract_u64(value: __m128i, index: i32) -> u64 {
+fn mm_extract_epi64<const IMM1: i32>(a: __m128i) -> u64 {
+    const { assert!(IMM1 == 0 || IMM1 == 1) };
     #[cfg(target_arch = "x86")]
     {
-        let value = if index == 0 {
-            value
-        } else {
-            _mm_srli_si128(value, 8)
-        };
-        u64::from(_mm_cvtsi128_si32(value).cast_unsigned())
-            | (u64::from(_mm_cvtsi128_si32(_mm_srli_si128(value, 4)).cast_unsigned()) << 32)
+        let arr: [u64; 2] = unsafe { core::mem::transmute(a) };
+        arr[IMM1 as usize]
     }
-
     #[cfg(target_arch = "x86_64")]
     {
-        match index {
-            0 => _mm_extract_epi64::<0>(value).cast_unsigned(),
-            1 => _mm_extract_epi64::<1>(value).cast_unsigned(),
-            _ => unreachable!(),
-        }
+        _mm_extract_epi64::<IMM1>(a).cast_unsigned()
     }
 }
 
@@ -102,8 +92,8 @@ fn xnmodp(mut n: u64) -> u32 {
             break;
         }
         let x = _mm_cvtsi32_si128(acc.cast_signed());
-        let y = extract_u64(_mm_clmulepi64_si128::<0>(x, x), 0);
-        acc = crc32_u64(0, y << low);
+        let y = mm_extract_epi64::<0>(_mm_clmulepi64_si128::<0>(x, x));
+        acc = mm_crc32_u64(0, y << low);
     }
     acc
 }
@@ -124,7 +114,7 @@ pub unsafe fn crc32c(mut crc0: u32, mut buf: *const u8, mut len: usize) -> u32 {
         len -= 1;
     }
     while (buf as usize & 0x38) != 0 && len >= 8 {
-        crc0 = crc32_u64(crc0, unsafe { buf.cast::<u64>().read_unaligned() });
+        crc0 = mm_crc32_u64(crc0, unsafe { buf.cast::<u64>().read_unaligned() });
         buf = unsafe { buf.add(8) };
         len -= 8;
     }
@@ -174,7 +164,7 @@ pub unsafe fn crc32c(mut crc0: u32, mut buf: *const u8, mut len: usize) -> u32 {
             x2 = _mm512_ternarylogic_epi64::<0x96>(x2, y2, unsafe {
                 _mm512_loadu_si512(buf2.add(128).cast())
             });
-            crc0 = crc32_u64(crc0, unsafe { buf.cast::<u64>().read_unaligned() });
+            crc0 = mm_crc32_u64(crc0, unsafe { buf.cast::<u64>().read_unaligned() });
             buf = unsafe { buf.add(8) };
             buf2 = unsafe { buf2.add(192) };
             len -= 200;
@@ -194,7 +184,7 @@ pub unsafe fn crc32c(mut crc0: u32, mut buf: *const u8, mut len: usize) -> u32 {
         x0 = clmul_hi(x0, k);
         x0 = _mm512_ternarylogic_epi64::<0x96>(x0, y0, x1);
         // Final scalar chunk.
-        crc0 = crc32_u64(crc0, unsafe { buf.cast::<u64>().read_unaligned() });
+        crc0 = mm_crc32_u64(crc0, unsafe { buf.cast::<u64>().read_unaligned() });
         buf = unsafe { buf.add(8) };
         vc = 0;
         // Reduce 512 bits to 128 bits.
@@ -226,15 +216,15 @@ pub unsafe fn crc32c(mut crc0: u32, mut buf: *const u8, mut len: usize) -> u32 {
         );
         z0 = _mm_xor_si128(z0, _mm512_extracti32x4_epi32::<3>(x0));
         // Reduce 128 bits to 32 bits, and multiply by x^32.
-        vc ^= extract_u64(
-            crc_shift(
-                crc32_u64(crc32_u64(0, extract_u64(z0, 0)), extract_u64(z0, 1)),
-                klen + 8,
+        vc ^= mm_extract_epi64::<0>(crc_shift(
+            mm_crc32_u64(
+                mm_crc32_u64(0, mm_extract_epi64::<0>(z0)),
+                mm_extract_epi64::<1>(z0),
             ),
-            0,
-        );
+            klen + 8,
+        ));
         // Final 8 bytes.
-        crc0 = crc32_u64(crc0, unsafe { buf.cast::<u64>().read_unaligned() } ^ vc);
+        crc0 = mm_crc32_u64(crc0, unsafe { buf.cast::<u64>().read_unaligned() } ^ vc);
         buf = unsafe { buf.add(8) };
         len -= 8;
     }
@@ -244,11 +234,11 @@ pub unsafe fn crc32c(mut crc0: u32, mut buf: *const u8, mut len: usize) -> u32 {
         let mut crc2 = 0_u32;
         // Main loop.
         loop {
-            crc0 = crc32_u64(crc0, unsafe { buf.cast::<u64>().read_unaligned() });
-            crc1 = crc32_u64(crc1, unsafe {
+            crc0 = mm_crc32_u64(crc0, unsafe { buf.cast::<u64>().read_unaligned() });
+            crc1 = mm_crc32_u64(crc1, unsafe {
                 buf.add(klen).cast::<u64>().read_unaligned()
             });
-            crc2 = crc32_u64(crc2, unsafe {
+            crc2 = mm_crc32_u64(crc2, unsafe {
                 buf.add(klen * 2).cast::<u64>().read_unaligned()
             });
             buf = unsafe { buf.add(8) };
@@ -259,16 +249,16 @@ pub unsafe fn crc32c(mut crc0: u32, mut buf: *const u8, mut len: usize) -> u32 {
         }
         let vc0 = crc_shift(crc0, klen * 2 + 8);
         let vc1 = crc_shift(crc1, klen + 8);
-        let vc = extract_u64(_mm_xor_si128(vc0, vc1), 0);
+        let vc = mm_extract_epi64::<0>(_mm_xor_si128(vc0, vc1));
         // Final 8 bytes.
         buf = unsafe { buf.add(klen * 2) };
         crc0 = crc2;
-        crc0 = crc32_u64(crc0, unsafe { buf.cast::<u64>().read_unaligned() } ^ vc);
+        crc0 = mm_crc32_u64(crc0, unsafe { buf.cast::<u64>().read_unaligned() } ^ vc);
         buf = unsafe { buf.add(8) };
         len -= 8;
     }
     while len >= 8 {
-        crc0 = crc32_u64(crc0, unsafe { buf.cast::<u64>().read_unaligned() });
+        crc0 = mm_crc32_u64(crc0, unsafe { buf.cast::<u64>().read_unaligned() });
         buf = unsafe { buf.add(8) };
         len -= 8;
     }
