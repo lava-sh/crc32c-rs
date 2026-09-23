@@ -24,10 +24,11 @@ Examples:
 
 ### AMD x86-64
 
-- [avx512vl_vpclmulqdq-v3s2x4](https://godbolt.org/z/754Y7MKEs)
-- [sse42_pclmulqdq-v1s3x2](https://godbolt.org/z/bs5xTjYY1)
-- [sse42_pclmulqdq-v1s3x3](https://godbolt.org/z/KoEPzc1zx)
-- [sse42_pclmulqdq-v1s4x2](https://godbolt.org/z/d4xr33qMY)
+- [avx512vl_vpclmulqdq-v3s2x4](https://godbolt.org/z/zz7s4jKM1)
+- [sse42_pclmulqdq-v1s3x2](https://godbolt.org/z/55Efb41Ma)
+- [sse42_pclmulqdq-v1s3x3](https://godbolt.org/z/fbec7qKG5)
+- [sse42_pclmulqdq-v1s4x2](https://godbolt.org/z/eaadcv9db)
+- [sse42_s3k4096e](https://godbolt.org/z/TPs1e6zss)
 
 ### ARM
 
@@ -37,12 +38,12 @@ Examples:
 
 ### Intel x86-64
 
-- [avx512vl_pclmulqdq-v9s3x4e](https://godbolt.org/z/67YMGo46b)
-- [avx512vl_vpclmulqdq-v3s1_s3](https://godbolt.org/z/a658qEP64)
-- [avx512vl_vpclmulqdq-v4s5x3](https://godbolt.org/z/nYE6GbYK4)
-- [sse42](https://godbolt.org/z/xs78Esfqa)
-- [sse42_pclmulqdq-v7s3x3](https://godbolt.org/z/494Ye7EM6)
-- [sse42_pclmulqdq-v8s3x3](https://godbolt.org/z/7MG9P7zWs)
+- [avx512vl_pclmulqdq-v9s3x4e](https://godbolt.org/z/rbTsEbaTc)
+- [avx512vl_vpclmulqdq-v3s1_s3](https://godbolt.org/z/8qvn479fv)
+- [avx512vl_vpclmulqdq-v4s5x3](https://godbolt.org/z/jeYYv6YPG)
+- [sse42](https://godbolt.org/z/7zooT8s7b)
+- [sse42_pclmulqdq-v7s3x3](https://godbolt.org/z/jK5zjYqnW)
+- [sse42_pclmulqdq-v8s3x3](https://godbolt.org/z/35e553n6G)
 
 If the short links stop working, regenerate them:
 
