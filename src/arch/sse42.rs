@@ -92,78 +92,78 @@ const fn crc32c_shift(zeros: &[[u32; 256]; 4], crc: u32) -> u32 {
 
 #[inline]
 #[target_feature(enable = "sse4.2")]
-fn crc32_u64(crc: u32, value: u64) -> u32 {
+fn mm_crc32_u64(crc: u32, v: u64) -> u32 {
     #[cfg(target_arch = "x86")]
     {
-        _mm_crc32_u32(_mm_crc32_u32(crc, value as u32), (value >> 32) as u32)
+        let lo = _mm_crc32_u32(crc, v as u32);
+        _mm_crc32_u32(lo, (v >> 32) as u32)
     }
     #[cfg(target_arch = "x86_64")]
     {
-        _mm_crc32_u64(u64::from(crc), value) as u32
+        _mm_crc32_u64(u64::from(crc), v) as u32
     }
 }
 
 macro_rules! round3 {
-    ($next:ident, $len:ident, $crc0:ident, $chunk:expr, $zeros:expr) => {{
+    ($buf:ident, $len:ident, $crc0:ident, $chunk:expr, $zeros:expr) => {{
         let mut crc1: u32 = 0;
         let mut crc2: u32 = 0;
-        let end = unsafe { $next.add($chunk) };
+        let end = unsafe { $buf.add($chunk) };
         loop {
-            $crc0 = crc32_u64($crc0, unsafe { $next.cast::<u64>().read_unaligned() });
-            crc1 = crc32_u64(crc1, unsafe {
-                $next.add($chunk).cast::<u64>().read_unaligned()
+            $crc0 = mm_crc32_u64($crc0, unsafe { $buf.cast::<u64>().read_unaligned() });
+            crc1 = mm_crc32_u64(crc1, unsafe {
+                $buf.add($chunk).cast::<u64>().read_unaligned()
             });
-            crc2 = crc32_u64(crc2, unsafe {
-                $next.add($chunk * 2).cast::<u64>().read_unaligned()
+            crc2 = mm_crc32_u64(crc2, unsafe {
+                $buf.add($chunk * 2).cast::<u64>().read_unaligned()
             });
-            $next = unsafe { $next.add(8) };
-            if $next >= end {
+            $buf = unsafe { $buf.add(8) };
+            if $buf >= end {
                 break;
             }
         }
         $crc0 = crc32c_shift($zeros, $crc0) ^ crc1;
         $crc0 = crc32c_shift($zeros, $crc0) ^ crc2;
-        $next = unsafe { $next.add($chunk * 2) };
+        $buf = unsafe { $buf.add($chunk * 2) };
         $len -= $chunk * 3;
     }};
 }
 
 #[target_feature(enable = "sse4.2")]
-pub unsafe fn crc32c(crc: u32, buf: *const u8, mut len: usize) -> u32 {
+pub unsafe fn crc32c(crc: u32, mut buf: *const u8, mut len: usize) -> u32 {
     let mut crc0: u32 = !crc;
-    let mut next = buf;
-    let align_offset = next as usize & 7;
-    if align_offset != 0 {
-        let bytes_to_align = (8 - align_offset).min(len);
-        for _ in 0..bytes_to_align {
-            crc0 = _mm_crc32_u8(crc0, unsafe { *next });
-            next = unsafe { next.add(1) };
-            len -= 1;
+    let align = buf as usize & 7;
+    if align != 0 {
+        let n = (8 - align).min(len);
+        for _ in 0..n {
+            crc0 = _mm_crc32_u8(crc0, unsafe { *buf });
+            buf = unsafe { buf.add(1) };
         }
+        len -= n;
     }
     while len >= LONG * 3 {
-        round3!(next, len, crc0, LONG, &CRC32C_LONG);
+        round3!(buf, len, crc0, LONG, &CRC32C_LONG);
     }
     while len >= SHORT * 3 {
-        round3!(next, len, crc0, SHORT, &CRC32C_SHORT);
+        round3!(buf, len, crc0, SHORT, &CRC32C_SHORT);
     }
     while len >= SHORT2 * 3 {
-        round3!(next, len, crc0, SHORT2, &CRC32C_SHORT2);
+        round3!(buf, len, crc0, SHORT2, &CRC32C_SHORT2);
     }
     while len >= SHORT3 * 3 {
-        round3!(next, len, crc0, SHORT3, &CRC32C_SHORT3);
+        round3!(buf, len, crc0, SHORT3, &CRC32C_SHORT3);
     }
     {
-        let end = unsafe { next.add(len - (len & 7)) };
-        while next < end {
-            crc0 = crc32_u64(crc0, unsafe { next.cast::<u64>().read_unaligned() });
-            next = unsafe { next.add(8) };
+        let end = unsafe { buf.add(len - (len & 7)) };
+        while buf < end {
+            crc0 = mm_crc32_u64(crc0, unsafe { buf.cast::<u64>().read_unaligned() });
+            buf = unsafe { buf.add(8) };
         }
         len &= 7;
     }
     while len != 0 {
-        crc0 = _mm_crc32_u8(crc0, unsafe { *next });
-        next = unsafe { next.add(1) };
+        crc0 = _mm_crc32_u8(crc0, unsafe { *buf });
+        buf = unsafe { buf.add(1) };
         len -= 1;
     }
     !crc0

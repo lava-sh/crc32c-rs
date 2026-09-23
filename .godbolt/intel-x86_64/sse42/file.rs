@@ -120,14 +120,15 @@ const fn crc32c_shift(zeros: &[[u32; 256]; 4], crc: u32) -> u32 {
 
 #[inline]
 #[target_feature(enable = "sse4.2")]
-fn crc32_u64(crc: u32, value: u64) -> u32 {
+fn mm_crc32_u64(crc: u32, v: u64) -> u32 {
     #[cfg(target_arch = "x86")]
     {
-        _mm_crc32_u32(_mm_crc32_u32(crc, value as u32), (value >> 32) as u32)
+        let lo = _mm_crc32_u32(crc, v as u32);
+        _mm_crc32_u32(lo, (v >> 32) as u32)
     }
     #[cfg(target_arch = "x86_64")]
     {
-        _mm_crc32_u64(u64::from(crc), value) as u32
+        _mm_crc32_u64(u64::from(crc), v) as u32
     }
 }
 
@@ -154,11 +155,11 @@ pub unsafe fn crc32c_hw(crc: u32, buf: *const u8, mut len: usize) -> u32 {
         let mut crc2: u32 = 0;
         let end = unsafe { next.add(LONG) };
         loop {
-            crc0 = crc32_u64(crc0, unsafe { next.cast::<u64>().read_unaligned() });
-            crc1 = crc32_u64(crc1, unsafe {
+            crc0 = mm_crc32_u64(crc0, unsafe { next.cast::<u64>().read_unaligned() });
+            crc1 = mm_crc32_u64(crc1, unsafe {
                 next.add(LONG).cast::<u64>().read_unaligned()
             });
-            crc2 = crc32_u64(crc2, unsafe {
+            crc2 = mm_crc32_u64(crc2, unsafe {
                 next.add(LONG * 2).cast::<u64>().read_unaligned()
             });
             next = unsafe { next.add(8) };
@@ -178,11 +179,11 @@ pub unsafe fn crc32c_hw(crc: u32, buf: *const u8, mut len: usize) -> u32 {
         let mut crc2: u32 = 0;
         let end = unsafe { next.add(SHORT) };
         loop {
-            crc0 = crc32_u64(crc0, unsafe { next.cast::<u64>().read_unaligned() });
-            crc1 = crc32_u64(crc1, unsafe {
+            crc0 = mm_crc32_u64(crc0, unsafe { next.cast::<u64>().read_unaligned() });
+            crc1 = mm_crc32_u64(crc1, unsafe {
                 next.add(SHORT).cast::<u64>().read_unaligned()
             });
-            crc2 = crc32_u64(crc2, unsafe {
+            crc2 = mm_crc32_u64(crc2, unsafe {
                 next.add(SHORT * 2).cast::<u64>().read_unaligned()
             });
             next = unsafe { next.add(8) };
@@ -200,7 +201,7 @@ pub unsafe fn crc32c_hw(crc: u32, buf: *const u8, mut len: usize) -> u32 {
     {
         let end = unsafe { next.add(len - (len & 7)) };
         while next < end {
-            crc0 = crc32_u64(crc0, unsafe { next.cast::<u64>().read_unaligned() });
+            crc0 = mm_crc32_u64(crc0, unsafe { next.cast::<u64>().read_unaligned() });
             next = unsafe { next.add(8) };
         }
         len &= 7;

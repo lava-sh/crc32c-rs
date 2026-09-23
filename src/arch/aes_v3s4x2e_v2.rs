@@ -151,12 +151,14 @@ pub unsafe fn crc32c(mut crc0: u32, mut buf: *const u8, mut len: usize) -> u32 {
         return !unsafe { crc32c_small(crc0, buf, len) };
     }
 
-    let align_offset = buf as usize & 7;
-    let bytes_to_align = ((8 - align_offset) & 7).min(len);
-    for _ in 0..bytes_to_align {
-        crc0 = unsafe { __crc32cb(crc0, *buf) };
-        buf = unsafe { buf.add(1) };
-        len -= 1;
+    let align = buf as usize & 7;
+    if align != 0 {
+        let n = (8 - align).min(len);
+        for _ in 0..n {
+            crc0 = unsafe { __crc32cb(crc0, *buf) };
+            buf = unsafe { buf.add(1) };
+        }
+        len -= n;
     }
     if (buf as usize & 8) != 0 && len >= 8 {
         crc0 = unsafe { __crc32cd(crc0, *(buf.cast::<u64>())) };
