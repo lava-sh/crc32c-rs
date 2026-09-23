@@ -14,6 +14,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0).
 ### Features
 
 * Add docstrings to the `_crc32c_rs` stubs. (by [@chirizxc][gh-chirizxc])
+* Add `__doc__` for `UnsupportedCPUFeatureError` class. (by [@chirizxc][gh-chirizxc])
 
 ## [0.0.4] - 17.09.2026
 
