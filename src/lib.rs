@@ -48,7 +48,8 @@ mod crc32c_rs {
         value: u32,
         impl_fn: unsafe fn(u32, *const u8, usize) -> u32,
     ) -> u32 {
-        let (ptr, len) = buffer.ptr_len();
+        let len = buffer.len();
+        let ptr = buffer.as_ptr();
 
         if len < GIL_MINSIZE {
             // SAFETY: the caller selected the implementation after its runtime
