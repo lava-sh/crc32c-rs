@@ -16,6 +16,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0).
 * Add docstrings to the `_crc32c_rs` stubs. (by [@chirizxc][gh-chirizxc])
 * Add `__doc__` for `UnsupportedCPUFeatureError` class. (by [@chirizxc][gh-chirizxc])
 
+### Misc
+
+* Clean up and deduplicate the `src/arch/*` implementations and the `.godbolt` sources. (by [@chirizxc][gh-chirizxc])
+* Update the benchmark results and the Python/Rust benchmark harness. (by [@chirizxc][gh-chirizxc])
+* Update the godbolt links, including the fixed ARM links. (by [@chirizxc][gh-chirizxc])
+* Log a more precise CPU name in the tests. (by [@chirizxc][gh-chirizxc])
+
 ## [0.0.4] - 17.09.2026
 
 ### Performance improvements
