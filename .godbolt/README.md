@@ -28,7 +28,6 @@ Examples:
 - [sse42_pclmulqdq-v1s3x2](https://godbolt.org/z/55Efb41Ma)
 - [sse42_pclmulqdq-v1s3x3](https://godbolt.org/z/fbec7qKG5)
 - [sse42_pclmulqdq-v1s4x2](https://godbolt.org/z/eaadcv9db)
-- [sse42_s3k4096e](https://godbolt.org/z/TPs1e6zss)
 
 ### ARM
 
