@@ -22,27 +22,21 @@ Examples:
 
 ## Generated links
 
-### AMD x86-64
-
-- [avx512vl_vpclmulqdq-v3s2x4](https://godbolt.org/z/zz7s4jKM1)
-- [sse42_pclmulqdq-v1s3x2](https://godbolt.org/z/55Efb41Ma)
-- [sse42_pclmulqdq-v1s3x3](https://godbolt.org/z/fbec7qKG5)
-- [sse42_pclmulqdq-v1s4x2](https://godbolt.org/z/eaadcv9db)
-
-### ARM
-
-- [aes_crc-v12e_v1](https://godbolt.org/z/9o9rnrKrx)
-- [aes_crc-v3s4x2e_v2](https://godbolt.org/z/3r9sMd3ne)
-- [aes_crc_sha3-v9s3x2e_s3](https://godbolt.org/z/6qqrdjMKG)
-
-### Intel x86-64
-
-- [avx512vl_pclmulqdq-v9s3x4e](https://godbolt.org/z/rbTsEbaTc)
-- [avx512vl_vpclmulqdq-v3s1_s3](https://godbolt.org/z/8qvn479fv)
-- [avx512vl_vpclmulqdq-v4s5x3](https://godbolt.org/z/jeYYv6YPG)
-- [sse42](https://godbolt.org/z/7zooT8s7b)
-- [sse42_pclmulqdq-v7s3x3](https://godbolt.org/z/jK5zjYqnW)
-- [sse42_pclmulqdq-v8s3x3](https://godbolt.org/z/35e553n6G)
+|    Target    | Implementation                                                            | Link                              |
+|:------------:|---------------------------------------------------------------------------|-----------------------------------|
+|  AMD x86-64  | [`avx512vl_vpclmulqdq-v3s2x4`](amd-x86_64/avx512vl_vpclmulqdq-v3s2x4)     | <https://godbolt.org/z/zz7s4jKM1> |
+|  AMD x86-64  | [`sse42_pclmulqdq-v1s3x2`](amd-x86_64/sse42_pclmulqdq-v1s3x2)             | <https://godbolt.org/z/55Efb41Ma> |
+|  AMD x86-64  | [`sse42_pclmulqdq-v1s3x3`](amd-x86_64/sse42_pclmulqdq-v1s3x3)             | <https://godbolt.org/z/fbec7qKG5> |
+|  AMD x86-64  | [`sse42_pclmulqdq-v1s4x2`](amd-x86_64/sse42_pclmulqdq-v1s4x2)             | <https://godbolt.org/z/eaadcv9db> |
+|     ARM      | [`aes_crc-v12e_v1`](arm/aes_crc-v12e_v1)                                  | <https://godbolt.org/z/9o9rnrKrx> |
+|     ARM      | [`aes_crc-v3s4x2e_v2`](arm/aes_crc-v3s4x2e_v2)                            | <https://godbolt.org/z/3r9sMd3ne> |
+|     ARM      | [`aes_crc_sha3-v9s3x2e_s3`](arm/aes_crc_sha3-v9s3x2e_s3)                  | <https://godbolt.org/z/6qqrdjMKG> |
+| Intel x86-64 | [`avx512vl_pclmulqdq-v9s3x4e`](intel-x86_64/avx512vl_pclmulqdq-v9s3x4e)   | <https://godbolt.org/z/rbTsEbaTc> |
+| Intel x86-64 | [`avx512vl_vpclmulqdq-v3s1_s3`](intel-x86_64/avx512vl_vpclmulqdq-v3s1_s3) | <https://godbolt.org/z/8qvn479fv> |
+| Intel x86-64 | [`avx512vl_vpclmulqdq-v4s5x3`](intel-x86_64/avx512vl_vpclmulqdq-v4s5x3)   | <https://godbolt.org/z/jeYYv6YPG> |
+| Intel x86-64 | [`sse42`](intel-x86_64/sse42)                                             | <https://godbolt.org/z/7zooT8s7b> |
+| Intel x86-64 | [`sse42_pclmulqdq-v7s3x3`](intel-x86_64/sse42_pclmulqdq-v7s3x3)           | <https://godbolt.org/z/jK5zjYqnW> |
+| Intel x86-64 | [`sse42_pclmulqdq-v8s3x3`](intel-x86_64/sse42_pclmulqdq-v8s3x3)           | <https://godbolt.org/z/35e553n6G> |
 
 If the short links stop working, regenerate them:
 
