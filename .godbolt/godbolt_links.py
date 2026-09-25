@@ -57,8 +57,8 @@ def parse_source(path: Path) -> Source:
 
     language = LANGUAGES.get(path.suffix.lower())
     if language is None:
-        message = f"{path}: unsupported source extension {path.suffix!r}"
-        raise ValueError(message)
+        msg = f"{path}: unsupported source extension {path.suffix!r}"
+        raise ValueError(msg)
 
     compiler_name, options = (header[2:].strip() for header in headers)
     return Source(path, language, compiler_name, options, code)
@@ -82,11 +82,11 @@ def resolve_compiler(source: Source, catalog: dict[str, str]) -> str:
     if compiler_id is None:
         available = sorted(name for name in catalog if compiler_name in name)
         hint = f" Similar names: {', '.join(available[:5])}." if available else ""
-        message = (
+        msg = (
             f"{source.path}: compiler {source.compiler_name!r} was not found for "
             f"language {source.language!r}.{hint}"
         )
-        raise ValueError(message)
+        raise ValueError(msg)
     return compiler_id
 
 
@@ -139,8 +139,8 @@ def create_short_link(client: Client, config: dict[str, Any]) -> str:
     payload = response.json
     url = payload.get("url")
     if not isinstance(url, str) or not url:
-        message = f"Compiler Explorer returned an unexpected response: {payload!r}"
-        raise ValueError(message)
+        msg = f"Compiler Explorer returned an unexpected response: {payload!r}"
+        raise ValueError(msg)
     return url if url.startswith("http") else BASE_URL + url.lstrip("/")
 
 
@@ -155,8 +155,8 @@ def find_pairs(root: Path) -> list[tuple[Path, Path]]:
         sources = [path for path in sources if path.is_file()]
         rust_path = directory / "file.rs"
         if len(sources) != 1 or not rust_path.is_file():
-            message = f"{directory}: expected one of {SOURCE_NAMES} next to file.rs"
-            raise ValueError(message)
+            msg = f"{directory}: expected one of {SOURCE_NAMES} next to file.rs"
+            raise ValueError(msg)
         pairs.append((sources[0], rust_path))
 
     return pairs
@@ -165,8 +165,8 @@ def find_pairs(root: Path) -> list[tuple[Path, Path]]:
 def main() -> None:
     pairs = find_pairs(ROOT)
     if not pairs:
-        message = f"No source pairs found in {ROOT}"
-        raise SystemExit(message)
+        msg = f"No source pairs found in {ROOT}"
+        raise SystemExit(msg)
 
     parsed_pairs = [[parse_source(rust), parse_source(source)] for source, rust in pairs]
     languages = {source.language for pair in parsed_pairs for source in pair}
