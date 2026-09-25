@@ -1,8 +1,8 @@
-use pyo3::{create_exception, exceptions::PyRuntimeException};
+use pyo3::{create_exception, exceptions::PyRuntimeError};
 
 create_exception!(
     _crc32c_rs,
     UnsupportedCPUFeatureError,
-    PyRuntimeException,
+    PyRuntimeError,
     "Raised when the current CPU does not support required instructions."
 );
