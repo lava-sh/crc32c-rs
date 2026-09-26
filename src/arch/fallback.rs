@@ -99,8 +99,8 @@ unsafe fn tail(crc: u32, ptr: *const u8, len: usize) -> u32 {
         ^ CRC32C_TABLE[len - 7][l6 as usize]
         ^ CRC32C_TABLE[len - 8][l7 as usize];
 
-    let skip = 16 - len; // 1..8
-    let h = hi >> (skip * 8);
+    let skip = 16 - len; // 1..=8
+    let h = hi.wrapping_shr((skip * 8) as u32);
     for k in 0..(len - 8) {
         let b = (h >> (k * 8)) as u8;
         crc ^= CRC32C_TABLE[len - 9 - k][b as usize];
