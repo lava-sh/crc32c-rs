@@ -80,6 +80,7 @@ unsafe fn block(cur: &mut *const u32, crc: u32) -> u32 {
 /// # Safety
 ///
 /// `ptr` must be valid for reads of `len` bytes.
+#[cold]
 unsafe fn tail(crc: u32, ptr: *const u8, len: usize) -> u32 {
     debug_assert!((8..16).contains(&len));
 
