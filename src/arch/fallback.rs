@@ -6,40 +6,6 @@ use core::hint::{Locality, prefetch_read};
 
 use super::table::CRC32C_TABLE;
 
-#[rustfmt::skip]
-macro_rules! block {
-    ($current:expr, $crc:expr) => {{
-        let a = unsafe { $current.add(0).read_unaligned() } ^ $crc;
-        let b = unsafe { $current.add(1).read_unaligned() };
-        let c = unsafe { $current.add(2).read_unaligned() };
-        let d = unsafe { $current.add(3).read_unaligned() };
-
-        $current = unsafe { $current.add(4) };
-
-        let [a0, a1, a2, a3] = a.to_be_bytes();
-        let [b0, b1, b2, b3] = b.to_be_bytes();
-        let [c0, c1, c2, c3] = c.to_be_bytes();
-        let [d0, d1, d2, d3] = d.to_be_bytes();
-
-        $crc = CRC32C_TABLE[ 0][d0 as usize]
-            ^  CRC32C_TABLE[ 1][d1 as usize]
-            ^  CRC32C_TABLE[ 2][d2 as usize]
-            ^  CRC32C_TABLE[ 3][d3 as usize]
-            ^  CRC32C_TABLE[ 4][c0 as usize]
-            ^  CRC32C_TABLE[ 5][c1 as usize]
-            ^  CRC32C_TABLE[ 6][c2 as usize]
-            ^  CRC32C_TABLE[ 7][c3 as usize]
-            ^  CRC32C_TABLE[ 8][b0 as usize]
-            ^  CRC32C_TABLE[ 9][b1 as usize]
-            ^  CRC32C_TABLE[10][b2 as usize]
-            ^  CRC32C_TABLE[11][b3 as usize]
-            ^  CRC32C_TABLE[12][a0 as usize]
-            ^  CRC32C_TABLE[13][a1 as usize]
-            ^  CRC32C_TABLE[14][a2 as usize]
-            ^  CRC32C_TABLE[15][a3 as usize];
-    }};
-}
-
 #[inline]
 pub fn crc32c(crc0: u32, buf: &[u8], len: usize) -> u32 {
     const UNROLL: usize = 4;
@@ -61,15 +27,14 @@ pub fn crc32c(crc0: u32, buf: &[u8], len: usize) -> u32 {
         );
 
         for _ in 0..UNROLL {
-            block!(current, crc);
+            crc = unsafe { block(&mut current, crc) };
         }
 
         length -= BYTES_AT_ONCE;
     }
 
     while length >= 16 {
-        block!(current, crc);
-
+        crc = unsafe { block(&mut current, crc) };
         length -= 16;
     }
 
@@ -77,7 +42,8 @@ pub fn crc32c(crc0: u32, buf: &[u8], len: usize) -> u32 {
 
     while length != 0 {
         if length >= 8 {
-            return !tail(crc, current_char, length);
+            // SAFETY: `length` in `8..16`, so `current_char` is valid for `length` bytes.
+            return !unsafe { tail(crc, current_char, length) };
         }
 
         crc =
@@ -90,20 +56,54 @@ pub fn crc32c(crc0: u32, buf: &[u8], len: usize) -> u32 {
     !crc
 }
 
+/// # Safety
+///
+/// `cur` must be valid for reads of 16 bytes, and `cur.add(4)`
+/// must stay within the same allocation or one past its end.
 #[inline(always)]
-fn tail(crc: u32, ptr: *const u8, len: usize) -> u32 {
-    // SAFETY: `len >= 8`, so the 8 bytes at `ptr` are inside the buffer.
-    let word = u64::from_le(unsafe { ptr.cast::<u64>().read_unaligned() }) ^ u64::from(crc);
-    let bytes = word.to_le_bytes();
+unsafe fn block(cur: &mut *const u32, crc: u32) -> u32 {
+    // SAFETY: caller guarantees 16 readable bytes at `cur`.
+    let [mut a, b, c, d] = unsafe { cur.cast::<[u32; 4]>().read_unaligned() };
+    a ^= crc;
+    // SAFETY: 16 bytes were readable, so `cur + 4` stays in bounds.
+    *cur = unsafe { cur.add(4) };
+
     let mut crc = 0;
-
-    for k in 0..8 {
-        crc ^= CRC32C_TABLE[len - 1 - k][bytes[k] as usize];
+    for (i, w) in [a, b, c, d].iter().enumerate() {
+        for (j, byte) in w.to_be_bytes().iter().enumerate() {
+            crc ^= CRC32C_TABLE[15 - i * 4 - j][*byte as usize];
+        }
     }
+    crc
+}
 
-    for i in 8..len {
-        // SAFETY: `i < len`, so the byte is inside the buffer.
-        crc ^= CRC32C_TABLE[len - 1 - i][unsafe { *ptr.add(i) } as usize];
+/// # Safety
+///
+/// `ptr` must be valid for reads of `len` bytes.
+unsafe fn tail(crc: u32, ptr: *const u8, len: usize) -> u32 {
+    debug_assert!((8..16).contains(&len));
+
+    // SAFETY: `len >= 8`.
+    let lo = u64::from_le(unsafe { ptr.cast::<u64>().read_unaligned() }) ^ u64::from(crc);
+    // SAFETY: `len - 8 + 8 = len`, so the last 8 bytes are in bounds.
+    let hi = u64::from_le(unsafe { ptr.add(len - 8).cast::<u64>().read_unaligned() });
+
+    let [l0, l1, l2, l3, l4, l5, l6, l7] = lo.to_le_bytes();
+
+    let mut crc = CRC32C_TABLE[len - 1][l0 as usize]
+        ^ CRC32C_TABLE[len - 2][l1 as usize]
+        ^ CRC32C_TABLE[len - 3][l2 as usize]
+        ^ CRC32C_TABLE[len - 4][l3 as usize]
+        ^ CRC32C_TABLE[len - 5][l4 as usize]
+        ^ CRC32C_TABLE[len - 6][l5 as usize]
+        ^ CRC32C_TABLE[len - 7][l6 as usize]
+        ^ CRC32C_TABLE[len - 8][l7 as usize];
+
+    let skip = 16 - len; // 1..8
+    let h = hi >> (skip * 8);
+    for k in 0..(len - 8) {
+        let b = (h >> (k * 8)) as u8;
+        crc ^= CRC32C_TABLE[len - 9 - k][b as usize];
     }
 
     crc
