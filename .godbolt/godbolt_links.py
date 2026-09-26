@@ -1,60 +1,38 @@
 # /// script
 # dependencies = [
-#   "zapros == 0.17.0",
+#   "zapros == 0.19.0",
 # ]
 # ///
 
 from dataclasses import dataclass
-from http import HTTPStatus
 from pathlib import Path
 from typing import Any
 
-from zapros import Client
+from zapros import Client, RetryMiddleware, StdNetworkHandler
 
-API_ROOT = "https://godbolt.org"
-SHORTENER_PATH = "/api/shortener"
-COMPILERS_PATH = "/api/compilers/{language}"
 ROOT = Path(__file__).resolve().parent
+SOURCE_NAMES = ("file.c", "file.cc")
+
+BASE_URL = "https://godbolt.org/"
 LANGUAGES = {
-    ".rs": "rust",
     ".c": "c",
     ".cc": "c++",
-    ".cpp": "c++",
-    ".cxx": "c++",
+    ".rs": "rust",
+}  # fmt: skip
+HEADER_LINES = 2
+FILTERS = {
+    "labels": True,
+    "libraryCode": True,
+    "directives": True,
+    "commentOnly": True,
+    "trim": False,
+    "debugCalls": False,
+    "intel": True,
 }
-SOURCE_SUFFIXES = set(LANGUAGES) - {".rs"}
-MIN_HEADER_LINES = 2
-
 FILTERS_BY_LANGUAGE = {
-    "rust": {
-        "labels": True,
-        "libraryCode": True,
-        "directives": True,
-        "commentOnly": True,
-        "trim": False,
-        "debugCalls": False,
-        "intel": True,
-    },
-    "c": {
-        "labels": True,
-        "libraryCode": True,
-        "directives": True,
-        "commentOnly": True,
-        "trim": False,
-        "debugCalls": False,
-        "intel": True,
-    },
-    "c++": {
-        "labels": True,
-        "libraryCode": True,
-        "directives": True,
-        "commentOnly": True,
-        "trim": False,
-        "debugCalls": False,
-        "demangle": True,
-        "verboseDemangling": True,
-        "intel": True,
-    },
+    "rust": FILTERS,
+    "c": FILTERS,
+    "c++": {**FILTERS, "demangle": True, "verboseDemangling": True},
 }
 
 
@@ -69,41 +47,26 @@ class Source:
 
 def parse_source(path: Path) -> Source:
     code = path.read_text(encoding="utf-8")
-    lines = code.splitlines()
-    if len(lines) < MIN_HEADER_LINES:
-        message = f"{path}: expected compiler and flags in the first two lines"
-        raise ValueError(message)
-
-    compiler_name = parse_header(lines[0], path, 1)
-    options = parse_header(lines[1], path, 2)
+    headers = code.splitlines()[:HEADER_LINES]
+    if (
+            len(headers) < HEADER_LINES or
+            not all(header.startswith("//") for header in headers)
+    ):  # fmt: skip
+        msg = f"{path}: expected the compiler name and the flags in the first two lines"
+        raise ValueError(msg)
 
     language = LANGUAGES.get(path.suffix.lower())
     if language is None:
-        message = f"{path}: unsupported source extension {path.suffix!r}"
-        raise ValueError(message)
+        msg = f"{path}: unsupported source extension {path.suffix!r}"
+        raise ValueError(msg)
 
+    compiler_name, options = (header[2:].strip() for header in headers)
     return Source(path, language, compiler_name, options, code)
 
 
-def parse_header(line: str, path: Path, line_number: int) -> str:
-    value = line[2:].strip() if line.startswith("//") else ""
-    if not value:
-        message = f"{path}:{line_number}: expected a // header containing compiler/flags"
-        raise ValueError(message)
-    return value
-
-
-def check_response(response: Any, action: str) -> None:
-    if response.status >= HTTPStatus.BAD_REQUEST:
-        message = f"{action} failed with HTTP {response.status}"
-        raise RuntimeError(message)
-
-
 def compiler_catalog(client: Client, language: str) -> dict[str, str]:
-    response = client.get(
-        API_ROOT + COMPILERS_PATH.format(language=language),
-    )
-    check_response(response, "Compiler catalog request")
+    response = client.get(f"api/compilers/{language}")
+    response.raise_for_status()
 
     catalog = {}
     for line in response.text.splitlines()[1:]:
@@ -113,30 +76,18 @@ def compiler_catalog(client: Client, language: str) -> dict[str, str]:
     return catalog
 
 
-def resolve_compiler(
-    source: Source,
-    catalogs: dict[str, dict[str, str]],
-) -> str:
-    catalog = catalogs[source.language]
+def resolve_compiler(source: Source, catalog: dict[str, str]) -> str:
     compiler_name = source.compiler_name.casefold()
     compiler_id = catalog.get(compiler_name)
     if compiler_id is None:
         available = sorted(name for name in catalog if compiler_name in name)
         hint = f" Similar names: {', '.join(available[:5])}." if available else ""
-        message = (
+        msg = (
             f"{source.path}: compiler {source.compiler_name!r} was not found for "
             f"language {source.language!r}.{hint}"
         )
-        raise ValueError(message)
+        raise ValueError(msg)
     return compiler_id
-
-
-def component(component_name: str, state: dict[str, Any]) -> dict[str, Any]:
-    return {
-        "type": "component",
-        "componentName": component_name,
-        "componentState": state,
-    }
 
 
 def make_config(sources: list[Source], compiler_ids: list[str]) -> dict[str, Any]:
@@ -147,98 +98,89 @@ def make_config(sources: list[Source], compiler_ids: list[str]) -> dict[str, Any
         zip(sources, compiler_ids, strict=True),
         start=1,
     ):
-        editor = component(
-            "codeEditor",
-            {
+        editors.append({
+            "type": "component",
+            "componentName": "codeEditor",
+            "componentState": {
                 "id": editor_id,
                 "source": source.code,
                 "options": {"compileOnChange": True},
                 "lang": source.language,
             },
-        )
-        editors.append(editor)
-        compilers.append(
-            component(
-                "compiler",
-                {
-                    "source": editor_id,
-                    "compiler": compiler_id,
-                    "lang": source.language,
-                    "filters": FILTERS_BY_LANGUAGE[source.language],
-                    "options": source.options,
-                },
-            ),
-        )
+        })  # fmt: skip
+        compilers.append({
+            "type": "component",
+            "componentName": "compiler",
+            "componentState": {
+                "source": editor_id,
+                "compiler": compiler_id,
+                "lang": source.language,
+                "filters": FILTERS_BY_LANGUAGE[source.language],
+                "options": source.options,
+            },
+        })  # fmt: skip
 
     return {
         "version": 4,
-        "content": [
-            {
-                "type": "row",
-                "content": [
-                    {"type": "column", "content": editors},
-                    {"type": "column", "content": compilers},
-                ],
-            },
-        ],
-    }
+        "content": [{
+            "type": "row",
+            "content": [
+                {"type": "column", "content": editors},
+                {"type": "column", "content": compilers},
+            ],
+            }],
+     }  # fmt: skip
 
 
 def create_short_link(client: Client, config: dict[str, Any]) -> str:
-    response = client.post(
-        API_ROOT + SHORTENER_PATH,
-        json={"config": config},
-    )
-    check_response(response, "Short link request")
+    response = client.post("api/shortener", json={"config": config})
+    response.raise_for_status()
 
     payload = response.json
     url = payload.get("url")
     if not isinstance(url, str) or not url:
-        message = f"Compiler Explorer returned an unexpected response: {payload!r}"
-        raise ValueError(message)
-    return url if url.startswith("http") else API_ROOT + url
+        msg = f"Compiler Explorer returned an unexpected response: {payload!r}"
+        raise ValueError(msg)
+    return url if url.startswith("http") else BASE_URL + url.lstrip("/")
 
 
 def find_pairs(root: Path) -> list[tuple[Path, Path]]:
-    source_directories = {
-        path.parent
-        for path in (*root.rglob("file.c"), *root.rglob("file.rs"))
-        if path.is_file()
+    dirs = {
+        path.parent for name in (*SOURCE_NAMES, "file.rs") for path in root.rglob(name)
     }
     pairs = []
 
-    for directory in sorted(source_directories):
-        c_path = directory / "file.c"
+    for directory in sorted(dirs):
+        sources = [directory / name for name in SOURCE_NAMES]
+        sources = [path for path in sources if path.is_file()]
         rust_path = directory / "file.rs"
-        has_c = c_path.is_file()
-        has_rust = rust_path.is_file()
-        if has_c != has_rust:
-            missing = "file.rs" if has_c else "file.c"
-            message = f"{directory}: missing paired {missing}"
-            raise ValueError(message)
-        pairs.append((c_path, rust_path))
+        if len(sources) != 1 or not rust_path.is_file():
+            msg = f"{directory}: expected one of {SOURCE_NAMES} next to file.rs"
+            raise ValueError(msg)
+        pairs.append((sources[0], rust_path))
+
     return pairs
 
 
 def main() -> None:
     pairs = find_pairs(ROOT)
     if not pairs:
-        message = f"No source pairs found in {ROOT}"
-        raise SystemExit(message)
+        msg = f"No source pairs found in {ROOT}"
+        raise SystemExit(msg)
 
-    parsed_pairs = [
-        [parse_source(rust_path), parse_source(c_path)]
-        for c_path, rust_path in pairs
-    ]
+    parsed_pairs = [[parse_source(rust), parse_source(source)] for source, rust in pairs]
+    languages = {source.language for pair in parsed_pairs for source in pair}
 
-    with Client() as client:
+    handler = RetryMiddleware(StdNetworkHandler(), max_attempts=3)
+    with Client(handler=handler, base_url=BASE_URL) as client:
         catalogs = {
-            language: compiler_catalog(client, language)
-            for language in {source.language for pair in parsed_pairs for source in pair}
+            language: compiler_catalog(client, language) for language in languages
         }
 
         for sources in parsed_pairs:
-            compiler_ids = [resolve_compiler(source, catalogs) for source in sources]
+            compiler_ids = [
+                resolve_compiler(source, catalogs[source.language]) for source in sources
+            ]
             link = create_short_link(client, make_config(sources, compiler_ids))
             directory = sources[0].path.parent.relative_to(ROOT).as_posix()
             print(f"{directory}: {link}")
