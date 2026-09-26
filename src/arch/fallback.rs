@@ -69,9 +69,9 @@ unsafe fn block(cur: &mut *const u32, crc: u32) -> u32 {
     *cur = unsafe { cur.add(4) };
 
     let mut crc = 0;
-    for (i, w) in [a, b, c, d].iter().enumerate() {
+    for (i, w) in [d, c, b, a].iter().enumerate() {
         for (j, byte) in w.to_be_bytes().iter().enumerate() {
-            crc ^= CRC32C_TABLE[15 - i * 4 - j][*byte as usize];
+            crc ^= CRC32C_TABLE[i * 4 + j][*byte as usize];
         }
     }
     crc
