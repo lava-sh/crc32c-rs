@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0).
 
 ## [Unreleased] - ReleaseDate
 
+## [0.0.5] - 27.09.2026
+
 ### Performance improvements
 
 * Speed up `crc32c_sse42` on medium inputs. (by [@chirizxc][gh-chirizxc])
@@ -69,8 +71,9 @@ First release.
 
 [gh-chirizxc]: https://github.com/chirizxc
 
-[Unreleased]: https://github.com/lava-sh/crc32c-rs/compare/0.0.4...HEAD
+[Unreleased]: https://github.com/lava-sh/crc32c-rs/compare/0.0.5...HEAD
 
+[0.0.5]: https://github.com/lava-sh/crc32c-rs/compare/0.0.4...0.0.5
 [0.0.4]: https://github.com/lava-sh/crc32c-rs/compare/0.0.3...0.0.4
 [0.0.3]: https://github.com/lava-sh/crc32c-rs/compare/0.0.2...0.0.3
 [0.0.2]: https://github.com/lava-sh/crc32c-rs/compare/0.0.1...0.0.2
