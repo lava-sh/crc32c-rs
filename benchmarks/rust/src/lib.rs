@@ -17,11 +17,11 @@ pub mod payloads;
 #[path = "../../../src/simd_dispatch.rs"]
 pub mod simd_dispatch;
 
-use crate::arch::fallback;
 #[cfg(any(target_arch = "aarch64", target_arch = "arm64ec"))]
-use crate::arch::{aes_crc_v12e_v1, aes_sha3_v9s3x2e_s3, aes_v3s4x2e_v2};
+use crate::arch::aarch64::{aes_crc_v12e_v1, aes_sha3_v9s3x2e_s3, aes_v3s4x2e_v2};
+use crate::arch::fallback;
 #[cfg(any(target_arch = "x86_64", target_arch = "x86"))]
-use crate::arch::{
+use crate::arch::x86::{
     avx512vl_pclmulqdq_v9s3x4e, avx512vl_vpclmulqdq_v3s1_s3, avx512vl_vpclmulqdq_v3s2x4,
     avx512vl_vpclmulqdq_v4s5x3, sse42, sse42_pclmulqdq_v1s3x2, sse42_pclmulqdq_v1s3x3,
     sse42_pclmulqdq_v1s4x2, sse42_pclmulqdq_v7s3x3, sse42_pclmulqdq_v8s3x3,

@@ -1,0 +1,10 @@
+pub mod avx512vl_pclmulqdq_v9s3x4e;
+pub mod avx512vl_vpclmulqdq_v3s1_s3;
+pub mod avx512vl_vpclmulqdq_v3s2x4;
+pub mod avx512vl_vpclmulqdq_v4s5x3;
+pub mod sse42;
+pub mod sse42_pclmulqdq_v1s3x2;
+pub mod sse42_pclmulqdq_v1s3x3;
+pub mod sse42_pclmulqdq_v1s4x2;
+pub mod sse42_pclmulqdq_v7s3x3;
+pub mod sse42_pclmulqdq_v8s3x3;
