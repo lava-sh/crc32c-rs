@@ -4,6 +4,7 @@ version = "0.0.5"
 edition = "2024"
 license = "Unlicense"
 repository = "https://github.com/lava-sh/crc32c-rs"
+publish = false
 
 [workspace]
 members = ["benchmarks/rust"]
