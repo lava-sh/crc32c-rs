@@ -51,9 +51,9 @@ Issues = "https://github.com/lava-sh/crc32c-rs/issues"
 Changelog = "https://github.com/lava-sh/crc32c-rs/blob/main/CHANGELOG.md"
 
 [dependency-groups]
-typos = ["typos == 1.50.2"]
+typos = ["typos == 1.50.3"]
 zizmor = ["zizmor == 1.30.1"]
-rumdl = ["rumdl == 0.2.76"]
+rumdl = ["rumdl == 0.2.78"]
 maturin = [
     "maturin == 1.15.0 ; sys_platform != 'linux'",
     "maturin[patchelf] == 1.15.0 ; sys_platform == 'linux'",
@@ -72,8 +72,8 @@ wasm-tests = [
     { include-group = "pytest" },
 ]
 ci = [
-    "ty == 0.0.83",
-    "ruff == 0.16.8",
+    "ty == 0.0.84",
+    "ruff == 0.16.10",
     { include-group = "tests" },
     { include-group = "pytest" },
     { include-group = "maturin" },
@@ -88,7 +88,7 @@ dev = [
 bench = [
     "crc32c == 2.9.post0",
     "fastcrc == 0.5.0",
-    "google-crc32c == 1.8.0",
+    "google-crc32c == 1.9.0",
     "pyperf == 2.10.0",
     { include-group = "archspec" },
     # table generator
