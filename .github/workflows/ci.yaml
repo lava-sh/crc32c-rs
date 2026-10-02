@@ -1,4 +1,4 @@
-name: CI
+name: "CI"
 
 permissions: { }
 
@@ -167,6 +167,7 @@ jobs:
     permissions:
       contents: read
       pull-requests: write
+
     uses: $/.github/workflows/python-bench.yaml
 
   build-sdist:
