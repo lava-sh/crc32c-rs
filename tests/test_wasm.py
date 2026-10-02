@@ -23,7 +23,7 @@ from crc32c_rs import crc32c
 GIL_MINSIZE = 32 * 1024
 
 
-class Crc32cTestCase(unittest.TestCase):
+class Crc32c(unittest.TestCase):
     def test_buffer(self):
         for data, expected in [
             (b"", 0),
@@ -73,7 +73,7 @@ class Crc32cTestCase(unittest.TestCase):
             self.assertEqual(crc32c(b"a" * size), expected)
 
 
-suite = unittest.TestLoader().loadTestsFromTestCase(Crc32cTestCase)
+suite = unittest.TestLoader().loadTestsFromTestCase(Crc32c)
 result = unittest.TextTestRunner(verbosity=2).run(suite)
 assert result.wasSuccessful()
 """)
