@@ -28,9 +28,9 @@ Examples:
 |  AMD x86-64  | [`sse42_pclmulqdq-v1s3x2`](corsix_fast-crc32/amd-x86_64/sse42_pclmulqdq-v1s3x2)             | <https://godbolt.org/z/55Efb41Ma> |
 |  AMD x86-64  | [`sse42_pclmulqdq-v1s3x3`](corsix_fast-crc32/amd-x86_64/sse42_pclmulqdq-v1s3x3)             | <https://godbolt.org/z/fbec7qKG5> |
 |  AMD x86-64  | [`sse42_pclmulqdq-v1s4x2`](corsix_fast-crc32/amd-x86_64/sse42_pclmulqdq-v1s4x2)             | <https://godbolt.org/z/eaadcv9db> |
-|     ARM      | [`aes_crc-v12e_v1`](corsix_fast-crc32/arm/aes_crc-v12e_v1)                                  | <https://godbolt.org/z/9o9rnrKrx> |
-|     ARM      | [`aes_crc-v3s4x2e_v2`](corsix_fast-crc32/arm/aes_crc-v3s4x2e_v2)                            | <https://godbolt.org/z/3r9sMd3ne> |
-|     ARM      | [`aes_crc_sha3-v9s3x2e_s3`](corsix_fast-crc32/arm/aes_crc_sha3-v9s3x2e_s3)                  | <https://godbolt.org/z/6qqrdjMKG> |
+|     ARM      | [`aes_crc-v12e_v1`](corsix_fast-crc32/arm/aes_crc-v12e_v1)                                  | <https://godbolt.org/z/fnev1cqaj> |
+|     ARM      | [`aes_crc-v3s4x2e_v2`](corsix_fast-crc32/arm/aes_crc-v3s4x2e_v2)                            | <https://godbolt.org/z/xW3a1Kqrr> |
+|     ARM      | [`aes_crc_sha3-v9s3x2e_s3`](corsix_fast-crc32/arm/aes_crc_sha3-v9s3x2e_s3)                  | <https://godbolt.org/z/KGY5E3xcv> |
 | Intel x86-64 | [`avx512vl_pclmulqdq-v9s3x4e`](corsix_fast-crc32/intel-x86_64/avx512vl_pclmulqdq-v9s3x4e)   | <https://godbolt.org/z/rbTsEbaTc> |
 | Intel x86-64 | [`avx512vl_vpclmulqdq-v3s1_s3`](corsix_fast-crc32/intel-x86_64/avx512vl_vpclmulqdq-v3s1_s3) | <https://godbolt.org/z/8qvn479fv> |
 | Intel x86-64 | [`avx512vl_vpclmulqdq-v4s5x3`](corsix_fast-crc32/intel-x86_64/avx512vl_vpclmulqdq-v4s5x3)   | <https://godbolt.org/z/jeYYv6YPG> |
