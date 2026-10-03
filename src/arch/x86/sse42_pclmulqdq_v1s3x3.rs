@@ -218,7 +218,7 @@ unsafe fn crc32c_small(mut crc0: u32, mut buf: *const u8, mut len: usize) -> u32
 pub unsafe fn crc32c(mut crc0: u32, mut buf: *const u8, mut len: usize) -> u32 {
     crc0 = !crc0;
 
-    if (16..=768).contains(&len) {
+    if (96..=768).contains(&len) {
         return !unsafe { crc32c_small(crc0, buf, len) };
     }
     let align = buf as usize & 7;
