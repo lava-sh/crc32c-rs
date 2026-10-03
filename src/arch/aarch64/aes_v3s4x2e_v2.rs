@@ -20,6 +20,7 @@ fn clmul_hi_e(a: uint64x2_t, b: uint64x2_t, c: uint64x2_t) -> uint64x2_t {
     veorq_u64(vreinterpretq_u64_p128(clmul), c)
 }
 
+#[inline]
 #[target_feature(enable = "aes")]
 fn clmul_scalar(a: u32, b: u32) -> uint64x2_t {
     vreinterpretq_u64_p128(vmull_p64(u64::from(a), u64::from(b)))
