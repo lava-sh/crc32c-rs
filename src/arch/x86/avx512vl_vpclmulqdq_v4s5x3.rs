@@ -91,47 +91,114 @@ fn crc_shift(crc: u32, nbytes: usize) -> __m128i {
 }
 
 #[inline]
-#[target_feature(enable = "sse4.2,pclmulqdq")]
+#[target_feature(enable = "avx512vl,vpclmulqdq")]
 unsafe fn crc32c_small(mut crc0: u32, mut buf: *const u8, mut len: usize) -> u32 {
-    unsafe {
-        core::hint::assert_unchecked((256..=1024).contains(&len));
-    }
+    if len >= 256 {
+        let k = _mm512_broadcast_i32x4(_mm_setr_epi32(
+            0xdcb1_7aa4_u32.cast_signed(),
+            0,
+            0xb9e0_2b86_u32.cast_signed(),
+            0,
+        ));
+        let mut x0 = unsafe { _mm512_loadu_si512(buf.cast()) };
+        let mut x1 = unsafe { _mm512_loadu_si512(buf.add(64).cast()) };
+        let mut x2 = unsafe { _mm512_loadu_si512(buf.add(128).cast()) };
+        let mut x3 = unsafe { _mm512_loadu_si512(buf.add(192).cast()) };
+        x0 = _mm512_xor_si512(
+            _mm512_zextsi128_si512(_mm_cvtsi32_si128(crc0.cast_signed())),
+            x0,
+        );
+        buf = unsafe { buf.add(256) };
+        len -= 256;
 
-    let klen = ((len - 8) / 24) * 8;
-    let mut crc1 = 0_u32;
-    let mut crc2 = 0_u32;
-    loop {
-        crc0 = mm_crc32_u64(crc0, unsafe { buf.cast::<u64>().read_unaligned() });
-        crc1 = mm_crc32_u64(crc1, unsafe {
-            buf.add(klen).cast::<u64>().read_unaligned()
-        });
-        crc2 = mm_crc32_u64(crc2, unsafe {
-            buf.add(klen * 2).cast::<u64>().read_unaligned()
-        });
-        buf = unsafe { buf.add(8) };
-        len -= 24;
-        if len < 32 {
-            break;
+        while len >= 256 {
+            let y = clmul_lo(x0, k);
+            x0 = _mm512_ternarylogic_epi64::<0x96>(clmul_hi(x0, k), y, unsafe {
+                _mm512_loadu_si512(buf.cast())
+            });
+            let y = clmul_lo(x1, k);
+            x1 = _mm512_ternarylogic_epi64::<0x96>(clmul_hi(x1, k), y, unsafe {
+                _mm512_loadu_si512(buf.add(64).cast())
+            });
+            let y = clmul_lo(x2, k);
+            x2 = _mm512_ternarylogic_epi64::<0x96>(clmul_hi(x2, k), y, unsafe {
+                _mm512_loadu_si512(buf.add(128).cast())
+            });
+            let y = clmul_lo(x3, k);
+            x3 = _mm512_ternarylogic_epi64::<0x96>(clmul_hi(x3, k), y, unsafe {
+                _mm512_loadu_si512(buf.add(192).cast())
+            });
+            buf = unsafe { buf.add(256) };
+            len -= 256;
         }
+
+        let k = _mm512_broadcast_i32x4(_mm_setr_epi32(
+            0x740e_ef02_u32.cast_signed(),
+            0,
+            0x9e4a_ddf8_u32.cast_signed(),
+            0,
+        ));
+        let y0 = clmul_lo(x0, k);
+        x0 = _mm512_ternarylogic_epi64::<0x96>(clmul_hi(x0, k), y0, x1);
+        let y2 = clmul_lo(x2, k);
+        x2 = _mm512_ternarylogic_epi64::<0x96>(clmul_hi(x2, k), y2, x3);
+        let k = _mm512_broadcast_i32x4(_mm_setr_epi32(
+            0x6992_cea2_u32.cast_signed(),
+            0,
+            0x0d3b_6092_u32.cast_signed(),
+            0,
+        ));
+        let y0 = clmul_lo(x0, k);
+        x0 = _mm512_ternarylogic_epi64::<0x96>(clmul_hi(x0, k), y0, x2);
+
+        let k = _mm512_setr_epi32(
+            0x1c29_1d04_u32.cast_signed(),
+            0,
+            0xddc0_152b_u32.cast_signed(),
+            0,
+            0x3da6_d0cb_u32.cast_signed(),
+            0,
+            0xba4f_c28e_u32.cast_signed(),
+            0,
+            0xf20c_0dfe_u32.cast_signed(),
+            0,
+            0x493c_7d27_u32.cast_signed(),
+            0,
+            0,
+            0,
+            0,
+            0,
+        );
+        let y0 = _mm512_xor_si512(clmul_lo(x0, k), clmul_hi(x0, k));
+        let mut z0 = _mm_ternarylogic_epi64::<0x96>(
+            _mm512_castsi512_si128(y0),
+            _mm512_extracti32x4_epi32::<1>(y0),
+            _mm512_extracti32x4_epi32::<2>(y0),
+        );
+        z0 = _mm_xor_si128(z0, _mm512_extracti32x4_epi32::<3>(x0));
+        crc0 = mm_crc32_u64(
+            mm_crc32_u64(0, mm_extract_epi64::<0>(z0)),
+            mm_extract_epi64::<1>(z0),
+        );
     }
-    let vc0 = crc_shift(crc0, klen * 2 + 8);
-    let vc1 = crc_shift(crc1, klen + 8);
-    let vc = mm_extract_epi64::<0>(_mm_xor_si128(vc0, vc1));
-    buf = unsafe { buf.add(klen * 2) };
-    crc0 = crc2;
-    crc0 = mm_crc32_u64(crc0, unsafe { buf.cast::<u64>().read_unaligned() } ^ vc);
-    buf = unsafe { buf.add(8) };
-    len -= 8;
 
     while len >= 8 {
         crc0 = mm_crc32_u64(crc0, unsafe { buf.cast::<u64>().read_unaligned() });
         buf = unsafe { buf.add(8) };
         len -= 8;
     }
-    while len != 0 {
+    if len >= 4 {
+        crc0 = _mm_crc32_u32(crc0, unsafe { buf.cast::<u32>().read_unaligned() });
+        buf = unsafe { buf.add(4) };
+        len -= 4;
+    }
+    if len >= 2 {
+        crc0 = _mm_crc32_u16(crc0, unsafe { buf.cast::<u16>().read_unaligned() });
+        buf = unsafe { buf.add(2) };
+        len -= 2;
+    }
+    if len >= 1 {
         crc0 = _mm_crc32_u8(crc0, unsafe { *buf });
-        buf = unsafe { buf.add(1) };
-        len -= 1;
     }
     crc0
 }
@@ -141,7 +208,7 @@ unsafe fn crc32c_small(mut crc0: u32, mut buf: *const u8, mut len: usize) -> u32
 pub unsafe fn crc32c(mut crc0: u32, mut buf: *const u8, mut len: usize) -> u32 {
     crc0 = !crc0;
 
-    if (256..=1024).contains(&len) {
+    if len <= 32768 {
         return !unsafe { crc32c_small(crc0, buf, len) };
     }
 
