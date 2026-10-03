@@ -1,55 +1,27 @@
 #![allow(clippy::wildcard_imports, clippy::cast_ptr_alignment)]
 
-use core::arch::{aarch64::*, asm};
+use core::arch::aarch64::*;
 
 #[inline]
 #[target_feature(enable = "aes")]
 fn clmul_lo(a: uint64x2_t, b: uint64x2_t) -> uint64x2_t {
-    let clmul;
-    unsafe {
-        asm!(
-            "pmull {clmul:v}.1q, {a:v}.1d, {b:v}.1d",
-            clmul = out(vreg) clmul,
-            a = in(vreg) a,
-            b = in(vreg) b,
-            options(pure, nomem, nostack, preserves_flags),
-        );
-    }
-    clmul
+    let a = vgetq_lane_u64::<0>(a);
+    let b = vgetq_lane_u64::<0>(b);
+    vreinterpretq_u64_p128(vmull_p64(a, b))
 }
 
 #[inline]
 #[target_feature(enable = "aes")]
 fn clmul_hi(a: uint64x2_t, b: uint64x2_t) -> uint64x2_t {
-    let clmul;
-    unsafe {
-        asm!(
-            "pmull2 {clmul:v}.1q, {a:v}.2d, {b:v}.2d",
-            clmul = out(vreg) clmul,
-            a = in(vreg) a,
-            b = in(vreg) b,
-            options(pure, nomem, nostack, preserves_flags),
-        );
-    }
-    clmul
+    let a = vreinterpretq_p64_u64(a);
+    let b = vreinterpretq_p64_u64(b);
+    vreinterpretq_u64_p128(vmull_high_p64(a, b))
 }
 
 #[inline]
 #[target_feature(enable = "aes")]
 fn clmul_scalar(a: u32, b: u32) -> uint64x2_t {
-    let a = vmovq_n_u64(u64::from(a));
-    let b = vmovq_n_u64(u64::from(b));
-    let clmul;
-    unsafe {
-        asm!(
-            "pmull {clmul:v}.1q, {a:v}.1d, {b:v}.1d",
-            clmul = out(vreg) clmul,
-            a = in(vreg) a,
-            b = in(vreg) b,
-            options(pure, nomem, nostack, preserves_flags),
-        );
-    }
-    clmul
+    vreinterpretq_u64_p128(vmull_p64(u64::from(a), u64::from(b)))
 }
 
 // x^n mod P, in log(n) time
