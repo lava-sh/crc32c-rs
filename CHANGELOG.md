@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0).
 
 ## [Unreleased] - ReleaseDate
 
+## [0.0.5] - 27.09.2026
+
 ### Performance improvements
 
 * Speed up `crc32c_sse42` on medium inputs. (by [@chirizxc][gh-chirizxc])
@@ -48,13 +50,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0).
 * New `sse42` implementation: SSE4.2-only, without PCLMULQDQ, exposed as `crc32c_sse42`. (by [@chirizxc][gh-chirizxc])
 * Prefer `aes_sha3_v9s3x2e_s3` only on Apple CPUs; other vendors use `aes_crc_v3s4x2e_v2` when CRC+AES are available. (by [@chirizxc][gh-chirizxc])
 
-### Bugfixes
+### Bug Fixes
 
 * Correct crc32c fallback implementation on big-endian. (by [@chirizxc][gh-chirizxc])
 
 ## [0.0.2] - 09.09.2026
 
-### Bugfixes
+### Bug Fixes
 
 * Remove the incorrect `_Hasher` class from `_crc32c_rs.pyi`. (by [@chirizxc][gh-chirizxc])
 * Fix Intel CPU model grouping for Ice Lake. (by [@chirizxc][gh-chirizxc])
@@ -69,8 +71,9 @@ First release.
 
 [gh-chirizxc]: https://github.com/chirizxc
 
-[Unreleased]: https://github.com/lava-sh/crc32c-rs/compare/0.0.4...HEAD
+[Unreleased]: https://github.com/lava-sh/crc32c-rs/compare/0.0.5...HEAD
 
+[0.0.5]: https://github.com/lava-sh/crc32c-rs/compare/0.0.4...0.0.5
 [0.0.4]: https://github.com/lava-sh/crc32c-rs/compare/0.0.3...0.0.4
 [0.0.3]: https://github.com/lava-sh/crc32c-rs/compare/0.0.2...0.0.3
 [0.0.2]: https://github.com/lava-sh/crc32c-rs/compare/0.0.1...0.0.2
