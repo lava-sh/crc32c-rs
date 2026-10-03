@@ -67,10 +67,6 @@ fn crc_shift(crc: u32, nbytes: usize) -> uint64x2_t {
 #[inline]
 #[target_feature(enable = "aes")]
 unsafe fn crc32c_small(mut crc0: u32, mut buf: *const u8, mut len: usize) -> u32 {
-    unsafe {
-        core::hint::assert_unchecked((128..=1024).contains(&len));
-    }
-
     if len >= 48 {
         // First vector chunk.
         let mut x0 = unsafe { vld1q_u64(buf.cast::<u64>()) };
@@ -156,7 +152,7 @@ unsafe fn crc32c_small(mut crc0: u32, mut buf: *const u8, mut len: usize) -> u32
 pub unsafe fn crc32c(mut crc0: u32, mut buf: *const u8, mut len: usize) -> u32 {
     crc0 = !crc0;
 
-    if (128..=1024).contains(&len) {
+    if len <= 16384 {
         return !unsafe { crc32c_small(crc0, buf, len) };
     }
 
