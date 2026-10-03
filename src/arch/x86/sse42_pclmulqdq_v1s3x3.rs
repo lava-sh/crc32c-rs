@@ -190,30 +190,6 @@ unsafe fn crc32c_small(mut crc0: u32, mut buf: *const u8, mut len: usize) -> u32
 
         crc0 = mm_crc32_u64(0, mm_extract_epi64::<0>(x0));
         crc0 = mm_crc32_u64(crc0, mm_extract_epi64::<1>(x0));
-    } else if len >= 96 {
-        let k = _mm_setr_epi32(
-            0xf20c_0dfe_u32.cast_signed(),
-            0,
-            0x493c_7d27_u32.cast_signed(),
-            0,
-        );
-        let mut x0 = unsafe { _mm_loadu_si128(buf.cast()) };
-        x0 = _mm_xor_si128(x0, _mm_cvtsi32_si128(crc0.cast_signed()));
-        buf = unsafe { buf.add(16) };
-        len -= 16;
-
-        while len >= 16 {
-            let y0 = clmul_lo(x0, k);
-            x0 = _mm_xor_si128(
-                clmul_hi(x0, k),
-                _mm_xor_si128(y0, unsafe { _mm_loadu_si128(buf.cast()) }),
-            );
-            buf = unsafe { buf.add(16) };
-            len -= 16;
-        }
-
-        crc0 = mm_crc32_u64(0, mm_extract_epi64::<0>(x0));
-        crc0 = mm_crc32_u64(crc0, mm_extract_epi64::<1>(x0));
     }
 
     while len >= 8 {
@@ -242,7 +218,7 @@ unsafe fn crc32c_small(mut crc0: u32, mut buf: *const u8, mut len: usize) -> u32
 pub unsafe fn crc32c(mut crc0: u32, mut buf: *const u8, mut len: usize) -> u32 {
     crc0 = !crc0;
 
-    if (96..=1024).contains(&len) {
+    if (16..=768).contains(&len) {
         return !unsafe { crc32c_small(crc0, buf, len) };
     }
     let align = buf as usize & 7;
