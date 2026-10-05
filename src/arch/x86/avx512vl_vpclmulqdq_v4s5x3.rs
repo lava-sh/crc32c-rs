@@ -27,7 +27,7 @@ fn clmul_scalar(a: u32, b: u32) -> __m128i {
 }
 
 #[inline]
-#[target_feature(enable = "sse4.2")]
+#[target_feature(enable = "sse4.1")]
 fn mm_crc32_u64(crc: u32, v: u64) -> u32 {
     #[cfg(target_arch = "x86")]
     {
