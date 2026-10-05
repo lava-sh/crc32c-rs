@@ -18,7 +18,7 @@ fn clmul_hi(a: __m512i, b: __m512i) -> __m512i {
 }
 
 #[inline]
-#[target_feature(enable = "sse4.2,pclmulqdq")]
+#[target_feature(enable = "pclmulqdq")]
 fn clmul_scalar(a: u32, b: u32) -> __m128i {
     _mm_clmulepi64_si128::<0>(
         _mm_cvtsi32_si128(a.cast_signed()),
