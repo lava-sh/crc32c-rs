@@ -29,7 +29,7 @@ fn clmul_hi(a: __m128i, b: __m128i) -> __m128i {
 }
 
 #[inline]
-#[target_feature(enable = "sse4.2,pclmulqdq")]
+#[target_feature(enable = "pclmulqdq")]
 fn clmul_scalar(a: u32, b: u32) -> __m128i {
     _mm_clmulepi64_si128::<0>(
         _mm_cvtsi32_si128(a.cast_signed()),
@@ -52,13 +52,13 @@ fn mm_crc32_u64(crc: u32, v: u64) -> u32 {
 }
 
 #[inline]
-#[target_feature(enable = "sse4.2")]
+#[target_feature(enable = "sse4.1")]
 fn mm_extract_epi64<const IMM1: i32>(a: __m128i) -> u64 {
     const { assert!(IMM1 == 0 || IMM1 == 1) };
     #[cfg(target_arch = "x86")]
     {
-        let arr: [u64; 2] = unsafe { core::mem::transmute(a) };
-        arr[IMM1 as usize]
+        let lanes: [u64; 2] = unsafe { core::mem::transmute(a) };
+        lanes[IMM1 as usize]
     }
     #[cfg(target_arch = "x86_64")]
     {
