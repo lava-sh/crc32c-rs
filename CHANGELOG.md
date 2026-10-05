@@ -17,9 +17,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0).
 * Port the `aarch64` kernels from inline assembly to intrinsics. (by [@chirizxc][gh-chirizxc])
 * Move the `x86` and `aarch64` sources into subdirectories of `src/arch`. (by [@chirizxc][gh-chirizxc])
 * Clean up the `#[target_feature]` attributes of the `x86` kernels and the `.godbolt` sources. (by [@chirizxc][gh-chirizxc])
-* Update the `.godbolt` links. (by [@chirizxc][gh-chirizxc])
-* Bump PyO3 (0.29.2 -> 0.29.3) and the Python dependencies. (by [@chirizxc][gh-chirizxc])
-* Update CI: bump the WASM nightly toolchain and Pyodide, and extend the WASM tests. (by [@chirizxc][gh-chirizxc])
+* Improve the test coverage of the WASM tests. (by [@chirizxc][gh-chirizxc])
 
 ## [0.0.5] - 27.09.2026
 
