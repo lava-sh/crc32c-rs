@@ -27,7 +27,7 @@ fn clmul_scalar(a: u32, b: u32) -> __m128i {
 }
 
 #[inline]
-#[target_feature(enable = "sse4.1")]
+#[target_feature(enable = "sse4.2")]
 fn mm_crc32_u64(crc: u32, v: u64) -> u32 {
     #[cfg(target_arch = "x86")]
     {
@@ -41,7 +41,7 @@ fn mm_crc32_u64(crc: u32, v: u64) -> u32 {
 }
 
 #[inline]
-#[target_feature(enable = "sse4.2")]
+#[target_feature(enable = "sse4.1")]
 fn mm_extract_epi64<const IMM1: i32>(a: __m128i) -> u64 {
     const { assert!(IMM1 == 0 || IMM1 == 1) };
     #[cfg(target_arch = "x86")]
