@@ -46,8 +46,8 @@ fn mm_extract_epi64<const IMM1: i32>(a: __m128i) -> u64 {
     const { assert!(IMM1 == 0 || IMM1 == 1) };
     #[cfg(target_arch = "x86")]
     {
-        let arr: [u64; 2] = unsafe { core::mem::transmute(a) };
-        arr[IMM1 as usize]
+        let lanes: [u64; 2] = unsafe { core::mem::transmute(a) };
+        lanes[IMM1 as usize]
     }
     #[cfg(target_arch = "x86_64")]
     {
