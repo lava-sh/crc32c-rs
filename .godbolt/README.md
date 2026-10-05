@@ -24,19 +24,19 @@ Examples:
 
 |    Target    | Implementation                                                                              | Link                              |
 |:------------:|---------------------------------------------------------------------------------------------|-----------------------------------|
-|  AMD x86-64  | [`avx512vl_vpclmulqdq-v3s2x4`](corsix_fast-crc32/amd-x86_64/avx512vl_vpclmulqdq-v3s2x4)     | <https://godbolt.org/z/zz7s4jKM1> |
-|  AMD x86-64  | [`sse42_pclmulqdq-v1s3x2`](corsix_fast-crc32/amd-x86_64/sse42_pclmulqdq-v1s3x2)             | <https://godbolt.org/z/55Efb41Ma> |
-|  AMD x86-64  | [`sse42_pclmulqdq-v1s3x3`](corsix_fast-crc32/amd-x86_64/sse42_pclmulqdq-v1s3x3)             | <https://godbolt.org/z/fbec7qKG5> |
-|  AMD x86-64  | [`sse42_pclmulqdq-v1s4x2`](corsix_fast-crc32/amd-x86_64/sse42_pclmulqdq-v1s4x2)             | <https://godbolt.org/z/eaadcv9db> |
+|  AMD x86-64  | [`avx512vl_vpclmulqdq-v3s2x4`](corsix_fast-crc32/amd-x86_64/avx512vl_vpclmulqdq-v3s2x4)     | <https://godbolt.org/z/8Toq98a6n> |
+|  AMD x86-64  | [`sse42_pclmulqdq-v1s3x2`](corsix_fast-crc32/amd-x86_64/sse42_pclmulqdq-v1s3x2)             | <https://godbolt.org/z/5K9c5Edrr> |
+|  AMD x86-64  | [`sse42_pclmulqdq-v1s3x3`](corsix_fast-crc32/amd-x86_64/sse42_pclmulqdq-v1s3x3)             | <https://godbolt.org/z/K4W1oonjG> |
+|  AMD x86-64  | [`sse42_pclmulqdq-v1s4x2`](corsix_fast-crc32/amd-x86_64/sse42_pclmulqdq-v1s4x2)             | <https://godbolt.org/z/5ro4da9zE> |
 |     ARM      | [`aes_crc-v12e_v1`](corsix_fast-crc32/arm/aes_crc-v12e_v1)                                  | <https://godbolt.org/z/fnev1cqaj> |
 |     ARM      | [`aes_crc-v3s4x2e_v2`](corsix_fast-crc32/arm/aes_crc-v3s4x2e_v2)                            | <https://godbolt.org/z/xW3a1Kqrr> |
 |     ARM      | [`aes_crc_sha3-v9s3x2e_s3`](corsix_fast-crc32/arm/aes_crc_sha3-v9s3x2e_s3)                  | <https://godbolt.org/z/KGY5E3xcv> |
-| Intel x86-64 | [`avx512vl_pclmulqdq-v9s3x4e`](corsix_fast-crc32/intel-x86_64/avx512vl_pclmulqdq-v9s3x4e)   | <https://godbolt.org/z/rbTsEbaTc> |
-| Intel x86-64 | [`avx512vl_vpclmulqdq-v3s1_s3`](corsix_fast-crc32/intel-x86_64/avx512vl_vpclmulqdq-v3s1_s3) | <https://godbolt.org/z/8qvn479fv> |
-| Intel x86-64 | [`avx512vl_vpclmulqdq-v4s5x3`](corsix_fast-crc32/intel-x86_64/avx512vl_vpclmulqdq-v4s5x3)   | <https://godbolt.org/z/jeYYv6YPG> |
+| Intel x86-64 | [`avx512vl_pclmulqdq-v9s3x4e`](corsix_fast-crc32/intel-x86_64/avx512vl_pclmulqdq-v9s3x4e)   | <https://godbolt.org/z/nGG7Ps6av> |
+| Intel x86-64 | [`avx512vl_vpclmulqdq-v3s1_s3`](corsix_fast-crc32/intel-x86_64/avx512vl_vpclmulqdq-v3s1_s3) | <https://godbolt.org/z/sPWhMe1nd> |
+| Intel x86-64 | [`avx512vl_vpclmulqdq-v4s5x3`](corsix_fast-crc32/intel-x86_64/avx512vl_vpclmulqdq-v4s5x3)   | <https://godbolt.org/z/1nPE6TWPh> |
 | Intel x86-64 | [`sse42`](madler_brotli/sse42)                                                              | <https://godbolt.org/z/7zooT8s7b> |
-| Intel x86-64 | [`sse42_pclmulqdq-v7s3x3`](corsix_fast-crc32/intel-x86_64/sse42_pclmulqdq-v7s3x3)           | <https://godbolt.org/z/jK5zjYqnW> |
-| Intel x86-64 | [`sse42_pclmulqdq-v8s3x3`](corsix_fast-crc32/intel-x86_64/sse42_pclmulqdq-v8s3x3)           | <https://godbolt.org/z/35e553n6G> |
+| Intel x86-64 | [`sse42_pclmulqdq-v7s3x3`](corsix_fast-crc32/intel-x86_64/sse42_pclmulqdq-v7s3x3)           | <https://godbolt.org/z/TW3KK8TTe> |
+| Intel x86-64 | [`sse42_pclmulqdq-v8s3x3`](corsix_fast-crc32/intel-x86_64/sse42_pclmulqdq-v8s3x3)           | <https://godbolt.org/z/b7f1Eqa9s> |
 
 If the short links stop working, regenerate them:
 
