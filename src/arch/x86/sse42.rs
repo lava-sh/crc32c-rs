@@ -129,8 +129,38 @@ macro_rules! round3 {
     }};
 }
 
+#[inline]
+#[target_feature(enable = "sse4.2")]
+unsafe fn crc32c_small(crc: u32, mut buf: *const u8, mut len: usize) -> u32 {
+    let mut crc0 = !crc;
+
+    while len >= 8 {
+        crc0 = mm_crc32_u64(crc0, unsafe { buf.cast::<u64>().read_unaligned() });
+        buf = unsafe { buf.add(8) };
+        len -= 8;
+    }
+    if len >= 4 {
+        crc0 = _mm_crc32_u32(crc0, unsafe { buf.cast::<u32>().read_unaligned() });
+        buf = unsafe { buf.add(4) };
+        len -= 4;
+    }
+    if len >= 2 {
+        crc0 = _mm_crc32_u16(crc0, unsafe { buf.cast::<u16>().read_unaligned() });
+        buf = unsafe { buf.add(2) };
+        len -= 2;
+    }
+    if len >= 1 {
+        crc0 = _mm_crc32_u8(crc0, unsafe { *buf });
+    }
+
+    !crc0
+}
+
 #[target_feature(enable = "sse4.2")]
 pub unsafe fn crc32c(crc: u32, mut buf: *const u8, mut len: usize) -> u32 {
+    if len <= 384 {
+        return unsafe { crc32c_small(crc, buf, len) };
+    }
     let mut crc0: u32 = !crc;
     let align = buf as usize & 7;
     if align != 0 {

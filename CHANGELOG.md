@@ -11,6 +11,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0).
 * Add a `crc32c_small` fast path for small inputs to `avx512vl_vpclmulqdq_v3s1_s3`, `avx512vl_pclmulqdq_v9s3x4e`, `sse42_pclmulqdq_v7s3x3`, and `sse42_pclmulqdq_v1s3x3`. (by [@chirizxc][gh-chirizxc])
 * Use AVX-512 folding instead of the multi-stream `crc32` loop in `crc32c_small` of `avx512vl_vpclmulqdq_v4s5x3` and `avx512vl_vpclmulqdq_v3s2x4`. (by [@chirizxc][gh-chirizxc])
 * Fold the remaining whole 64-byte blocks in `crc32c_small` of `avx512vl_vpclmulqdq_v4s5x3`, `avx512vl_vpclmulqdq_v3s2x4`, and `avx512vl_pclmulqdq_v9s3x4e`, so the scalar `crc32` loop only handles the final < 64 bytes. (by [@chirizxc][gh-chirizxc])
+* Add a `crc32c_small` fast path for inputs up to 384 bytes to `crc32c_sse42`. (by [@chirizxc][gh-chirizxc])
 
 ### Misc
 
