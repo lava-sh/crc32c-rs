@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0).
 
 ## [Unreleased] - ReleaseDate
 
+## [0.0.6] - 07.10.2026
+
 ### Performance improvements
 
 * Add a `crc32c_small` fast path for small inputs to `avx512vl_vpclmulqdq_v3s1_s3`, `avx512vl_pclmulqdq_v9s3x4e`, `sse42_pclmulqdq_v7s3x3`, and `sse42_pclmulqdq_v1s3x3`. (by [@chirizxc][gh-chirizxc])
@@ -85,8 +87,9 @@ First release.
 
 [gh-chirizxc]: https://github.com/chirizxc
 
-[Unreleased]: https://github.com/lava-sh/crc32c-rs/compare/0.0.5...HEAD
+[Unreleased]: https://github.com/lava-sh/crc32c-rs/compare/0.0.6...HEAD
 
+[0.0.6]: https://github.com/lava-sh/crc32c-rs/compare/0.0.5...0.0.6
 [0.0.5]: https://github.com/lava-sh/crc32c-rs/compare/0.0.4...0.0.5
 [0.0.4]: https://github.com/lava-sh/crc32c-rs/compare/0.0.3...0.0.4
 [0.0.3]: https://github.com/lava-sh/crc32c-rs/compare/0.0.2...0.0.3
