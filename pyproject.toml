@@ -90,7 +90,6 @@ bench = [
     "fastcrc == 0.5.0",
     "google-crc32c == 1.9.0",
     "pyperf == 2.10.0",
-    { include-group = "archspec" },
     # table generator
     "orjson == 3.12.0",
     "markdown-it-py == 4.2.0",
