@@ -193,6 +193,8 @@ jobs:
 
   build-sdist:
     name: "build sdist"
+    if: >-
+      ${{ !contains(github.event.pull_request.labels.*.name, fromJSON('"skip: wheels build"')) }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -212,7 +214,12 @@ jobs:
           path: dist
 
   release-pypi:
-    if: ${{ always() && !failure() && !cancelled() }}
+    # if the python wheel build jobs are skipped, there are no artifacts to validate
+    if: >-
+      ${{
+        always() && !failure() && !cancelled() &&
+        !contains(github.event.pull_request.labels.*.name, fromJSON('"skip: wheels build"'))
+      }}
 
     name: "Publish to PyPI"
     runs-on: ubuntu-latest
