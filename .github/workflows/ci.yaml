@@ -11,7 +11,11 @@ on:
       "justfile",
     ]
   pull_request:
-    types: ["opened", "synchronize", "reopened", "labeled"]
+    types: [
+      "synchronize",
+      "opened", "reopened",
+      "labeled", "unlabeled",
+    ]
     paths-ignore: [
       "CHANGELOG.md",
       "justfile",
@@ -182,14 +186,33 @@ jobs:
     needs: [ tests, tests-alpine, cargo-fmt, cargo-clippy, tools ]
     uses: $/.github/workflows/wasm.yaml
 
-  python-bench:
-    if: ${{ contains(github.event.pull_request.labels.*.name, 'ci-python-bench') }}
-
+  py-bench-x86:
+    name: "py-bench: x86"
+    if: >-
+      ${{
+        github.event_name == 'pull_request' &&
+        contains(github.event.pull_request.labels.*.name, fromJSON('"py-bench: x86"'))
+      }}
     permissions:
       contents: read
       pull-requests: write
+    uses: $/.github/workflows/py-bench.yaml
+    with:
+      runners: '["ubuntu-latest", "windows-latest", "macos-26-intel"]'
 
-    uses: $/.github/workflows/python-bench.yaml
+  py-bench-aarch64:
+    name: "py-bench: aarch64"
+    if: >-
+      ${{
+        github.event_name == 'pull_request' &&
+        contains(github.event.pull_request.labels.*.name, fromJSON('"py-bench: aarch64"'))
+      }}
+    permissions:
+      contents: read
+      pull-requests: write
+    uses: $/.github/workflows/py-bench.yaml
+    with:
+      runners: '["ubuntu-26.04-arm", "windows-11-arm", "macos-latest"]'
 
   build-sdist:
     name: "build sdist"
