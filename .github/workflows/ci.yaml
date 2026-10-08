@@ -25,6 +25,13 @@ concurrency:
 env:
   FORCE_COLOR: "1"
   CARGO_TERM_COLOR: always
+  #
+  __skip_tests: &skip_tests >- 
+    ${{ !contains(github.event.pull_request.labels.*.name, 'skip: tests') }}
+  __skip_wheel_build: &skip_wheel_build >-
+    ${{ !contains(github.event.pull_request.labels.*.name, 'skip: wheels build') }}
+  __skip_lints: &skip_lints >-
+    ${{ !contains(github.event.pull_request.labels.*.name, 'skip: lints') }}
 
 jobs:
   cargo-fmt:
@@ -111,9 +118,8 @@ jobs:
         run: ${{ matrix.command }}
 
   tests-alpine:
-    if: ${{ !contains(github.event.pull_request.labels.*.name, 'skip-tests') }}
-
     name: "tests / alpine / python 3.14"
+    if: *skip_tests
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -127,8 +133,7 @@ jobs:
           docker run --rm -v "$PWD":/app -w /app alpine-test
 
   tests:
-    if: ${{ !contains(github.event.pull_request.labels.*.name, 'skip-tests') }}
-
+    if: *skip_tests
     uses: $/.github/workflows/tests.yaml
 
   manylinux:
