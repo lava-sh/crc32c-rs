@@ -44,7 +44,7 @@ def _crc32c_fallback(
         Base instruction set only.
 
     Algorithm:
-        Slice-by-16: sixteen 256-entry tables fold the next 16 bytes with one
+        Slice-by-16: sixteen 256-entry tfables fold the next 16 bytes with one
         lookup each. The outer loop runs four such blocks, 64 bytes, and
         prefetches 256 bytes ahead; the remaining 8+ bytes go through the same
         tables with a length-indexed stride.
