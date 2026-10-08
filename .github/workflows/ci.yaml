@@ -144,7 +144,7 @@ jobs:
   manylinux:
     if: >-
       ${{
-          !contains(github.event.pull_request.labels.*.name, fromJSON('"skip: wheels build"')) &&
+          !contains(github.event.pull_request.labels.*.name, 'skip: wheels build') &&
           always() && !failure() && !cancelled() 
       }}
     needs: [ tests, tests-alpine, cargo-fmt, cargo-clippy, tools ]
@@ -153,7 +153,7 @@ jobs:
   musllinux:
     if: >-
       ${{
-          !contains(github.event.pull_request.labels.*.name, fromJSON('"skip: wheels build"')) &&
+          !contains(github.event.pull_request.labels.*.name, 'skip: wheels build') &&
           always() && !failure() && !cancelled() 
       }}
     needs: [ tests, tests-alpine, cargo-fmt, cargo-clippy, tools ]
@@ -162,7 +162,7 @@ jobs:
   windows:
     if: >-
       ${{
-          !contains(github.event.pull_request.labels.*.name, fromJSON('"skip: wheels build"')) &&
+          !contains(github.event.pull_request.labels.*.name, 'skip: wheels build') &&
           always() && !failure() && !cancelled() 
       }}
     needs: [ tests, tests-alpine, cargo-fmt, cargo-clippy, tools ]
@@ -171,7 +171,7 @@ jobs:
   macos:
     if: >-
       ${{
-          !contains(github.event.pull_request.labels.*.name, fromJSON('"skip: wheels build"')) &&
+          !contains(github.event.pull_request.labels.*.name, 'skip: wheels build') &&
           always() && !failure() && !cancelled() 
       }}
     needs: [ tests, tests-alpine, cargo-fmt, cargo-clippy, tools ]
@@ -180,7 +180,7 @@ jobs:
   wasm:
     if: >-
       ${{
-          !contains(github.event.pull_request.labels.*.name, fromJSON('"skip: wheels build"')) &&
+          !contains(github.event.pull_request.labels.*.name, 'skip: wheels build') &&
           always() && !failure() && !cancelled() 
       }}
     needs: [ tests, tests-alpine, cargo-fmt, cargo-clippy, tools ]
@@ -191,33 +191,35 @@ jobs:
     if: >-
       ${{
         github.event_name == 'pull_request' &&
-        contains(github.event.pull_request.labels.*.name, fromJSON('"py-bench: x86"'))
+        contains(github.event.pull_request.labels.*.name, 'py-bench: x86')
       }}
     permissions:
       contents: read
       pull-requests: write
     uses: $/.github/workflows/py-bench.yaml
     with:
-      runners: '["ubuntu-latest", "windows-latest", "macos-26-intel"]'
+      runners: >-
+        ["ubuntu-latest", "windows-latest", "macos-26-intel"]
 
   py-bench-aarch64:
     name: "py-bench: aarch64"
     if: >-
       ${{
         github.event_name == 'pull_request' &&
-        contains(github.event.pull_request.labels.*.name, fromJSON('"py-bench: aarch64"'))
+        contains(github.event.pull_request.labels.*.name, 'py-bench: aarch64')
       }}
     permissions:
       contents: read
       pull-requests: write
     uses: $/.github/workflows/py-bench.yaml
     with:
-      runners: '["ubuntu-26.04-arm", "windows-11-arm", "macos-latest"]'
+      runners: >-
+        ["ubuntu-26.04-arm", "windows-11-arm", "macos-latest"]
 
   build-sdist:
     name: "build sdist"
     if: >-
-      ${{ !contains(github.event.pull_request.labels.*.name, fromJSON('"skip: wheels build"')) }}
+      ${{ !contains(github.event.pull_request.labels.*.name, 'skip: wheels build') }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -241,7 +243,7 @@ jobs:
     if: >-
       ${{
         always() && !failure() && !cancelled() &&
-        !contains(github.event.pull_request.labels.*.name, fromJSON('"skip: wheels build"'))
+        !contains(github.event.pull_request.labels.*.name, 'skip: wheels build')
       }}
 
     name: "Publish to PyPI"
