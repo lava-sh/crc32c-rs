@@ -28,11 +28,6 @@ env:
   #
   __skip_tests: &skip_tests >- 
     ${{ !contains(github.event.pull_request.labels.*.name, 'skip: tests') }}
-  __skip_wheel_build: &skip_wheel_build >-
-    ${{ 
-        !contains(github.event.pull_request.labels.*.name, 'skip: wheels build') &&
-        always() && !failure() && !cancelled()
-    }}
   __skip_lints: &skip_lints >-
     ${{ !contains(github.event.pull_request.labels.*.name, 'skip: lints') }}
 
@@ -143,27 +138,47 @@ jobs:
     uses: $/.github/workflows/tests.yaml
 
   manylinux:
-    if: *skip_wheel_build
+    if: >-
+      ${{
+          !contains(github.event.pull_request.labels.*.name, fromJSON('"skip: wheels build"')) &&
+          always() && !failure() && !cancelled() 
+      }}
     needs: [ tests, tests-alpine, cargo-fmt, cargo-clippy, tools ]
     uses: $/.github/workflows/manylinux.yaml
 
   musllinux:
-    if: *skip_wheel_build
+    if: >-
+      ${{
+          !contains(github.event.pull_request.labels.*.name, fromJSON('"skip: wheels build"')) &&
+          always() && !failure() && !cancelled() 
+      }}
     needs: [ tests, tests-alpine, cargo-fmt, cargo-clippy, tools ]
     uses: $/.github/workflows/musllinux.yaml
 
   windows:
-    if: *skip_wheel_build
+    if: >-
+      ${{
+          !contains(github.event.pull_request.labels.*.name, fromJSON('"skip: wheels build"')) &&
+          always() && !failure() && !cancelled() 
+      }}
     needs: [ tests, tests-alpine, cargo-fmt, cargo-clippy, tools ]
     uses: $/.github/workflows/windows.yaml
 
   macos:
-    if: *skip_wheel_build
+    if: >-
+      ${{
+          !contains(github.event.pull_request.labels.*.name, fromJSON('"skip: wheels build"')) &&
+          always() && !failure() && !cancelled() 
+      }}
     needs: [ tests, tests-alpine, cargo-fmt, cargo-clippy, tools ]
     uses: $/.github/workflows/macos.yaml
 
   wasm:
-    if: *skip_wheel_build
+    if: >-
+      ${{
+          !contains(github.event.pull_request.labels.*.name, fromJSON('"skip: wheels build"')) &&
+          always() && !failure() && !cancelled() 
+      }}
     needs: [ tests, tests-alpine, cargo-fmt, cargo-clippy, tools ]
     uses: $/.github/workflows/wasm.yaml
 
