@@ -69,7 +69,7 @@ jobs:
       - name: "Run Python benchmark"
         shell: bash
         env:
-          PYTHONWARNINGS: "ignore::RuntimeWarning:google_crc32c"
+          PYTHONWARNINGS: "ignore:As the c extension"
         run: |
           if [[ "${{ matrix.runner }}" == windows-* ]]; then
             source .venv/Scripts/activate
