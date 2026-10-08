@@ -36,6 +36,7 @@ env:
 jobs:
   cargo-fmt:
     name: "cargo fmt"
+    if: *skip_lints
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -51,6 +52,7 @@ jobs:
 
   cargo-clippy:
     name: "cargo clippy / ${{ matrix.target }}"
+    if: *skip_lints
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 10
     strategy:
@@ -82,6 +84,7 @@ jobs:
 
   tools:
     name: ${{ matrix.name }}
+    if: *skip_lints
     runs-on: ubuntu-latest
 
     strategy:
@@ -137,32 +140,27 @@ jobs:
     uses: $/.github/workflows/tests.yaml
 
   manylinux:
-    if: ${{ always() && !failure() && !cancelled() }}
-
+    if: *skip_wheel_build
     needs: [ tests, tests-alpine, cargo-fmt, cargo-clippy, tools ]
     uses: $/.github/workflows/manylinux.yaml
 
   musllinux:
-    if: ${{ always() && !failure() && !cancelled() }}
-
+    if: *skip_wheel_build
     needs: [ tests, tests-alpine, cargo-fmt, cargo-clippy, tools ]
     uses: $/.github/workflows/musllinux.yaml
 
   windows:
-    if: ${{ always() && !failure() && !cancelled() }}
-
+    if: *skip_wheel_build
     needs: [ tests, tests-alpine, cargo-fmt, cargo-clippy, tools ]
     uses: $/.github/workflows/windows.yaml
 
   macos:
-    if: ${{ always() && !failure() && !cancelled() }}
-
+    if: *skip_wheel_build
     needs: [ tests, tests-alpine, cargo-fmt, cargo-clippy, tools ]
     uses: $/.github/workflows/macos.yaml
 
   wasm:
-    if: ${{ always() && !failure() && !cancelled() }}
-
+    if: *skip_wheel_build
     needs: [ tests, tests-alpine, cargo-fmt, cargo-clippy, tools ]
     uses: $/.github/workflows/wasm.yaml
 
