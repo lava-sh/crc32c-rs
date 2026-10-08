@@ -111,8 +111,8 @@ unsafe fn crc32c_small(mut crc0: u32, mut buf: *const u8, mut len: usize) -> u32
         }
 
         // Reduce 128 bits to 32 bits.
-        crc0 = unsafe { __crc32cd(0, vgetq_lane_u64(x0, 0)) };
-        crc0 = unsafe { __crc32cd(crc0, vgetq_lane_u64(x0, 1)) };
+        crc0 = __crc32cd(0, vgetq_lane_u64(x0, 0));
+        crc0 = __crc32cd(crc0, vgetq_lane_u64(x0, 1));
     }
 
     while len >= 8 {
