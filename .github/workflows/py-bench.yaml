@@ -41,7 +41,13 @@ jobs:
       - name: "Create and activate .venv"
         shell: bash
         run: |
-          uv venv .venv --python ${{ matrix.python-version }}
+          PY="${{ matrix.python-version }}"
+          if [[ "${{ matrix.runner }}" == "windows-11-arm" ]]; then
+            PY="${PY}-aarch64"
+          fi
+
+          uv venv .venv --python "$PY"
+
           if [[ "${{ matrix.runner }}" == windows-* ]]; then
             echo ".venv/Scripts" >> "$GITHUB_PATH"
             echo "PYO3_PYTHON=.venv/Scripts/python" >> "$GITHUB_ENV"

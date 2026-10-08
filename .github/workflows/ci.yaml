@@ -187,7 +187,6 @@ jobs:
     uses: $/.github/workflows/wasm.yaml
 
   py-bench-x86:
-    name: "py-bench: x86"
     if: >-
       ${{
         github.event_name == 'pull_request' &&
@@ -202,7 +201,6 @@ jobs:
         ["ubuntu-latest", "windows-latest", "macos-26-intel"]
 
   py-bench-aarch64:
-    name: "py-bench: aarch64"
     if: >-
       ${{
         github.event_name == 'pull_request' &&
