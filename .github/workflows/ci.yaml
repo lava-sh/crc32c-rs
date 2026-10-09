@@ -11,7 +11,11 @@ on:
       "justfile",
     ]
   pull_request:
-    types: ["opened", "synchronize", "reopened", "labeled"]
+    types: [
+      "synchronize",
+      "opened", "reopened",
+      "labeled", "unlabeled",
+    ]
     paths-ignore: [
       "CHANGELOG.md",
       "justfile",
@@ -25,10 +29,16 @@ concurrency:
 env:
   FORCE_COLOR: "1"
   CARGO_TERM_COLOR: always
+  #
+  __skip_tests: &skip_tests >- 
+    ${{ !contains(github.event.pull_request.labels.*.name, 'skip: tests') }}
+  __skip_lints: &skip_lints >-
+    ${{ !contains(github.event.pull_request.labels.*.name, 'skip: lints') }}
 
 jobs:
   cargo-fmt:
     name: "cargo fmt"
+    if: *skip_lints
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -44,6 +54,7 @@ jobs:
 
   cargo-clippy:
     name: "cargo clippy / ${{ matrix.target }}"
+    if: *skip_lints
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 10
     strategy:
@@ -75,6 +86,7 @@ jobs:
 
   tools:
     name: ${{ matrix.name }}
+    if: *skip_lints
     runs-on: ubuntu-latest
 
     strategy:
@@ -111,9 +123,8 @@ jobs:
         run: ${{ matrix.command }}
 
   tests-alpine:
-    if: ${{ !contains(github.event.pull_request.labels.*.name, 'skip-tests') }}
-
     name: "tests / alpine / python 3.14"
+    if: *skip_tests
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -127,51 +138,88 @@ jobs:
           docker run --rm -v "$PWD":/app -w /app alpine-test
 
   tests:
-    if: ${{ !contains(github.event.pull_request.labels.*.name, 'skip-tests') }}
-
+    if: *skip_tests
     uses: $/.github/workflows/tests.yaml
 
   manylinux:
-    if: ${{ always() && !failure() && !cancelled() }}
-
+    if: >-
+      ${{
+          !contains(github.event.pull_request.labels.*.name, 'skip: wheels build') &&
+          always() && !failure() && !cancelled() 
+      }}
     needs: [ tests, tests-alpine, cargo-fmt, cargo-clippy, tools ]
     uses: $/.github/workflows/manylinux.yaml
 
   musllinux:
-    if: ${{ always() && !failure() && !cancelled() }}
-
+    if: >-
+      ${{
+          !contains(github.event.pull_request.labels.*.name, 'skip: wheels build') &&
+          always() && !failure() && !cancelled() 
+      }}
     needs: [ tests, tests-alpine, cargo-fmt, cargo-clippy, tools ]
     uses: $/.github/workflows/musllinux.yaml
 
   windows:
-    if: ${{ always() && !failure() && !cancelled() }}
-
+    if: >-
+      ${{
+          !contains(github.event.pull_request.labels.*.name, 'skip: wheels build') &&
+          always() && !failure() && !cancelled() 
+      }}
     needs: [ tests, tests-alpine, cargo-fmt, cargo-clippy, tools ]
     uses: $/.github/workflows/windows.yaml
 
   macos:
-    if: ${{ always() && !failure() && !cancelled() }}
-
+    if: >-
+      ${{
+          !contains(github.event.pull_request.labels.*.name, 'skip: wheels build') &&
+          always() && !failure() && !cancelled() 
+      }}
     needs: [ tests, tests-alpine, cargo-fmt, cargo-clippy, tools ]
     uses: $/.github/workflows/macos.yaml
 
   wasm:
-    if: ${{ always() && !failure() && !cancelled() }}
-
+    if: >-
+      ${{
+          !contains(github.event.pull_request.labels.*.name, 'skip: wheels build') &&
+          always() && !failure() && !cancelled() 
+      }}
     needs: [ tests, tests-alpine, cargo-fmt, cargo-clippy, tools ]
     uses: $/.github/workflows/wasm.yaml
 
-  python-bench:
-    if: ${{ contains(github.event.pull_request.labels.*.name, 'ci-python-bench') }}
-
+  py-bench-x86:
+    name: "py-bench / x86"
+    if: >-
+      ${{
+        github.event_name == 'pull_request' &&
+        contains(github.event.pull_request.labels.*.name, 'py-bench: x86')
+      }}
     permissions:
       contents: read
       pull-requests: write
+    uses: $/.github/workflows/py-bench.yaml
+    with:
+      runners: >-
+        ["ubuntu-latest", "windows-latest", "macos-26-intel"]
 
-    uses: $/.github/workflows/python-bench.yaml
+  py-bench-aarch64:
+    name: "py-bench / aarch64"
+    if: >-
+      ${{
+        github.event_name == 'pull_request' &&
+        contains(github.event.pull_request.labels.*.name, 'py-bench: aarch64')
+      }}
+    permissions:
+      contents: read
+      pull-requests: write
+    uses: $/.github/workflows/py-bench.yaml
+    with:
+      runners: >-
+        ["ubuntu-26.04-arm", "windows-11-arm", "macos-latest"]
 
   build-sdist:
     name: "build sdist"
+    if: >-
+      ${{ !contains(github.event.pull_request.labels.*.name, 'skip: wheels build') }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -191,7 +239,12 @@ jobs:
           path: dist
 
   release-pypi:
-    if: ${{ always() && !failure() && !cancelled() }}
+    # if the python wheel build jobs are skipped, there are no artifacts to validate
+    if: >-
+      ${{
+        always() && !failure() && !cancelled() &&
+        !contains(github.event.pull_request.labels.*.name, 'skip: wheels build')
+      }}
 
     name: "Publish to PyPI"
     runs-on: ubuntu-latest
