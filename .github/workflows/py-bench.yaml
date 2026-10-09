@@ -40,15 +40,17 @@ jobs:
 
       - name: "Create and activate .venv"
         shell: bash
+        env:
+          MATRIX_RUNNER: ${{ matrix.runner }}
         run: |
           PY="${{ matrix.python-version }}"
-          if [[ "${{ matrix.runner }}" == "windows-11-arm" ]]; then
+          if [[ "${MATRIX_RUNNER}" == "windows-11-arm" ]]; then
             PY="${PY}-aarch64"
           fi
 
           uv venv .venv --python "$PY"
 
-          if [[ "${{ matrix.runner }}" == windows-* ]]; then
+          if [[ "${MATRIX_RUNNER}" == windows-* ]]; then
             echo ".venv/Scripts" >> "$GITHUB_PATH"
             echo "PYO3_PYTHON=.venv/Scripts/python" >> "$GITHUB_ENV"
             echo "UV_LINK_MODE=copy" >> "$GITHUB_ENV"
@@ -70,8 +72,9 @@ jobs:
         shell: bash
         env:
           PYTHONWARNINGS: "ignore::RuntimeWarning:google_crc32c"
+          MATRIX_RUNNER: ${{ matrix.runner }}
         run: |
-          if [[ "${{ matrix.runner }}" == windows-* ]]; then
+          if [[ "${MATRIX_RUNNER}" == windows-* ]]; then
             source .venv/Scripts/activate
           else
             source .venv/bin/activate
