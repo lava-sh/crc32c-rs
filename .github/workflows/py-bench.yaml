@@ -69,7 +69,7 @@ jobs:
       - name: "Run Python benchmark"
         shell: bash
         env:
-          PYTHONWARNINGS: "ignore:As the c extension"
+          PYTHONWARNINGS: "ignore::RuntimeWarning:google_crc32c"
         run: |
           if [[ "${{ matrix.runner }}" == windows-* ]]; then
             source .venv/Scripts/activate
@@ -78,7 +78,7 @@ jobs:
           fi
 
           cd benchmarks/python
-          python run.py -o results.json --quiet
+          python run.py -o results.json --quiet --inherit-environ=PYTHONWARNINGS
           python md_table.py results.json
 
       - name: "Extract benchmark section"
