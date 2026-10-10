@@ -18,7 +18,9 @@ pub mod payloads;
 pub mod simd_dispatch;
 
 #[cfg(any(target_arch = "aarch64", target_arch = "arm64ec"))]
-use crate::arch::aarch64::{aes_crc_v12e_v1, aes_sha3_v9s3x2e_s3, aes_v3s4x2e_v2};
+use crate::arch::aarch64::{
+    aes_crc_v12e_v1, aes_sha3_v9s3x2e_s3, aes_sha3_v12s3x2e_s3, aes_v3s4x2e_v2,
+};
 use crate::arch::fallback;
 #[cfg(any(target_arch = "x86_64", target_arch = "x86"))]
 use crate::arch::x86::{
@@ -113,10 +115,10 @@ pub fn available() -> Vec<Kernel> {
             ]);
         }
         if crate::detect_features!(aarch64, ["crc", "aes", "sha3"]) {
-            kernels.push(kernel_entry(
-                "aes_sha3_v9s3x2e_s3",
-                aes_sha3_v9s3x2e_s3::crc32c,
-            ));
+            kernels.extend_from_slice(&[
+                kernel_entry("aes_sha3_v9s3x2e_s3", aes_sha3_v9s3x2e_s3::crc32c),
+                kernel_entry("aes_sha3_v12s3x2e_s3", aes_sha3_v12s3x2e_s3::crc32c),
+            ]);
         }
     }
 

@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0).
 
 ## [Unreleased] - ReleaseDate
 
+### Features
+
+* Add the `crc32c_aes_sha3_v12s3x2e_s3` implementation for benchmarking; the runtime dispatch of `crc32c` does not use it. (by [@chirizxc][gh-chirizxc])
+
 ## [0.0.6] - 07.10.2026
 
 ### Performance improvements

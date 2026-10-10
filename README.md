@@ -147,6 +147,7 @@ at runtime, but you can also call a specific implementation directly:
 | `crc32c_aes_crc_v12e_v1`             |             `CRC + AES`             |
 | `crc32c_aes_v3s4x2e_v2`              |             `CRC + AES`             |
 | `crc32c_aes_sha3_v9s3x2e_s3`         |         `CRC + AES + SHA3`          |
+| `crc32c_aes_sha3_v12s3x2e_s3`        |         `CRC + AES + SHA3`          |
 
 Architecture-specific implementations are available only on compatible builds.
 If the current processor does not support the required features, calling one of

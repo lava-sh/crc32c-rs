@@ -50,6 +50,7 @@ def crc_impl() -> list[tuple[str, Callable[..., int]]]:
         "crc32c_aes_crc_v12e_v1": {"aes", "crc32"},
         "crc32c_aes_v3s4x2e_v2": {"aes", "crc32"},
         "crc32c_aes_sha3_v9s3x2e_s3": {"aes", "crc32", "sha3"},
+        "crc32c_aes_sha3_v12s3x2e_s3": {"aes", "crc32", "sha3"},
     }
 
     impls = []
