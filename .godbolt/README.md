@@ -30,6 +30,7 @@ Examples:
 |  AMD x86-64  | [`sse42_pclmulqdq-v1s4x2`](corsix_fast-crc32/amd-x86_64/sse42_pclmulqdq-v1s4x2)             | <https://godbolt.org/z/5ro4da9zE> |
 |     ARM      | [`aes_crc-v12e_v1`](corsix_fast-crc32/arm/aes_crc-v12e_v1)                                  | <https://godbolt.org/z/fnev1cqaj> |
 |     ARM      | [`aes_crc-v3s4x2e_v2`](corsix_fast-crc32/arm/aes_crc-v3s4x2e_v2)                            | <https://godbolt.org/z/xW3a1Kqrr> |
+|     ARM      | [`aes_crc_sha3-v12s3x2e_s3`](corsix_fast-crc32/arm/aes_crc_sha3-v12s3x2e_s3)                | <https://godbolt.org/z/dT6M1ojaz> |
 |     ARM      | [`aes_crc_sha3-v9s3x2e_s3`](corsix_fast-crc32/arm/aes_crc_sha3-v9s3x2e_s3)                  | <https://godbolt.org/z/KGY5E3xcv> |
 | Intel x86-64 | [`avx512vl_pclmulqdq-v9s3x4e`](corsix_fast-crc32/intel-x86_64/avx512vl_pclmulqdq-v9s3x4e)   | <https://godbolt.org/z/nGG7Ps6av> |
 | Intel x86-64 | [`avx512vl_vpclmulqdq-v3s1_s3`](corsix_fast-crc32/intel-x86_64/avx512vl_vpclmulqdq-v3s1_s3) | <https://godbolt.org/z/sPWhMe1nd> |

@@ -23,6 +23,7 @@ All original licenses are included in the `licenses/` directory.
   - AArch64 NEON + CRC + PMULL (`v3s4x2e_v2`) -> `src/arch/aes_v3s4x2e_v2.rs`
   - AArch64 NEON + CRC + PMULL (`v12e_v1`) -> `src/arch/aes_crc_v12e_v1.rs`
   - AArch64 NEON + CRC + PMULL + EOR3/SHA3 (`v9s3x2e_s3`) -> `src/arch/aes_sha3_v9s3x2e_s3.rs`
+  - AArch64 NEON + CRC + PMULL + EOR3/SHA3 (`v12s3x2e_s3`) -> `src/arch/aes_sha3_v12s3x2e_s3.rs`
 
 The suffix follows `corsix/fast-crc32`: `v` is the number of vector
 accumulators, `s` is the number of scalar accumulators, `x` is the load ratio,
@@ -54,6 +55,7 @@ make generate
 ./generate -i neon -p crc32c -a v12e_v1
 ./generate -i neon -p crc32c -a v3s4x2e_v2
 ./generate -i neon_eor3 -p crc32c -a v9s3x2e_s3
+./generate -i neon_eor3 -p crc32c -a v12s3x2e_s3
 ```
 
 Port to Rust line by line

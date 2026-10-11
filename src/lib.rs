@@ -14,7 +14,9 @@ mod crc32c_rs {
     use pyo3::prelude::*;
 
     #[cfg(any(target_arch = "aarch64", target_arch = "arm64ec"))]
-    use crate::arch::aarch64::{aes_crc_v12e_v1, aes_sha3_v9s3x2e_s3, aes_v3s4x2e_v2};
+    use crate::arch::aarch64::{
+        aes_crc_v12e_v1, aes_sha3_v9s3x2e_s3, aes_sha3_v12s3x2e_s3, aes_v3s4x2e_v2,
+    };
     #[cfg(any(target_arch = "x86_64", target_arch = "x86"))]
     use crate::arch::x86::{
         avx512vl_pclmulqdq_v9s3x4e, avx512vl_vpclmulqdq_v3s1_s3, avx512vl_vpclmulqdq_v3s2x4,
@@ -342,6 +344,27 @@ mod crc32c_rs {
             &buffer,
             value,
             aes_sha3_v9s3x2e_s3::crc32c,
+        ))
+    }
+
+    #[cfg(any(target_arch = "aarch64", target_arch = "arm64ec"))]
+    #[pyfunction(name = "_crc32c_aes_sha3_v12s3x2e_s3", signature = (data, value = 0, /))]
+    fn crc32c_aes_sha3_v12s3x2e_s3(
+        py: Python<'_>,
+        data: &Bound<'_, PyAny>,
+        value: u32,
+    ) -> PyResult<u32> {
+        if !detect_features!(aarch64, ["crc", "aes", "sha3"]) {
+            return Err(UnsupportedCPUFeatureError::new_err(
+                "CRC, AES, and SHA3 are not supported by this CPU",
+            ));
+        }
+        let buffer = PyBuffer::get(py, data)?;
+        Ok(crc32c_dispatch(
+            py,
+            &buffer,
+            value,
+            aes_sha3_v12s3x2e_s3::crc32c,
         ))
     }
 

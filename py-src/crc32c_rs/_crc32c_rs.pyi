@@ -372,3 +372,28 @@ def _crc32c_aes_sha3_v9s3x2e_s3(
     Returns:
         The CRC32C checksum of ``data``, continued from ``value``.
     """
+
+def _crc32c_aes_sha3_v12s3x2e_s3(
+    data: ReadableBuffer,
+    value: builtins.int = 0,
+    /,
+) -> builtins.int:
+    """
+    Compute the CRC32C checksum of ``data``.
+
+    Requires:
+        The CRC, AES, and SHA3 instruction set extensions.
+
+    Algorithm:
+        Folds 240 bytes per iteration: twelve 16-byte ``pmull`` accumulators
+        plus three scalar accumulators advancing by two 8-byte ``crc32`` steps
+        each.
+        The three-way XOR is a single ``eor3``.
+
+    Args:
+        data: Bytes to checksum.
+        value: Checksum of the preceding data, ``0`` for a fresh run.
+
+    Returns:
+        The CRC32C checksum of ``data``, continued from ``value``.
+    """
