@@ -25,6 +25,7 @@ Examples:
 |    Target    | Implementation                                                                              | Link                              |
 |:------------:|---------------------------------------------------------------------------------------------|-----------------------------------|
 |  AMD x86-64  | [`avx512vl_vpclmulqdq-v3s2x4`](corsix_fast-crc32/amd-x86_64/avx512vl_vpclmulqdq-v3s2x4)     | <https://godbolt.org/z/8Toq98a6n> |
+|  AMD x86-64  | [`avx512vl_vpclmulqdq-v3s3x4e`](corsix_fast-crc32/amd-x86_64/avx512vl_vpclmulqdq-v3s3x4e)   | <https://godbolt.org/z/bsPr17TWT> |
 |  AMD x86-64  | [`sse42_pclmulqdq-v1s3x2`](corsix_fast-crc32/amd-x86_64/sse42_pclmulqdq-v1s3x2)             | <https://godbolt.org/z/5K9c5Edrr> |
 |  AMD x86-64  | [`sse42_pclmulqdq-v1s3x3`](corsix_fast-crc32/amd-x86_64/sse42_pclmulqdq-v1s3x3)             | <https://godbolt.org/z/K4W1oonjG> |
 |  AMD x86-64  | [`sse42_pclmulqdq-v1s4x2`](corsix_fast-crc32/amd-x86_64/sse42_pclmulqdq-v1s4x2)             | <https://godbolt.org/z/5ro4da9zE> |
