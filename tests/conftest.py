@@ -5,7 +5,6 @@ from collections.abc import Callable
 import cpuinfo
 import crc32c_rs
 import pytest
-from crc32c_rs import UnsupportedCPUFeatureError
 
 logger = logging.getLogger(__name__)
 
@@ -24,7 +23,7 @@ def crc_impl() -> list[tuple[str, Callable[..., int]]]:
         fn = getattr(crc32c_rs, attr)
         try:
             fn(b"abc")
-        except UnsupportedCPUFeatureError:
+        except crc32c_rs.UnsupportedCPUFeatureError:
             continue
         impls.append((attr, fn))
         logger.info("✅ crc32c_rs.%s available", attr)
