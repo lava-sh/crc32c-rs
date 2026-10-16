@@ -138,6 +138,8 @@ pub enum SimdIsa {
     #[cfg(any(target_arch = "x86_64", target_arch = "x86"))]
     Avx512vlVpclmulqdq_v3s2x4, // Genoa (1)
     #[cfg(any(target_arch = "x86_64", target_arch = "x86"))]
+    Avx512vlVpclmulqdq_v3s3x4e,
+    #[cfg(any(target_arch = "x86_64", target_arch = "x86"))]
     Avx512vlVpclmulqdq_v3s1_s3, // Sapphire Rapids (1)
     #[cfg(any(target_arch = "x86_64", target_arch = "x86"))]
     Avx512vlPclmulqdq_v9s3x4e, // Cascade Lake (1)
@@ -180,7 +182,16 @@ impl SimdIsa {
                     return Self::Avx512vlVpclmulqdq_v3s1_s3;
                 }
 
-                CpuModel::Zen4 | CpuModel::Zen5 | CpuModel::Zen6 => {
+                CpuModel::Zen5 | CpuModel::Zen6 => {
+                    if detect_features!(x86, ["avx512vl", "vpclmulqdq"]) {
+                        return Self::Avx512vlVpclmulqdq_v3s3x4e;
+                    }
+                    if detect_features!(x86, ["sse4.2", "pclmulqdq"]) {
+                        return Self::Sse42Pclmulqdq_v1s3x2;
+                    }
+                }
+
+                CpuModel::Zen4 => {
                     if detect_features!(x86, ["avx512vl", "vpclmulqdq"]) {
                         return Self::Avx512vlVpclmulqdq_v3s2x4;
                     }

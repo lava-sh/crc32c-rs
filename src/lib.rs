@@ -18,8 +18,9 @@ mod crc32c_rs {
     #[cfg(any(target_arch = "x86_64", target_arch = "x86"))]
     use crate::arch::x86::{
         avx512vl_pclmulqdq_v9s3x4e, avx512vl_vpclmulqdq_v3s1_s3, avx512vl_vpclmulqdq_v3s2x4,
-        avx512vl_vpclmulqdq_v4s5x3, sse42, sse42_pclmulqdq_v1s3x2, sse42_pclmulqdq_v1s3x3,
-        sse42_pclmulqdq_v1s4x2, sse42_pclmulqdq_v7s3x3, sse42_pclmulqdq_v8s3x3,
+        avx512vl_vpclmulqdq_v3s3x4e, avx512vl_vpclmulqdq_v4s5x3, sse42, sse42_pclmulqdq_v1s3x2,
+        sse42_pclmulqdq_v1s3x3, sse42_pclmulqdq_v1s4x2, sse42_pclmulqdq_v7s3x3,
+        sse42_pclmulqdq_v8s3x3,
     };
     #[cfg(any(
         target_arch = "x86",
@@ -80,6 +81,8 @@ mod crc32c_rs {
             #[cfg(any(target_arch = "x86_64", target_arch = "x86"))]
             SimdIsa::Avx512vlVpclmulqdq_v3s2x4 => avx512vl_vpclmulqdq_v3s2x4::crc32c,
             #[cfg(any(target_arch = "x86_64", target_arch = "x86"))]
+            SimdIsa::Avx512vlVpclmulqdq_v3s3x4e => avx512vl_vpclmulqdq_v3s3x4e::crc32c,
+            #[cfg(any(target_arch = "x86_64", target_arch = "x86"))]
             SimdIsa::Avx512vlVpclmulqdq_v4s5x3 => avx512vl_vpclmulqdq_v4s5x3::crc32c,
             #[cfg(any(target_arch = "x86_64", target_arch = "x86"))]
             SimdIsa::Avx512vlPclmulqdq_v9s3x4e => avx512vl_pclmulqdq_v9s3x4e::crc32c,
@@ -125,6 +128,27 @@ mod crc32c_rs {
             &buffer,
             value,
             avx512vl_vpclmulqdq_v3s2x4::crc32c,
+        ))
+    }
+
+    #[cfg(any(target_arch = "x86_64", target_arch = "x86"))]
+    #[pyfunction(name = "_crc32c_avx512vl_vpclmulqdq_v3s3x4e", signature = (data, value = 0, /))]
+    fn crc32c_avx512vl_vpclmulqdq_v3s3x4e(
+        py: Python<'_>,
+        data: &Bound<'_, PyAny>,
+        value: u32,
+    ) -> PyResult<u32> {
+        if !detect_features!(x86, ["avx512vl", "vpclmulqdq"]) {
+            return Err(UnsupportedCPUFeatureError::new_err(
+                "AVX512VL and VPCLMULQDQ are not supported by this CPU",
+            ));
+        }
+        let buffer = PyBuffer::get(py, data)?;
+        Ok(crc32c_dispatch(
+            py,
+            &buffer,
+            value,
+            avx512vl_vpclmulqdq_v3s3x4e::crc32c,
         ))
     }
 

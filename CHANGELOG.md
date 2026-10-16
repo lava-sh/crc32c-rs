@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0).
 
 ## [Unreleased] - ReleaseDate
 
+### Features
+
+* Add the `crc32c_avx512vl_vpclmulqdq_v3s3x4e` implementation and use it for
+  runtime dispatch on AMD Zen 5 / Zen 6. (by [@chirizxc][gh-chirizxc])
+
 ## [0.0.6] - 07.10.2026
 
 ### Performance improvements

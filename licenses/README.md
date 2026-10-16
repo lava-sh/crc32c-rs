@@ -19,6 +19,7 @@ All original licenses are included in the `licenses/` directory.
   - AVX-512VL + PCLMULQDQ (`v9s3x4e`) -> `src/arch/avx512vl_pclmulqdq_v9s3x4e.rs`
   - AVX-512VL + VPCLMULQDQ (`v3s1_s3`) -> `src/arch/avx512vl_vpclmulqdq_v3s1_s3.rs`
   - AVX-512VL + VPCLMULQDQ (`v3s2x4`) -> `src/arch/avx512vl_vpclmulqdq_v3s2x4.rs`
+  - AVX-512VL + VPCLMULQDQ (`v3s3x4e`) -> `src/arch/avx512vl_vpclmulqdq_v3s3x4e.rs`
   - AVX-512VL + VPCLMULQDQ (`v4s5x3`) -> `src/arch/avx512vl_vpclmulqdq_v4s5x3.rs`
   - AArch64 NEON + CRC + PMULL (`v3s4x2e_v2`) -> `src/arch/aes_v3s4x2e_v2.rs`
   - AArch64 NEON + CRC + PMULL (`v12e_v1`) -> `src/arch/aes_crc_v12e_v1.rs`
@@ -39,6 +40,7 @@ make generate
 
 # AMD x86-64
 ./generate -i avx512_vpclmulqdq -p crc32c -a v3s2x4
+./generate -i avx512_vpclmulqdq -p crc32c -a v3s3x4e
 ./generate -i sse -p crc32c -a v1s3x2
 ./generate -i sse -p crc32c -a v1s3x3
 ./generate -i sse -p crc32c -a v1s4x2
