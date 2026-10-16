@@ -105,6 +105,7 @@ Model-tuned selection (checked in this order):
 |:---------------:|:-----------------------------:|:----------------------------:|:-------------------------:|
 | Sapphire Rapids |           `v3s1_s3`           |              ×               |         `v8s3x3`          |
 |      Genoa      |           `v3s2x4`            |              ×               |         `v1s3x2`          |
+|      Turin      |           `v3s3x4e`           |              ×               |         `v1s3x2`          |
 |    Ice Lake     |           `v4s5x3`            |              ×               |         `v7s3x3`          |
 |  Cascade Lake   |               ×               |          `v9s3x4e`           |         `v8s3x3`          |
 |      Milan      |               ×               |              ×               |         `v1s4x2`          |
@@ -136,6 +137,7 @@ at runtime, but you can also call a specific implementation directly:
 | `crc32c_fallback`                    |       No special CPU features       |
 | `crc32c_avx512vl_vpclmulqdq_v3s1_s3` | `AVX-512F + AVX-512VL + VPCLMULQDQ` |
 | `crc32c_avx512vl_vpclmulqdq_v3s2x4`  | `AVX-512F + AVX-512VL + VPCLMULQDQ` |
+| `crc32c_avx512vl_vpclmulqdq_v3s3x4e` | `AVX-512F + AVX-512VL + VPCLMULQDQ` |
 | `crc32c_avx512vl_vpclmulqdq_v4s5x3`  | `AVX-512F + AVX-512VL + VPCLMULQDQ` |
 | `crc32c_avx512vl_pclmulqdq_v9s3x4e`  |       `AVX-512VL + PCLMULQDQ`       |
 | `crc32c_sse42_pclmulqdq_v1s3x2`      |        `SSE4.2 + PCLMULQDQ`         |

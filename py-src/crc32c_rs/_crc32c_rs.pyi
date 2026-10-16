@@ -130,6 +130,30 @@ def _crc32c_avx512vl_vpclmulqdq_v3s2x4(
         The CRC32C checksum of ``data``, continued from ``value``.
     """
 
+def _crc32c_avx512vl_vpclmulqdq_v3s3x4e(
+    data: ReadableBuffer,
+    value: builtins.int = 0,
+    /,
+) -> builtins.int:
+    """
+    Compute the CRC32C checksum of ``data``.
+
+    Requires:
+        The AVX-512F, AVX-512VL, and VPCLMULQDQ instruction set extensions.
+
+    Algorithm:
+        Folds 288 bytes per iteration: three 64-byte accumulators multiplied with
+        ``vpclmulqdq`` and three scalar accumulators advancing by four 8-byte
+        ``crc32`` steps each.
+
+    Args:
+        data: Bytes to checksum.
+        value: Checksum of the preceding data, ``0`` for a fresh run.
+
+    Returns:
+        The CRC32C checksum of ``data``, continued from ``value``.
+    """
+
 def _crc32c_avx512vl_vpclmulqdq_v4s5x3(
     data: ReadableBuffer,
     value: builtins.int = 0,

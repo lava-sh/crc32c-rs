@@ -59,10 +59,8 @@ maturin = [
     "maturin[patchelf] == 1.15.0 ; sys_platform == 'linux'",
 ]
 pytest = ["pytest == 9.1.1"]
-archspec = ["archspec == 0.2.6"]
 tests = [
     { include-group = "pytest" },
-    { include-group = "archspec" },
     "pytest-check == 3.0.0",
     "py-cpuinfo2 == 10.1.1",
 ]
