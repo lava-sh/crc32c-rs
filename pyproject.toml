@@ -52,8 +52,8 @@ Changelog = "https://github.com/lava-sh/crc32c-rs/blob/main/CHANGELOG.md"
 
 [dependency-groups]
 typos = ["typos == 1.51.1"]
-zizmor = ["zizmor == 1.30.1"]
-rumdl = ["rumdl == 0.2.79"]
+zizmor = ["zizmor == 1.31.1"]
+rumdl = ["rumdl == 0.3.0"]
 maturin = [
     "maturin == 1.15.0 ; sys_platform != 'linux'",
     "maturin[patchelf] == 1.15.0 ; sys_platform == 'linux'",
@@ -61,7 +61,7 @@ maturin = [
 pytest = ["pytest == 9.1.1"]
 tests = [
     { include-group = "pytest" },
-    "pytest-check == 3.0.0",
+    "pytest-check == 3.0.3",
     "py-cpuinfo2 == 10.1.1",
 ]
 wasm-tests = [
@@ -70,14 +70,14 @@ wasm-tests = [
     { include-group = "pytest" },
 ]
 ci = [
-    "ty == 0.0.86",
-    "ruff == 0.17.0",
+    "ty == 0.0.89",
+    "ruff == 0.17.1",
     { include-group = "tests" },
     { include-group = "pytest" },
     { include-group = "maturin" },
 ]
 dev = [
-    "rust-just == 1.58.0",
+    "rust-just == 1.59.0",
     { include-group = "ci" },
     { include-group = "typos" },
     { include-group = "rumdl" },
