@@ -6,6 +6,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0).
 
 ## [Unreleased] - ReleaseDate
 
+## [0.0.7] - 18.10.2026
+
+### Features
+
+* Support the final Python 3.15 release. (by [@chirizxc][gh-chirizxc])
+
+### Misc
+
+* Discover the `crc32c` implementations in the tests by a runtime probe instead of `archspec`. (by [@chirizxc][gh-chirizxc])
+* Simplify the implementation discovery in the Python benchmarks. (by [@chirizxc][gh-chirizxc])
+* Fix a typo in the type stubs. (by [@chirizxc][gh-chirizxc])
+
 ## [0.0.6] - 07.10.2026
 
 ### Performance improvements
@@ -87,8 +99,9 @@ First release.
 
 [gh-chirizxc]: https://github.com/chirizxc
 
-[Unreleased]: https://github.com/lava-sh/crc32c-rs/compare/0.0.6...HEAD
+[Unreleased]: https://github.com/lava-sh/crc32c-rs/compare/0.0.7...HEAD
 
+[0.0.7]: https://github.com/lava-sh/crc32c-rs/compare/0.0.6...0.0.7
 [0.0.6]: https://github.com/lava-sh/crc32c-rs/compare/0.0.5...0.0.6
 [0.0.5]: https://github.com/lava-sh/crc32c-rs/compare/0.0.4...0.0.5
 [0.0.4]: https://github.com/lava-sh/crc32c-rs/compare/0.0.3...0.0.4
