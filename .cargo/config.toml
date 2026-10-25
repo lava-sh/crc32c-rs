@@ -1,3 +1,9 @@
+[env]
+# sccache 0.16 misparses MSVC's `-Tp <file>` for mimalloc's .cc source.
+# clang-cl recognizes .cc directly; cc only uses this setting on MSVC targets.
+# See: https://github.com/mozilla/sccache/pull/2904
+CC_PREFER_CLANG_CL_OVER_MSVC = "1"
+
 [alias]
 fmt-nightly = [
     "fmt", "--all",
