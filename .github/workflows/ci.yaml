@@ -227,10 +227,11 @@ jobs:
           persist-credentials: false
 
       - name: "Build sdist"
-        uses: PyO3/maturin-action@e83996d129638aa358a18fbd1dfb82f0b0fb5d3b # v1.51.0
+        uses: PyO3/maturin-action@5a53eda5f3db5f86b7ec4fc043d77151350f5c74 # main
         with:
           command: sdist
           args: --out dist
+          cache: ${{ github.event_name == 'pull_request' && 'kache' || 'none' }}
 
       - name: "Upload sdist"
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
