@@ -39,6 +39,7 @@ jobs:
             target: aarch64-unknown-linux-gnu,
             interpreter: *interpreters,
             maturin-build-args: "--features mimalloc",
+            manylinux: "2_28",
           }
           - {
             # ARMv7 (32-bit)
@@ -87,7 +88,7 @@ jobs:
         with:
           target: ${{ matrix.platform.target }}
           sccache: *is_pull_request
-          manylinux: auto
+          manylinux: ${{ matrix.platform.manylinux || 'auto' }}
           args: >-
             --release
             --out dist
