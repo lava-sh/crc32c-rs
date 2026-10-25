@@ -32,6 +32,7 @@ jobs:
             target: i686-unknown-linux-gnu,
             interpreter: *interpreters,
             maturin-build-args: "--features mimalloc",
+            manylinux: "2_28",
           }
           - {
             # ARM64
@@ -87,7 +88,7 @@ jobs:
         with:
           target: ${{ matrix.platform.target }}
           cache: ${{ github.event_name == 'pull_request' && 'kache' || 'none' }}
-          manylinux: auto
+          manylinux: ${{ matrix.platform.manylinux || 'auto' }}
           args: >-
             --release
             --out dist
