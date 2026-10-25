@@ -50,10 +50,10 @@ jobs:
           enable-cache: *is_pull_request
 
       - name: "Build wheels"
-        uses: PyO3/maturin-action@e83996d129638aa358a18fbd1dfb82f0b0fb5d3b # v1.51.0
+        uses: PyO3/maturin-action@5a53eda5f3db5f86b7ec4fc043d77151350f5c74 # main
         with:
           target: ${{ matrix.platform.target }}
-          sccache: *is_pull_request
+          cache: ${{ github.event_name == 'pull_request' && 'kache' || 'none' }}
           args: >-
             --release
             --out dist

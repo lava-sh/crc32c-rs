@@ -64,14 +64,14 @@ jobs:
           enable-cache: *is_pull_request
 
       - name: "Build WASM wheel"
-        uses: PyO3/maturin-action@e83996d129638aa358a18fbd1dfb82f0b0fb5d3b # v1.51.0
+        uses: PyO3/maturin-action@5a53eda5f3db5f86b7ec4fc043d77151350f5c74 # main
         env:
           CARGO_TARGET_WASM32_UNKNOWN_EMSCRIPTEN_RUSTFLAGS: ${{ matrix.platform.rustflags }}
           MATURIN_PYEMSCRIPTEN_PLATFORM_VERSION: ${{ matrix.platform.pyemscripten-version }}
         with:
           container: off
           rust-toolchain: ${{ matrix.platform.rust-toolchain }}
-          sccache: *is_pull_request
+          cache: ${{ github.event_name == 'pull_request' && 'kache' || 'none' }}
           args: >-
             --out dist
             --release
