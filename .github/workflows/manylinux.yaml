@@ -89,6 +89,7 @@ jobs:
           target: ${{ matrix.platform.target }}
           sccache: *is_pull_request
           manylinux: ${{ matrix.platform.manylinux || 'auto' }}
+          docker-options: "--dns 8.8.8.8 --dns 8.8.4.4"
           args: >-
             --release
             --out dist
