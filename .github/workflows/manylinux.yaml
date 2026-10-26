@@ -88,7 +88,8 @@ jobs:
           target: ${{ matrix.platform.target }}
           manylinux: auto
           docker-options: >-
-            -e CI
+            -e CI 
+            -v /opt/hostedtoolcache/kache/2.0.0-rc.1/${{ runner.arch == 'ARM64' && 'arm64' || 'x64' }}/kache-engine:/usr/local/bin/kache-engine
           kache: *is_pull_request
           kache-version: "v2.0.0-rc.1"
           args: >-
