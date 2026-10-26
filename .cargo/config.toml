@@ -4,3 +4,10 @@ fmt-nightly = [
     "--",
     "--config-path", "rustfmt.toml",
 ]
+
+[env]
+PYO3_PYTHON = {
+    value = '.venv\Scripts\python.exe',
+    force = true,
+    relative = true,
+}

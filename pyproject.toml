@@ -70,8 +70,8 @@ wasm-tests = [
     { include-group = "pytest" },
 ]
 ci = [
-    "ty == 0.0.89",
-    "ruff == 0.17.1",
+    "ty == 0.0.91",
+    "ruff == 0.17.2",
     { include-group = "tests" },
     { include-group = "pytest" },
     { include-group = "maturin" },

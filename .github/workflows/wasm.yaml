@@ -72,6 +72,7 @@ jobs:
           container: off
           rust-toolchain: ${{ matrix.platform.rust-toolchain }}
           sccache: *is_pull_request
+          docker-options: -e CI
           args: >-
             --out dist
             --release
