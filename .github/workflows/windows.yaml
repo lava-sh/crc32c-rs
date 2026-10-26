@@ -57,6 +57,7 @@ jobs:
         with:
           target: ${{ matrix.platform.target }}
           sccache: *is_pull_request
+          docker-options: -e CI
           args: >-
             --release
             --out dist

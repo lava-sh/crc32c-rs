@@ -6,6 +6,8 @@ on:
 env:
   FORCE_COLOR: "1"
   CARGO_TERM_COLOR: always
+  #
+  \^_^\: &is_pull_request ${{ github.event_name == 'pull_request' }}
 
 jobs:
   tests:
@@ -39,7 +41,7 @@ jobs:
       - name: "Install uv"
         uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
         with:
-          enable-cache: false
+          enable-cache: *is_pull_request
 
       - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
         if: github.event_name == 'pull_request' && github.run_attempt == 1
