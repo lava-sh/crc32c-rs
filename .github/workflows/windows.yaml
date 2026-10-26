@@ -52,20 +52,13 @@ jobs:
         with:
           enable-cache: *is_pull_request
 
-      - name: "Install kache"
-        if: *is_pull_request
-        uses: kunobi-ninja/kache-action@ad7317540dcdd71c904f7a60a87b620a0c0e67ed # v1
-        with:
-          version: "v2.0.0-rc.1"
-          github-cache: true
-          cache-executables: true
-          cache-dir: ${{ runner.temp }}/kache
-
       - name: "Build wheels"
-        uses: PyO3/maturin-action@e83996d129638aa358a18fbd1dfb82f0b0fb5d3b # v1.51.0
+        uses: PyO3/maturin-action@5a53eda5f3db5f86b7ec4fc043d77151350f5c74 # v1.51.0
         with:
           target: ${{ matrix.platform.target }}
           docker-options: -e CI
+          kache: *is_pull_request
+          kache-version: "v2.0.0-rc.1"
           args: >-
             --release
             --out dist
