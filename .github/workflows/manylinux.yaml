@@ -90,6 +90,19 @@ jobs:
           sccache: *is_pull_request
           manylinux: ${{ matrix.platform.manylinux || 'auto' }}
           docker-options: "--network host"
+          # Вручную настраиваем AlmaLinux Vault для установки libatomic на i686
+          before-script-linux: |
+            if [ "${{ matrix.platform.target }}" = "i686-unknown-linux-gnu" ]; then
+              cat > /etc/yum.repos.d/almalinux-vault.repo <<'EOF'
+            [baseos-vault]
+            name=AlmaLinux $releasever - BaseOS Vault
+            baseurl=https://vault.almalinux.org/$releasever/BaseOS/$basearch/os/
+            enabled=1
+            gpgcheck=0
+            countme=0
+            EOF
+              dnf makecache
+            fi
           args: >-
             --release
             --out dist
