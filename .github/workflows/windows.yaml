@@ -54,7 +54,7 @@ jobs:
 
       - name: "Install kache"
         if: *is_pull_request
-        uses: kunobi-ninja/kache-action@v1
+        uses: kunobi-ninja/kache-action@ad7317540dcdd71c904f7a60a87b620a0c0e67ed # v1
         with:
           cache-executables: true
           cache-dir: ${{ runner.temp }}/kache
