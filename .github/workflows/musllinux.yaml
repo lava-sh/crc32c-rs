@@ -83,13 +83,18 @@ jobs:
           github-cache: true
           cache-executables: true
           cache-dir: ${{ runner.temp }}/kache
+          runtime-dir: ${{ runner.temp }}/kache-runtime
 
       - name: "Build wheels"
         uses: PyO3/maturin-action@e83996d129638aa358a18fbd1dfb82f0b0fb5d3b # v1.51.0
         with:
           target: ${{ matrix.platform.target }}
           manylinux: musllinux_1_2
-          docker-options: -e CI
+          docker-options: >-
+            -e CI
+            -v /opt/hostedtoolcache/kache:/opt/hostedtoolcache/kache
+            -v ${{ runner.temp }}/kache:${{ runner.temp }}/kache
+            -v ${{ runner.temp }}/kache-runtime:${{ runner.temp }}/kache-runtime
           args: >-
             --release
             --out dist
