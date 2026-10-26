@@ -52,11 +52,17 @@ jobs:
         with:
           enable-cache: *is_pull_request
 
+      - name: "Install kache"
+        if: *is_pull_request
+        uses: kunobi-ninja/kache-action@v1
+        with:
+          cache-executables: true
+          cache-dir: ${{ runner.temp }}/kache
+
       - name: "Build wheels"
         uses: PyO3/maturin-action@e83996d129638aa358a18fbd1dfb82f0b0fb5d3b # v1.51.0
         with:
           target: ${{ matrix.platform.target }}
-          sccache: *is_pull_request
           docker-options: -e CI
           args: >-
             --release
