@@ -63,158 +63,45 @@ fn crc_shift(crc: u32, nbytes: usize) -> uint64x2_t {
 }
 
 #[inline]
-#[target_feature(enable = "crc,aes,sha3")]
+#[target_feature(enable = "crc,aes")]
 unsafe fn crc32c_small(mut crc0: u32, mut buf: *const u8, mut len: usize) -> u32 {
-    #[rustfmt::skip]
-    let k9 = unsafe {
-        vld1q_u64([0x7e90_8048_u64, 0xc96c_fdc0_u64].as_ptr())
-    };
-    #[rustfmt::skip]
-    let k16 = unsafe {
-        vld1q_u64([0xf20c_0dfe_u64, 0x493c_7d27_u64].as_ptr())
-    };
-    #[rustfmt::skip]
-    let k32 = unsafe {
-        vld1q_u64([0x3da6_d0cb_u64, 0xba4f_c28e_u64].as_ptr())
-    };
-    #[rustfmt::skip]
-    let k64 = unsafe {
-        vld1q_u64([0x740e_ef02_u64, 0x9e4a_ddf8_u64].as_ptr())
-    };
-
-    if len >= 144 {
-        // First vector chunk.
-        let mut x0 = unsafe { vld1q_u64(buf.cast()) };
-        let mut x1 = unsafe { vld1q_u64(buf.add(16).cast()) };
-        let mut x2 = unsafe { vld1q_u64(buf.add(32).cast()) };
-        let mut x3 = unsafe { vld1q_u64(buf.add(48).cast()) };
-        let mut x4 = unsafe { vld1q_u64(buf.add(64).cast()) };
-        let mut x5 = unsafe { vld1q_u64(buf.add(80).cast()) };
-        let mut x6 = unsafe { vld1q_u64(buf.add(96).cast()) };
-        let mut x7 = unsafe { vld1q_u64(buf.add(112).cast()) };
-        let mut x8 = unsafe { vld1q_u64(buf.add(128).cast()) };
-        x0 = veorq_u64(x0, vsetq_lane_u64::<0>(u64::from(crc0), vdupq_n_u64(0)));
-        buf = unsafe { buf.add(144) };
-        len -= 144;
-
-        // Main loop.
-        while len >= 144 {
-            let y0 = clmul_lo(x0, k9);
-            x0 = clmul_hi(x0, k9);
-            let y1 = clmul_lo(x1, k9);
-            x1 = clmul_hi(x1, k9);
-            let y2 = clmul_lo(x2, k9);
-            x2 = clmul_hi(x2, k9);
-            let y3 = clmul_lo(x3, k9);
-            x3 = clmul_hi(x3, k9);
-            let y4 = clmul_lo(x4, k9);
-            x4 = clmul_hi(x4, k9);
-            let y5 = clmul_lo(x5, k9);
-            x5 = clmul_hi(x5, k9);
-            let y6 = clmul_lo(x6, k9);
-            x6 = clmul_hi(x6, k9);
-            let y7 = clmul_lo(x7, k9);
-            x7 = clmul_hi(x7, k9);
-            let y8 = clmul_lo(x8, k9);
-            x8 = clmul_hi(x8, k9);
-            x0 = veor3q_u64(x0, y0, unsafe { vld1q_u64(buf.cast()) });
-            x1 = veor3q_u64(x1, y1, unsafe { vld1q_u64(buf.add(16).cast()) });
-            x2 = veor3q_u64(x2, y2, unsafe { vld1q_u64(buf.add(32).cast()) });
-            x3 = veor3q_u64(x3, y3, unsafe { vld1q_u64(buf.add(48).cast()) });
-            x4 = veor3q_u64(x4, y4, unsafe { vld1q_u64(buf.add(64).cast()) });
-            x5 = veor3q_u64(x5, y5, unsafe { vld1q_u64(buf.add(80).cast()) });
-            x6 = veor3q_u64(x6, y6, unsafe { vld1q_u64(buf.add(96).cast()) });
-            x7 = veor3q_u64(x7, y7, unsafe { vld1q_u64(buf.add(112).cast()) });
-            x8 = veor3q_u64(x8, y8, unsafe { vld1q_u64(buf.add(128).cast()) });
-            buf = unsafe { buf.add(144) };
-            len -= 144;
-        }
-
-        // Reduce x0 ... x8 to just x0.
-        let y0 = clmul_lo(x0, k16);
-        x0 = veor3q_u64(clmul_hi(x0, k16), y0, x1);
-        x1 = x2;
-        x2 = x3;
-        x3 = x4;
-        x4 = x5;
-        x5 = x6;
-        x6 = x7;
-        x7 = x8;
-
-        let y0 = clmul_lo(x0, k16);
-        x0 = clmul_hi(x0, k16);
-        let y2 = clmul_lo(x2, k16);
-        x2 = clmul_hi(x2, k16);
-        let y4 = clmul_lo(x4, k16);
-        x4 = clmul_hi(x4, k16);
-        let y6 = clmul_lo(x6, k16);
-        x6 = clmul_hi(x6, k16);
-        x0 = veor3q_u64(x0, y0, x1);
-        x2 = veor3q_u64(x2, y2, x3);
-        x4 = veor3q_u64(x4, y4, x5);
-        x6 = veor3q_u64(x6, y6, x7);
-
-        let y0 = clmul_lo(x0, k32);
-        x0 = clmul_hi(x0, k32);
-        let y4 = clmul_lo(x4, k32);
-        x4 = clmul_hi(x4, k32);
-        x0 = veor3q_u64(x0, y0, x2);
-        x4 = veor3q_u64(x4, y4, x6);
-
-        let y0 = clmul_lo(x0, k64);
-        x0 = veor3q_u64(clmul_hi(x0, k64), y0, x4);
-
-        while len >= 16 {
-            let y = clmul_lo(x0, k16);
-            x0 = veor3q_u64(clmul_hi(x0, k16), y, unsafe { vld1q_u64(buf.cast()) });
-            buf = unsafe { buf.add(16) };
-            len -= 16;
-        }
-
-        // Reduce 128 bits to 32 bits.
-        crc0 = unsafe { __crc32cd(0, vgetq_lane_u64(x0, 0)) };
-        crc0 = unsafe { __crc32cd(crc0, vgetq_lane_u64(x0, 1)) };
+    unsafe {
+        core::hint::assert_unchecked((128..=1024).contains(&len));
     }
 
-    if len >= 16 {
-        let klen = ((len - 8) / 16) * 8;
-        let mut crc1 = 0_u32;
-        // Main loop.
-        loop {
-            crc0 = unsafe { __crc32cd(crc0, buf.cast::<u64>().read_unaligned()) };
-            crc1 = unsafe { __crc32cd(crc1, buf.add(klen).cast::<u64>().read_unaligned()) };
-            buf = unsafe { buf.add(8) };
-            len -= 16;
-            if len < 16 {
-                break;
-            }
-        }
-        let vc = vgetq_lane_u64::<0>(crc_shift(crc0, klen + 8));
-        // Final 8 bytes.
-        buf = unsafe { buf.add(klen) };
-        crc0 = crc1;
-        crc0 = unsafe { __crc32cd(crc0, buf.cast::<u64>().read_unaligned() ^ vc) };
+    let klen = ((len - 8) / 24) * 8;
+    let mut crc1 = 0_u32;
+    let mut crc2 = 0_u32;
+    loop {
+        crc0 = unsafe { __crc32cd(crc0, buf.cast::<u64>().read_unaligned()) };
+        crc1 = unsafe { __crc32cd(crc1, buf.add(klen).cast::<u64>().read_unaligned()) };
+        crc2 = unsafe { __crc32cd(crc2, buf.add(klen * 2).cast::<u64>().read_unaligned()) };
         buf = unsafe { buf.add(8) };
-        len -= 8;
+        len -= 24;
+        if len < 32 {
+            break;
+        }
     }
+
+    let vc0 = crc_shift(crc0, klen * 2 + 8);
+    let vc1 = crc_shift(crc1, klen + 8);
+    let vc = vgetq_lane_u64(veorq_u64(vc0, vc1), 0);
+
+    buf = unsafe { buf.add(klen * 2) };
+    crc0 = crc2;
+    crc0 = unsafe { __crc32cd(crc0, buf.cast::<u64>().read_unaligned() ^ vc) };
+    buf = unsafe { buf.add(8) };
+    len -= 8;
 
     while len >= 8 {
         crc0 = unsafe { __crc32cd(crc0, buf.cast::<u64>().read_unaligned()) };
         buf = unsafe { buf.add(8) };
         len -= 8;
     }
-    if len >= 4 {
-        crc0 = unsafe { __crc32cw(crc0, buf.cast::<u32>().read_unaligned()) };
-        buf = unsafe { buf.add(4) };
-        len -= 4;
-    }
-    if len >= 2 {
-        crc0 = unsafe { __crc32ch(crc0, buf.cast::<u16>().read_unaligned()) };
-        buf = unsafe { buf.add(2) };
-        len -= 2;
-    }
-    if len != 0 {
+    while len != 0 {
         crc0 = unsafe { __crc32cb(crc0, *buf) };
+        buf = unsafe { buf.add(1) };
+        len -= 1;
     }
     crc0
 }
