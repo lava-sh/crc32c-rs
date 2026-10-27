@@ -4,9 +4,9 @@ on:
   workflow_call:
 
 env:
-  ○_○: &interpreters "3.11 3.12 3.13 3.14 3.14t 3.15 3.15t pypy3.11"
+  __interpreters: &interpreters "3.11 3.12 3.13 3.14 3.14t 3.15 3.15t pypy3.11"
   #
-  (^_^): &is_pull_request ${{ github.event_name == 'pull_request' }}
+  __is_pull_request: &is_pull_request ${{ github.event_name == 'pull_request' }}
 
 jobs:
   linux:
@@ -86,7 +86,6 @@ jobs:
         uses: PyO3/maturin-action@e83996d129638aa358a18fbd1dfb82f0b0fb5d3b # v1.51.0
         with:
           target: ${{ matrix.platform.target }}
-          sccache: *is_pull_request
           manylinux: auto
           args: >-
             --release
