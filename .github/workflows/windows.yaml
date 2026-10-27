@@ -52,9 +52,16 @@ jobs:
         with:
           enable-cache: *is_pull_request
 
+      - uses: kunobi-ninja/kache-action@ad7317540dcdd71c904f7a60a87b620a0c0e67ed # v1
+        with:
+          version: "v2.0.0-rc.1"
+          cache-c-cpp: true
+          github-cache: true
+
       - name: "Build wheels"
         uses: PyO3/maturin-action@e83996d129638aa358a18fbd1dfb82f0b0fb5d3b # v1.51.0
         with:
+          container: off
           target: ${{ matrix.platform.target }}
           args: >-
             --release
