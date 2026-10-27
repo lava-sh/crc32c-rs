@@ -61,6 +61,7 @@ jobs:
           github-cache: true
           cache-executables: true
           cache-dir: ${{ runner.temp }}/kache
+          cache-key-prefix: kache-${{ matrix.platform.target }}
 
       - name: "Build wheels"
         uses: PyO3/maturin-action@e83996d129638aa358a18fbd1dfb82f0b0fb5d3b # v1.51.0
