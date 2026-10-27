@@ -83,14 +83,26 @@ jobs:
           github-cache: true
           cache-executables: true
           cache-dir: ${{ runner.temp }}/kache
-          cache-key-prefix: kache-${{ matrix.platform.emsdk-version }}
+          cache-key-prefix: kache-${{ matrix.platform.target }}
+
+      - name: "Locate kache binary"
+        if: *is_pull_request
+        run: echo "KACHE_BIN_DIR=$(dirname "$(command -v kache)")" >> "$GITHUB_ENV"
 
       - name: "Build wheels"
         uses: PyO3/maturin-action@e83996d129638aa358a18fbd1dfb82f0b0fb5d3b # v1.51.0
         with:
           target: ${{ matrix.platform.target }}
           manylinux: musllinux_1_2
-          docker-options: -e CI
+          docker-options: >-
+            -e CI
+            -e RUSTC_WRAPPER=/kache-bin/kache
+            -e KACHE_CACHE_DIR=/kache-store
+            -e KACHE_RUNTIME_DIR=/kache-run
+            -e KACHE_LOG
+            -v ${{ runner.temp }}/kache:/kache-store
+            -v ${{ env.KACHE_BIN_DIR }}:/kache-bin:ro
+            -v /tmp/kache-run:/kache-run
           args: >-
             --release
             --out dist
