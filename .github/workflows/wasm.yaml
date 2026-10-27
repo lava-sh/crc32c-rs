@@ -87,6 +87,7 @@ jobs:
             --compatibility pypi
 
       - name: "kache stats"
+        if: *is_pull_request
         run: kache stats --full
 
       - name: "Download pyodide"
