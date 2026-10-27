@@ -119,8 +119,10 @@ jobs:
             --compatibility pypi
 
       - name: "Fix store ownership"
-        if: *is_pull_request
-        run: sudo chown -R "$(id -u):$(id -g)" "$GITHUB_WORKSPACE/.kache-store"
+        if: ${{ always() && github.event_name == 'pull_request' }}
+        run: |
+          sudo chown -R "$(id -u):$(id -g)" "$GITHUB_WORKSPACE/.kache-store"  
+          sudo chown -R "$(id -u):$(id -g)" "${KACHE_RUNTIME_DIR:-/tmp/kache-run}"
 
       - name: "kache stats"
         if: *is_pull_request
