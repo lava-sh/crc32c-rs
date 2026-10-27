@@ -60,6 +60,11 @@ panic = "abort"
 strip = "symbols"
 codegen-units = 1
 
+[profile.dev]
+opt-level = 1
+strip = "debuginfo"
+debug = "line-tables-only"
+
 [lints.rust]
 warnings = "deny"
 
