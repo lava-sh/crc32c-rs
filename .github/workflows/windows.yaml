@@ -57,6 +57,7 @@ jobs:
           version: "v2.0.0-rc.1"
           cache-c-cpp: true
           github-cache: true
+          cache-executables: true
 
       - name: "Build wheels"
         uses: PyO3/maturin-action@e83996d129638aa358a18fbd1dfb82f0b0fb5d3b # v1.51.0
