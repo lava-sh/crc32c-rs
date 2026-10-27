@@ -61,6 +61,9 @@ jobs:
 
       - name: "Build wheels"
         uses: PyO3/maturin-action@e83996d129638aa358a18fbd1dfb82f0b0fb5d3b # v1.51.0
+        env:
+          CC_i686_pc_windows_msvc: "kache clang-cl"
+          CXX_i686_pc_windows_msvc: "kache clang-cl"
         with:
           container: off
           target: ${{ matrix.platform.target }}

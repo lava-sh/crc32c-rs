@@ -168,6 +168,9 @@ jobs:
           always() && !failure() && !cancelled() 
       }}
     needs: [ tests, tests-alpine, cargo-fmt, cargo-clippy, tools ]
+    permissions:
+      contents: read       # actions/checkout
+      pull-requests: write # post / update a sticky PR comment with cache stats
     uses: $/.github/workflows/windows.yaml
 
   macos:
