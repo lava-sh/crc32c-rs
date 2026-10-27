@@ -56,6 +56,7 @@ jobs:
         if: *is_pull_request
         with:
           version: "v2.0.0-rc.1"
+          pr-comment: false
           github-cache: true
           cache-executables: true
           cache-dir: ${{ runner.temp }}/kache
