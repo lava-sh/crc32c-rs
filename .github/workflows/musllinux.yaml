@@ -91,8 +91,6 @@ jobs:
         run: |
           options=(-e CI)
           if [ "$IS_PULL_REQUEST" = "true" ]; then
-            runtime_dir="${KACHE_RUNTIME_DIR:-$RUNNER_TEMP/kache-run}"
-            mkdir -p "$runtime_dir"
             options+=(
               -e RUSTC_WRAPPER=/kache-bin/kache
               -e "KACHE_CACHE_DIR=$GITHUB_WORKSPACE/.kache-store"
@@ -100,7 +98,7 @@ jobs:
               -e KACHE_CACHE_EXECUTABLES
               -e KACHE_LOG
               -v "$(dirname "$(command -v kache)"):/kache-bin:ro"
-              -v "$runtime_dir:/kache-run"
+              -v "$KACHE_RUNTIME_DIR:/kache-run"
             )
           fi
           printf 'DOCKER_OPTIONS=%s\n' "${options[*]}" >> "$GITHUB_ENV"
@@ -119,14 +117,18 @@ jobs:
             --compatibility pypi
 
       - name: "Fix store ownership"
-        if: ${{ always() && github.event_name == 'pull_request' }}
+        if: always() && github.event_name == 'pull_request'
         run: |
-          sudo chown -R "$(id -u):$(id -g)" "$GITHUB_WORKSPACE/.kache-store"  
-          sudo chown -R "$(id -u):$(id -g)" "${KACHE_RUNTIME_DIR:-/tmp/kache-run}"
+          owner="$(id -u):$(id -g)"
+          for dir in "$GITHUB_WORKSPACE/.kache-store" "$KACHE_RUNTIME_DIR"; do
+            if [ -d "$dir" ]; then
+              sudo chown -R "$owner" "$dir"
+            fi
+          done
 
       - name: "kache stats"
-        if: *is_pull_request
-        run: kache stats --full
+        if: always() && github.event_name == 'pull_request'
+        run: kache stats --full || true
 
       - name: "Upload wheels"
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
