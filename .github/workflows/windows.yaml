@@ -5,6 +5,7 @@ on:
 
 env:
   UV_LINK_MODE: copy
+  KACHE_CACHE_WINDOWS_HARDLINK: true
   #
   __interpreters_without_pypy: &interpreters_without_pypy "3.11 3.12 3.13 3.14 3.14t 3.15 3.15t"
   __interpreters:              &interpreters              "3.11 3.12 3.13 3.14 3.14t 3.15 3.15t pypy3.11"
