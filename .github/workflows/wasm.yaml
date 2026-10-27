@@ -4,9 +4,8 @@ on:
   workflow_call:
 
 env:
-  (^_^): &is_pull_request ${{ github.event_name == 'pull_request' }}
-  #
-  ○_○: &rust-nightly "nightly-2026-10-17"
+  __rust_nightly: &rust-nightly "nightly-2026-10-27"
+  __is_pull_request: &is_pull_request ${{ github.event_name == 'pull_request' }}
 
 jobs:
   wasm:
@@ -71,7 +70,6 @@ jobs:
         with:
           container: off
           rust-toolchain: ${{ matrix.platform.rust-toolchain }}
-          sccache: *is_pull_request
           args: >-
             --out dist
             --release
