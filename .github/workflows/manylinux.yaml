@@ -87,6 +87,7 @@ jobs:
         with:
           target: ${{ matrix.platform.target }}
           manylinux: auto
+          docker-options: -e CI
           args: >-
             --release
             --out dist
