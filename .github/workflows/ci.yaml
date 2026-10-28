@@ -41,7 +41,7 @@ jobs:
   cargo-fmt:
     name: "cargo fmt"
     if: *skip_lints
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -63,11 +63,11 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { runner: ubuntu-latest,    target: x86_64-unknown-linux-gnu }
+          - { runner: ubuntu-26.04,     target: x86_64-unknown-linux-gnu }
           - { runner: ubuntu-26.04-arm, target: aarch64-unknown-linux-gnu }
-          - { runner: windows-latest,   target: x86_64-pc-windows-msvc }
+          - { runner: windows-2025,     target: x86_64-pc-windows-msvc }
           - { runner: macos-26-intel,   target: x86_64-apple-darwin }
-          - { runner: macos-latest,     target: aarch64-apple-darwin }
+          - { runner: macos-26,         target: aarch64-apple-darwin }
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -89,7 +89,7 @@ jobs:
   tools:
     name: ${{ matrix.name }}
     if: *skip_lints
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
 
     strategy:
       matrix:
@@ -127,7 +127,7 @@ jobs:
   tests-alpine:
     name: "tests / alpine / python 3.14"
     if: *skip_tests
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -201,7 +201,7 @@ jobs:
     uses: $/.github/workflows/py-bench.yaml
     with:
       runners: >-
-        ["ubuntu-latest", "windows-latest", "macos-26-intel"]
+        ["ubuntu-26.04", "windows-2025", "macos-26-intel"]
 
   py-bench-aarch64:
     name: "py-bench / aarch64"
@@ -216,13 +216,13 @@ jobs:
     uses: $/.github/workflows/py-bench.yaml
     with:
       runners: >-
-        ["ubuntu-26.04-arm", "windows-11-arm", "macos-latest"]
+        ["ubuntu-26.04-arm", "windows-11-arm", "macos-26"]
 
   build-sdist:
     name: "build sdist"
     if: >-
       ${{ !contains(github.event.pull_request.labels.*.name, 'skip: wheels build') }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -249,7 +249,7 @@ jobs:
       }}
 
     name: "Publish to PyPI"
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     needs: [
       build-sdist,
       manylinux,
@@ -289,7 +289,7 @@ jobs:
     if: ${{ github.ref_type == 'tag' && always() && !failure() && !cancelled() }}
 
     name: "Publish to GitHub Release"
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     needs: [
       build-sdist,
       manylinux,
