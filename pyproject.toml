@@ -53,25 +53,25 @@ Changelog = "https://github.com/lava-sh/crc32c-rs/blob/main/CHANGELOG.md"
 [dependency-groups]
 typos = ["typos == 1.51.1"]
 zizmor = ["zizmor == 1.31.1"]
-rumdl = ["rumdl == 0.3.0"]
+rumdl = ["rumdl == 0.3.2"]
 maturin = [
     "maturin == 1.15.0 ; sys_platform != 'linux'",
     "maturin[patchelf] == 1.15.0 ; sys_platform == 'linux'",
 ]
-pytest = ["pytest == 9.1.1"]
+pytest = ["pytest == 9.2.0"]
 tests = [
     { include-group = "pytest" },
     "pytest-check == 3.0.3",
     "py-cpuinfo2 == 10.1.1",
 ]
 wasm-tests = [
-    "pytest-pyodide == 0.59.2",
+    "pytest-pyodide == 0.59.4",
     "pytest-httpserver == 1.2.0",
     { include-group = "pytest" },
 ]
 ci = [
-    "ty == 0.0.89",
-    "ruff == 0.17.1",
+    "ty == 0.0.94",
+    "ruff == 0.17.3",
     { include-group = "tests" },
     { include-group = "pytest" },
     { include-group = "maturin" },
