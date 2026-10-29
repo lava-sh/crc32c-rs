@@ -179,6 +179,15 @@ jobs:
     needs: [ tests, tests-alpine, cargo-fmt, cargo-clippy, tools ]
     uses: $/.github/workflows/macos.yaml
 
+  android:
+    if: >-
+      ${{
+          !contains(github.event.pull_request.labels.*.name, 'skip: wheels build') &&
+          always() && !failure() && !cancelled() 
+      }}
+    needs: [ tests, tests-alpine, cargo-fmt, cargo-clippy, tools ]
+    uses: $/.github/workflows/android.yaml
+
   wasm:
     if: >-
       ${{
@@ -256,6 +265,7 @@ jobs:
       musllinux,
       windows,
       macos,
+      android,
       wasm,
     ]
     environment: pypi
