@@ -67,7 +67,7 @@ jobs:
           - { runner: ubuntu-26.04-arm, target: aarch64-unknown-linux-gnu }
           - { runner: windows-2025,     target: x86_64-pc-windows-msvc }
           - { runner: macos-26-intel,   target: x86_64-apple-darwin }
-          - { runner: macos-26,         target: aarch64-apple-darwin }
+          - { runner: xcode-27,         target: aarch64-apple-darwin }
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -233,7 +233,7 @@ jobs:
     uses: $/.github/workflows/py-bench.yaml
     with:
       runners: >-
-        ["ubuntu-26.04-arm", "windows-11-arm", "macos-26"]
+        ["ubuntu-26.04-arm", "windows-11-arm", "xcode-27"]
 
   build-sdist:
     name: "build sdist"
