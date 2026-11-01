@@ -62,7 +62,9 @@ jobs:
           cache-key-prefix: kache-${{ matrix.runner }}
 
       - name: "Install cargo-codspeed"
-        uses: taiki-e/install-action@cargo-codspeed # zizmor: ignore[unpinned-uses]
+        uses: taiki-e/install-action@main # zizmor: ignore[unpinned-uses]
+        with:
+          tool: cargo-codspeed@latest
 
       - name: "Build benchmarks"
         run: cargo codspeed build --measurement-mode ${{ matrix.mode }} --package crc32c-benchmarks
