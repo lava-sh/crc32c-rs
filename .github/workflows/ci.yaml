@@ -81,7 +81,7 @@ jobs:
           github-cache: true
           cache-executables: true
           cache-dir: ${{ runner.temp }}/kache
-          cache-key-prefix: kache-${{ matrix.runner }}
+          cache-key-prefix: kache-${{ matrix.target }}
 
       - uses: dtolnay/rust-toolchain@nightly # zizmor: ignore[unpinned-uses]
         with:
