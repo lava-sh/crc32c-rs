@@ -67,17 +67,21 @@ jobs:
           - { runner: ubuntu-26.04-arm, target: aarch64-unknown-linux-gnu }
           - { runner: windows-2025,     target: x86_64-pc-windows-msvc }
           - { runner: macos-26-intel,   target: x86_64-apple-darwin }
-          - { runner: macos-26,         target: aarch64-apple-darwin }
+          - { runner: xcode-27,         target: aarch64-apple-darwin }
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
 
-      - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
+      - uses: kunobi-ninja/kache-action@ad7317540dcdd71c904f7a60a87b620a0c0e67ed # v1
         if: *is_pull_request
         with:
-          lookup-only: false # zizmor: ignore[cache-poisoning]
-          shared-key: cargo-clippy-${{ matrix.target }}
+          version: "v2.0.0-rc.3"
+          pr-comment: false
+          github-cache: true
+          cache-executables: true
+          cache-dir: ${{ runner.temp }}/kache
+          cache-key-prefix: kache-${{ matrix.target }}
 
       - uses: dtolnay/rust-toolchain@nightly # zizmor: ignore[unpinned-uses]
         with:
@@ -85,6 +89,10 @@ jobs:
           targets: ${{ matrix.target }}
 
       - run: cargo clippy --target ${{ matrix.target }} --all-targets --all-features
+
+      - name: "kache stats"
+        if: *is_pull_request
+        run: kache stats --full
 
   tools:
     name: ${{ matrix.name }}
@@ -225,7 +233,7 @@ jobs:
     uses: $/.github/workflows/py-bench.yaml
     with:
       runners: >-
-        ["ubuntu-26.04-arm", "windows-11-arm", "macos-26"]
+        ["ubuntu-26.04-arm", "windows-11-arm", "xcode-27"]
 
   build-sdist:
     name: "build sdist"

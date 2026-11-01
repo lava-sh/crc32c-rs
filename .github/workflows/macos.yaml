@@ -26,14 +26,14 @@ jobs:
           }
           - {
             # Apple Silicon M1-M6
-            runner: macos-26,
+            runner: xcode-27,
             target: aarch64-apple-darwin,
             interpreter: *interpreters,
             maturin-build-args: "--features mimalloc",
           }
           - {
             # Universal binary (Intel + Apple Silicon)
-            runner: macos-26,
+            runner: xcode-27,
             target: universal2-apple-darwin,
             interpreter: *interpreters,
             maturin-build-args: "--features mimalloc",
@@ -52,7 +52,7 @@ jobs:
       - uses: kunobi-ninja/kache-action@ad7317540dcdd71c904f7a60a87b620a0c0e67ed # v1
         if: *is_pull_request
         with:
-          version: "v2.0.0-rc.1"
+          version: "v2.0.0-rc.3"
           pr-comment: false
           github-cache: true
           cache-executables: true
