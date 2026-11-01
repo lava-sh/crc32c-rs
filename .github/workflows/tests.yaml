@@ -51,7 +51,7 @@ jobs:
           github-cache: true
           cache-executables: true
           cache-dir: ${{ runner.temp }}/kache
-          cache-key-prefix: kache-${{ matrix.runner }}
+          cache-key-prefix: kache-${{ matrix.runner }}-${{ matrix.python-version }}
 
       - name: "Create and activate .venv"
         shell: bash
