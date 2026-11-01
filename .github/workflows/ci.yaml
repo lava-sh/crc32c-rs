@@ -73,11 +73,15 @@ jobs:
         with:
           persist-credentials: false
 
-      - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
+      - uses: kunobi-ninja/kache-action@ad7317540dcdd71c904f7a60a87b620a0c0e67ed # v1
         if: *is_pull_request
         with:
-          lookup-only: false # zizmor: ignore[cache-poisoning]
-          shared-key: cargo-clippy-${{ matrix.target }}
+          version: "v2.0.0-rc.3"
+          pr-comment: false
+          github-cache: true
+          cache-executables: true
+          cache-dir: ${{ runner.temp }}/kache
+          cache-key-prefix: kache-${{ matrix.runner }}
 
       - uses: dtolnay/rust-toolchain@nightly # zizmor: ignore[unpinned-uses]
         with:
@@ -85,6 +89,10 @@ jobs:
           targets: ${{ matrix.target }}
 
       - run: cargo clippy --target ${{ matrix.target }} --all-targets --all-features
+
+      - name: "kache stats"
+        if: *is_pull_request
+        run: kache stats --full
 
   tools:
     name: ${{ matrix.name }}
