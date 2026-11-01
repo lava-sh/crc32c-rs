@@ -72,6 +72,10 @@ jobs:
       - name: "Run maturin"
         run: maturin build --out wheels --features mimalloc
 
+      - name: "kache stats"
+        if: *is_pull_request
+        run: kache stats --full
+
       - name: "Install built wheel"
         run: uv pip install crc32c-rs --no-index --find-links wheels --force-reinstall
 
