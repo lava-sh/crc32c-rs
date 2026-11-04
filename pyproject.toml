@@ -51,8 +51,8 @@ Issues = "https://github.com/lava-sh/crc32c-rs/issues"
 Changelog = "https://github.com/lava-sh/crc32c-rs/blob/main/CHANGELOG.md"
 
 [dependency-groups]
-typos = ["typos == 1.51.1"]
-zizmor = ["zizmor == 1.31.1"]
+typos = ["typos == 1.52.0"]
+zizmor = ["zizmor == 1.32.0"]
 rumdl = ["rumdl == 0.3.2"]
 maturin = [
     "maturin == 1.16.0 ; sys_platform != 'linux'",
@@ -70,7 +70,7 @@ wasm-tests = [
     { include-group = "pytest" },
 ]
 ci = [
-    "ty == 0.0.94",
+    "ty == 0.0.97",
     "ruff == 0.17.3",
     { include-group = "tests" },
     { include-group = "pytest" },
