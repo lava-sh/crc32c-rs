@@ -6,6 +6,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0).
 
 ## [Unreleased] - ReleaseDate
 
+## [0.0.8] - 04.11.2026
+
+### Features
+
+* Build Android wheels for `x86_64` and `aarch64` (API level 24). (by [@chirizxc][gh-chirizxc])
+
+### Misc
+
+* Cross-compile the `i686-unknown-linux-gnu` target via Zig. (by [@chirizxc][gh-chirizxc])
+* Replace `sccache` with `kache` for CI caching. (by [@chirizxc][gh-chirizxc])
+* Bump `pyodide` from 0.29.4 to 0.29.5. (by [@chirizxc][gh-chirizxc])
+
 ## [0.0.7] - 18.10.2026
 
 ### Features
@@ -99,8 +111,9 @@ First release.
 
 [gh-chirizxc]: https://github.com/chirizxc
 
-[Unreleased]: https://github.com/lava-sh/crc32c-rs/compare/0.0.7...HEAD
+[Unreleased]: https://github.com/lava-sh/crc32c-rs/compare/0.0.8...HEAD
 
+[0.0.8]: https://github.com/lava-sh/crc32c-rs/compare/0.0.7...0.0.8
 [0.0.7]: https://github.com/lava-sh/crc32c-rs/compare/0.0.6...0.0.7
 [0.0.6]: https://github.com/lava-sh/crc32c-rs/compare/0.0.5...0.0.6
 [0.0.5]: https://github.com/lava-sh/crc32c-rs/compare/0.0.4...0.0.5
