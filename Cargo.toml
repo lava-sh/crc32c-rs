@@ -24,7 +24,7 @@ pyo3 = {
 mimalloc = {
     optional = true,
     git = "https://github.com/microsoft/mimalloc.git", 
-    rev = "73384dcdf32a50e17fb23109781d4c4ec1429bac",
+    rev = "a5c2a88ad18c4c294c0d0830082b868179fa87d8",
     features = [
         "override",
         "local_dynamic_tls",
@@ -35,7 +35,7 @@ mimalloc = {
 mimalloc = {
     optional = true,
     git = "https://github.com/microsoft/mimalloc.git", 
-    rev = "73384dcdf32a50e17fb23109781d4c4ec1429bac",
+    rev = "a5c2a88ad18c4c294c0d0830082b868179fa87d8",
     # See: https://github.com/lava-sh/toml-rs/issues/229
     #
     # mimalloc "override" feature installs process-wide malloc interposition and
@@ -48,7 +48,7 @@ mimalloc = {
 mimalloc = {
     optional = true,
     git = "https://github.com/microsoft/mimalloc.git", 
-    rev = "73384dcdf32a50e17fb23109781d4c4ec1429bac",
+    rev = "a5c2a88ad18c4c294c0d0830082b868179fa87d8",
     features = [],
 }
 
