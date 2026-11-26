@@ -23,7 +23,7 @@ pyo3 = {
 [target.'cfg(not(any(target_os = "macos", target_os = "windows")))'.dependencies]
 mimalloc = {
     optional = true,
-    tag = "v3.7.0",
+    tag = "v3.7.1",
     git = "https://github.com/microsoft/mimalloc.git",
     features = [
         "override",
@@ -34,7 +34,7 @@ mimalloc = {
 [target.'cfg(target_os = "macos")'.dependencies]
 mimalloc = {
     optional = true,
-    tag = "v3.7.0",
+    tag = "v3.7.1",
     git = "https://github.com/microsoft/mimalloc.git",
     # See: https://github.com/lava-sh/toml-rs/issues/229
     #
@@ -47,7 +47,7 @@ mimalloc = {
 [target.'cfg(target_os = "windows")'.dependencies]
 mimalloc = {
     optional = true,
-    tag = "v3.7.0",
+    tag = "v3.7.1",
     git = "https://github.com/microsoft/mimalloc.git",
     features = [],
 }
